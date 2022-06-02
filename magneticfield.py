@@ -4,6 +4,20 @@ import matplotlib.pyplot as plt
 
 pp = pprint.PrettyPrinter(indent=4)
 
+"""
+PIPELINE
+– 3D sampling of the magnetosphere and calculation of the magnetic 
+field vector B;
+– Definition of the Alfvén radius and of inner, middle and outer magnetosphere;
+– Calculation of the number density ne of the non-thermal electrons in each 
+point of the grid;
+– Calculation of emission and absorption coeﬃcients;
+– Integration of the transfer equation along paths parallel to the 
+line of sight;
+– Brightness distribution in the plane of the sky, total flux emitted 
+toward the Earth.
+"""
+
 ##############################################################################
 # Acronyms and Glossary
 # LoS: Line of Sight
@@ -39,9 +53,9 @@ m = 1/2 * Bp * R_ucd
 L = 20
 
 # Angles in degrees:
-beta = 30  # Angle from rotation to magnetic axis
-phi = rotation = 30 # UCD star rotation
-inc = inclination = 45  # Orbit inclination measured from the Line of Sight
+beta = 5  # Angle from rotation to magnetic axis
+phi = rotation = 5  # UCD star rotation
+inc = inclination = 84  # Orbit inclination measured from the Line of Sight
 # Note: orbits with the rotation axis in the plane of the sky, does not modify 
 # the coordinates system
 
@@ -52,21 +66,24 @@ i_r = i_rad = np.deg2rad(inc)
 
 ##############################################################################
 # Vectors of the LoS (Line of Sight) cube, expressed in the LoS coordinates
-# Converted meshgrid to array of 3D vectors. Each vector contains the
-# geometric coordinates of a 3D point in the grid. Grid in the orientation
-# and coordinates of the LoS (x', y', z'). The coordinates
-# of each vector represents the center of each of the voxels of the grid.
+# Converted grid to array of 3D vectors. Each vector contains the geometric
+# coordinates of a 3D point in the grid. Grid in the orientation and
+# coordinates of the LoS (x', y', z'). The coordinates of each vector
+# represents the center of each of the voxels of the grid.
 
-x_ = np.linspace(-L/2, L/2, 3)
-y_ = np.linspace(-L/2, L/2, 3)
-z_ = np.linspace(-L/2, L/2, 3)
+# Num points in edge (use odd number in order to get one dot in the center
+# of the grid: center of the UCD):
+n = 7
+x_ = np.linspace(-L/2, L/2, n)
+y_ = np.linspace(-L/2, L/2, n)
+z_ = np.linspace(-L/2, L/2, n)
 
 x, y, z = np.meshgrid(x_, y_, z_)
 vectors = []
 
-for i in range(0, 3):
-    for j in range(0, 3):
-        for k in range(0, 3):
+for i in range(0, n):
+    for j in range(0, n):
+        for k in range(0, n):
             vectors.append([x[i, j, k], y[i, j, k], z[i, j, k]])
 
 # pp.pprint(vectors)
@@ -149,26 +166,71 @@ for vec_LoS_in_B in vectors_LoS_in_B:
     if x == 0 and y == 0 and z == 0:
         continue
     r = np.sqrt(x**2 + y**2 + z**2)
-    # Compute Bx, By, Bz in the points of the meshgrid given by the LoS cube,
+    # Compute Bx, By, Bz in the points of the grid given by the LoS cube,
     #   but expressed in magnetic coordinates x, y, z 
     Bx = 3*m * (x*z/r**5)
     By = 3*m * (y*z/r**5)
     Bz = m * (3*z**2/r**5 - 1/r**3)
     # Magnetic Field Vector B in Magnetic Coordinates System (x, y, z)
     B = np.array([Bx, By, Bz])
-    # Magnetic Field Vector B in the LoS Coordinates System
+    # Magnetic Field Vector B in the LoS Coordinates System (x', y', z')
     B_LoS = R.dot(B)
     Bs_LoS.append(B_LoS)
 
 print()
-pp.pprint(Bs_LoS)
+# pp.pprint(Bs_LoS)
 
 ###############################################################################
 # Plotting
-
+"""
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
 for vector in vectors_LoS_in_B:
     ax.scatter(vector[0], vector[1], vector[2], color='b')
+plt.show()
+"""
+###############################################################################
+# Make unit vectors from magnetic field vectors B in the LoS coordinates system
+Bs_LoS_unit = []
+for B_LoS in Bs_LoS:
+    B_LoS_unit = B_LoS / np.linalg.norm(B_LoS)
+    Bs_LoS_unit.append(B_LoS_unit)
+print()
+pp.pprint(Bs_LoS_unit)
+
+
+###############################################################################
+# Plotting
+fig = plt.figure(figsize=(8, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+print(len(vectors_LoS_in_B))
+print(len(Bs_LoS_unit))
+
+# Remove point 0,0,0 from mesh (center of the star), to avoid mathematical
+# singularities
+vectors_LoS_in_B_no_null = []
+for vector_LoS_in_B in vectors_LoS_in_B:
+    if vector_LoS_in_B.any():
+        vectors_LoS_in_B_no_null.append(vector_LoS_in_B)
+
+print(len(vectors_LoS_in_B_no_null))
+print(len(Bs_LoS_unit))
+for i in range(len(vectors_LoS_in_B_no_null)):
+    vector_LoS_in_B = vectors_LoS_in_B_no_null[i]
+    B_LoS_unit = Bs_LoS_unit[i]
+
+    # Grid points
+    x = vector_LoS_in_B[0]
+    y = vector_LoS_in_B[1]
+    z = vector_LoS_in_B[2]
+    ax.scatter(x, y, z, color='b')
+
+    # B vectors in each grid point
+    u = B_LoS_unit[0]
+    v = B_LoS_unit[1]
+    w = B_LoS_unit[2]
+    ax.quiver(x, y, z, 3*u, 3*v, 3*w)
+
 plt.show()
 
