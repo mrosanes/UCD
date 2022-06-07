@@ -6,16 +6,15 @@ pp = pprint.PrettyPrinter(indent=4)
 
 """
 PIPELINE
-– 3D sampling of the magnetosphere and calculation of the magnetic 
-field vector B;
-– Definition of the Alfvén radius and of inner, middle and outer magnetosphere;
+– Magnetosphere 3D sampling and magnetic field vectors B calculation
+– Definition of the Alfvén radius and of inner, middle and outer magnetosphere
 – Calculation of the number density ne of the non-thermal electrons in each 
-point of the grid;
-– Calculation of emission and absorption coeﬃcients;
+point of the grid
+– Calculation of emission and absorption coefficients
 – Integration of the transfer equation along paths parallel to the 
-line of sight;
+line of sight
 – Brightness distribution in the plane of the sky, total flux emitted 
-toward the Earth.
+toward the Earth
 """
 
 ##############################################################################
@@ -101,8 +100,6 @@ B = 1/2 (Bp/RStar)³
 # Bx = 3m xz/r^5
 # By = 3m yz/r^5
 # Bz = m(3z^2/r^5 - 1/r^3)
-
-
 
 ##############################################################################
 # Free Parameters of the Model (Parameter ranges indicated with: [x, y])
