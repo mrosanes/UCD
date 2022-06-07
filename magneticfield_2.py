@@ -23,6 +23,72 @@ toward the Earth.
 # LoS: Line of Sight
 
 ##############################################################################
+# Important Parameters
+""" 
+r: Radius Vector:
+   Distance from the star center till a concrete point outside of the star:
+   (At the surface of the star: r = Rstar) 
+"""
+
+##############################################################################
+# Formulas
+
+"""
+# Ram pressure:
+p{ram} = ρ.v^2
+
+p{ram} = B^2 / (8*PI) ~ np Tp K{B}
+
+v(r) = v(inf).(1 - Rstar/r)
+  with r: [Rstar, +inf]
+
+Delta = Smin / Smax 
+  -> if Smin == Smax -> Delta = 1 
+
+L = (Bp^2/(16.PI.np.Tp.K{B}))^(1/6)
+  L ~ [18.Rstar, 23.Rstar] for 
+  Bp ~ [5000 Gauss, 10000 Gauss]
+
+Gas density in outer region:
+ro = dM / (4.PI.r².v(r)) 
+  with dM: loss of mass of the star in solar masses per year
+
+Equation of field line in magnetic dipole:
+r = L.cos²(lambda)
+ with: 
+   . lambda: angle between magnetic equatorial plane and radius vector 'r'
+   
+m = 1/2 (Bp.RStar)
+   with: Bp: Strength of B at the star pole   
+"""
+##############################################################################
+# Free Parameters of the Model (Parameter ranges indicated with: [x, y])
+
+"""
+– l: equatorial thickness of the magnetic shell 
+– l/rA: equatorial thickness of the magnetic shell in Alfvén Radius units 
+    l/rA: [0.025, 1];    
+– Ne: total number density of the non-thermal electrons: 
+    Ne: [10^2, 10^6 cm^(−3)], with Ne < n{e,A}
+    with:
+      n{e,A}: number density of thermal plasma at the Alfvén point
+– δ: spectral index of the non-thermal electron energy distribution
+    δ: [2, 4]
+– Tp:  temperature of the inner magnetosphere
+    Tp: [10^5 K, 10^7 K]
+- np: number plasma density at the base of the inner magnetosphere 
+    np: [10^7 –10^10 cm(−3)]
+    with: 
+      Tp.np.k{B} = p{ram} -> Tp.np = p{ram}/k{B}: [10^14 cgs – 10^15 cgs]
+  (Tp and np, related with the plasma in the Star post-shock region: inside 
+  the region protected by the Star closed magnetic field lines)       
+– Rotation: if the star does not rotate, the thermal plasma density is 
+    considered constant within the inner magnetosphere; if the star rotates, 
+    the thermal plasma density decreases linearly outward, while the 
+    temperature increases. Tp and np are considered as the values at r = R∗
+"""
+
+##############################################################################
 # Constants used along the script:
 
 # Jupyter Radius in meters [m] ~ Brown Dwarf Radius
@@ -44,7 +110,7 @@ Bp = 1e4
 # By = 3m yz/r^5
 # Bz = m(3z^2/r^5 - 1/r^3)
 
-# With Magnetic Momentum:  m = 1/2 (Bp Rs) 
+# With Magnetic Momentum:  m = 1/2 (Bp Rs)
 m = 1/2 * Bp * R_ucd
 # print(m)
 
@@ -56,7 +122,7 @@ L = 20
 beta = 5  # Angle from rotation to magnetic axis
 phi = rotation = 5  # UCD star rotation
 inc = inclination = 84  # Orbit inclination measured from the Line of Sight
-# Note: orbits with the rotation axis in the plane of the sky, does not modify 
+# Note: orbits with the rotation axis in the plane of the sky, does not modify
 # the coordinates system
 
 # Angles to radians:
@@ -148,13 +214,13 @@ R_inv = R1_inv.dot(R2_inv).dot(R3_inv)
 # [LoS] coordinates (each point representing the center of each voxel)
 
 # 1:
-# vectors_LoS_in_B: Vectors of the Line of Sight cube (LoS coordinates), 
+# vectors_LoS_in_B: Vectors of the Line of Sight cube (LoS coordinates),
 #   expressed in the magnetic coordinates
 vectors_LoS_in_B = []
 for vector in vectors:
     vec_LoS_in_B = R_inv.dot(vector)
     vectors_LoS_in_B.append(vec_LoS_in_B)
-# pp.pprint(vectors_LoS_in_B)    
+# pp.pprint(vectors_LoS_in_B)
 
 # 2:
 # B = [Bx, By, Bz], in the points given by the grid of the LoS cube
@@ -167,7 +233,7 @@ for vec_LoS_in_B in vectors_LoS_in_B:
         continue
     r = np.sqrt(x**2 + y**2 + z**2)
     # Compute Bx, By, Bz in the points of the grid given by the LoS cube,
-    #   but expressed in magnetic coordinates x, y, z 
+    #   but expressed in magnetic coordinates x, y, z
     Bx = 3*m * (x*z/r**5)
     By = 3*m * (y*z/r**5)
     Bz = m * (3*z**2/r**5 - 1/r**3)
