@@ -23,8 +23,39 @@ toward the Earth.
 # LoS: Line of Sight
 
 ##############################################################################
+# Constants:
+
+# Jupyter Radius in meters [m] ~ Brown Dwarf Radius
+Rj = 7e7
+
+# UCD Radius
+R = R_ucd = Rstar = 1*Rj
+
+# Star Period of Rotation in days
+Pr = 1
+
+# Total length of the cube:
+# L = 20 * R_ucd
+L = 20
+
+# Bp in Gauss [G] ; Strength of the B at the pole of the star
+Bp = 1e4
+
+# Magnetic Momentum:  m = 1/2 (Bp Rs)
+m = 1/2 * Bp * R_ucd
+
+"""
+Notes about magnetic field
+Units of magnetic field in Gauss:
+Question: Shall I use the distances in meters or in Star Radius?
+"""
+##############################################################################
 # Important Parameters
+
 """ 
+Pr: Period of Rotation:
+  Pr ~ 1 day
+
 r: Radius Vector:
    Distance from the star center till a concrete point outside of the star:
    (At the surface of the star: r = Rstar) 
@@ -60,7 +91,19 @@ r = L.cos²(lambda)
    
 m = 1/2 (Bp.RStar)
    with: Bp: Strength of B at the star pole   
+
+# Magnetic energy density in the equatorial plane of the “inner” magnetosphere;
+  strength of a dipolar magnetic field:
+B = 1/2 (Bp/RStar)³
 """
+
+# Dipole Magnetic Field Definitions in the magnetic field frame:
+# Bx = 3m xz/r^5
+# By = 3m yz/r^5
+# Bz = m(3z^2/r^5 - 1/r^3)
+
+
+
 ##############################################################################
 # Free Parameters of the Model (Parameter ranges indicated with: [x, y])
 
@@ -89,43 +132,16 @@ m = 1/2 (Bp.RStar)
 """
 
 ##############################################################################
-# Constants used along the script:
+# Angles
 
-# Jupyter Radius in meters [m] ~ Brown Dwarf Radius
-Rj = 7e7
-
-# UCD Radius
-R = R_ucd = 1*Rj
-
-"""
-Notes about magnetic field
-Units of magnetic field in Gauss: 
-Question: Shall I use the distances in meters or in Star Radiuses?
-"""
-# Bp in Gauss [G] ; Strength of the B at the pole of the star
-Bp = 1e4
-
-# Dipole Magnetic Field Definitions in the magnetic field frame:
-# Bx = 3m xz/r^5
-# By = 3m yz/r^5
-# Bz = m(3z^2/r^5 - 1/r^3)
-
-# With Magnetic Momentum:  m = 1/2 (Bp Rs)
-m = 1/2 * Bp * R_ucd
-# print(m)
-
-# Total length of the cube:
-# L = 20 * R_ucd
-L = 20
-
-# Angles in degrees:
+# Expressed in degrees:
 beta = 5  # Angle from rotation to magnetic axis
 phi = rotation = 5  # UCD star rotation
 inc = inclination = 84  # Orbit inclination measured from the Line of Sight
 # Note: orbits with the rotation axis in the plane of the sky, does not modify
 # the coordinates system
 
-# Angles to radians:
+# Transformed to radians:
 b_r = b_rad = np.deg2rad(beta)
 p_r = p_rad = np.deg2rad(phi)
 i_r = i_rad = np.deg2rad(inc)
@@ -255,6 +271,7 @@ for vector in vectors_LoS_in_B:
     ax.scatter(vector[0], vector[1], vector[2], color='b')
 plt.show()
 """
+
 ###############################################################################
 # Make unit vectors from magnetic field vectors B in the LoS coordinates system
 Bs_LoS_unit = []
