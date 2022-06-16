@@ -165,12 +165,13 @@ z_ = np.linspace(-L/2, L/2, n)
 x, y, z = np.meshgrid(x_, y_, z_)
 vectors = []
 
+# vectors: vectors of each of the points of the grid in the LoS coordinates
 for i in range(0, n):
     for j in range(0, n):
         for k in range(0, n):
             vectors.append([x[i, j, k], y[i, j, k], z[i, j, k]])
 
-# pp.pprint(vectors)
+pp.pprint(vectors)
 
 """
 fig = plt.figure(figsize=(8, 8))
@@ -286,8 +287,10 @@ pp.pprint(Bs_LoS_unit)
 
 ###############################################################################
 # Plotting
+""" UNCOMMENT AFTER FINDING MIDDLE MAGNETOSPHERE
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
+
 
 print(len(vectors_LoS_in_B))
 print(len(Bs_LoS_unit))
@@ -318,16 +321,54 @@ for i in range(len(vectors_LoS_in_B_no_null)):
     ax.quiver(x, y, z, 3*u, 3*v, 3*w)
 
 plt.show()
-
+"""
 ###############################################################################
 """
+Finding the points belonging to the middle magnetosphere
 - Points in the middle magnetosphere (between the inner and the outer
   magnetosphere): the ones with a clear contribution to the UCD radio emission
   arriving to the earth. The radio emission occurs in this zone, which contains
   the open magnetic field lines that generating the current sheets
 - The radio emission in the inner magnetosphere is supposed to be
-  self-absorbed by the UCD
+  self-absorbed by the UCD (Ra < r < Ra + l_mid
+  with l_mid: width of the middle magnetosphere
 - In the outer magnetosphere the density of electrons decreases with the
   distance, which also lowers its contribution to the radio emission
 """
+Ra = 6
+# l for the middle magnetosphere added to Ra
+l_mid = 6
 
+points_grid_middle_magnetosphere = []
+for i in range(len(vectors_LoS_in_B)):
+    # We first find the angle λ (lam) associated with the specific point of
+    # the LoS grid expressed in B coordinates. It is the angle between the
+    # magnetic dipole "equatorial" plane and the radius vector r of the point
+    vector_LoS_in_B = vectors_LoS_in_B[i]
+    if vector_LoS_in_B[0] or vector_LoS_in_B[1]:
+        Vxy = np.sqrt(vector_LoS_in_B[0]**2 + vector_LoS_in_B[1]**2)
+        Vz = vector_LoS_in_B[2]
+        lam = np.arctan(Vz/Vxy)
+
+        # Now by using the equation of the dipole field lines
+        # r = L cos²λ
+        # with Vxyz being L
+        Vxyz = np.sqrt(vector_LoS_in_B[0]**2 +
+                       vector_LoS_in_B[1]**2 +
+                       vector_LoS_in_B[2]**2)
+        print(Vxyz)
+        # We have the longitude 'r' and λ of the specific point of the grid
+        # that have been calculated in the B coordinate system:
+        r = Vxyz * (np.cos(lam))**2
+
+        r_min = Ra * (np.cos(lam))**2
+        r_max = (Ra + l_mid) * (np.cos(lam))**2
+        if r_min < r < r_max:
+            point_grid_middle_magnetosphere = (
+                vectors[i], vector_LoS_in_B, lam)
+            points_grid_middle_magnetosphere.append(
+                point_grid_middle_magnetosphere)
+
+pp.pprint(points_grid_middle_magnetosphere)
+print(len(points_grid_middle_magnetosphere))
+print(len(vectors))
