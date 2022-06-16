@@ -329,21 +329,23 @@ Finding the points belonging to the middle magnetosphere
   magnetosphere): the ones with a clear contribution to the UCD radio emission
   arriving to the earth. The radio emission occurs in this zone, which contains
   the open magnetic field lines that generating the current sheets
-- The radio emission in the inner magnetosphere is supposed to be
-  self-absorbed by the UCD (Ra < r < Ra + l_mid
+  (Ra < r < Ra + l_mid)
   with l_mid: width of the middle magnetosphere
+- The radio emission in the inner magnetosphere is supposed to be
+  self-absorbed by the UCD 
 - In the outer magnetosphere the density of electrons decreases with the
   distance, which also lowers its contribution to the radio emission
 """
-Ra = 6
+Ra = 8
 # l for the middle magnetosphere added to Ra
-l_mid = 6
+l_mid = 2.5
 
 points_grid_middle_magnetosphere = []
 for i in range(len(vectors_LoS_in_B)):
     # We first find the angle λ (lam) associated with the specific point of
     # the LoS grid expressed in B coordinates. It is the angle between the
     # magnetic dipole "equatorial" plane and the radius vector r of the point
+    vector = vectors[i]
     vector_LoS_in_B = vectors_LoS_in_B[i]
     if vector_LoS_in_B[0] or vector_LoS_in_B[1]:
         Vxy = np.sqrt(vector_LoS_in_B[0]**2 + vector_LoS_in_B[1]**2)
@@ -356,7 +358,6 @@ for i in range(len(vectors_LoS_in_B)):
         Vxyz = np.sqrt(vector_LoS_in_B[0]**2 +
                        vector_LoS_in_B[1]**2 +
                        vector_LoS_in_B[2]**2)
-        print(Vxyz)
         # We have the longitude 'r' and λ of the specific point of the grid
         # that have been calculated in the B coordinate system:
         r = Vxyz * (np.cos(lam))**2
@@ -365,9 +366,24 @@ for i in range(len(vectors_LoS_in_B)):
         r_max = (Ra + l_mid) * (np.cos(lam))**2
         if r_min < r < r_max:
             point_grid_middle_magnetosphere = (
-                vectors[i], vector_LoS_in_B, lam)
+                vector, vector_LoS_in_B, lam)
             points_grid_middle_magnetosphere.append(
                 point_grid_middle_magnetosphere)
+            """
+            # Verification that the length 'r' of each specific point in the 
+            # middle magnetosphere is between (Ra < r < Ra + l_mid), and that
+            # the found points (vectors) have the same length regardless of 
+            # the system of coordinates in which they are expressed
+            print(np.sqrt(vector_LoS_in_B[0]**2
+                          + vector_LoS_in_B[1]**2
+                          + vector_LoS_in_B[2]**2
+                          ))
+            print(np.sqrt(vector[0] ** 2
+                          + vector[1] ** 2
+                          + vector[2] ** 2
+                          ))
+            print()
+            """
 
 pp.pprint(points_grid_middle_magnetosphere)
 print(len(points_grid_middle_magnetosphere))
