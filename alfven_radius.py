@@ -33,6 +33,7 @@ ro = Mlos / (4 * nup.pi * r**2 * vw)
 eq1 = Eq(-B**2/(8*nup.pi) + 1/2 * ro * vw**2 + 1/2 * ro * w**2 * d**2, 0)
 pp.pprint(solve(eq1))
 
+
 aa = 4*Mlos*w**2*(1-(nup.sin(bet))**2*(nup.cos(zet))**2)
 bb = 4*Mlos*(vinf**2)
 cc = -8*Mlos*Rs*(vinf**2)
@@ -50,4 +51,19 @@ np = 1e7  # [cm^(-3)]
 Tp = 1e6  # [K]
 
 L = (Bp**2 / (16 * nup.pi * np * kB * Tp)) ** (1/6)
+"""
+
+"""
+Inner magnetosphere:
+r < Ralfvén
+
+Middle magnetosphere:
+r > Ralfvén
+r < Ralfvén + l
+
+Outter magnetosphere
+r > Ralfvén + l
+
+with the equation of a field line:
+r = L [cos(lambda)]^2
 """
