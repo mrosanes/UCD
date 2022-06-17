@@ -60,7 +60,7 @@ Question: Shall I use the distances in meters or in Star Radius?
 Pr: Period of Rotation:
   Pr ~ 1 day
 
-r: Radius Vector:
+r: Radius vector:
    Distance from the star center till a concrete point outside of the star:
    (At the surface of the star: r = Rstar) 
 """
@@ -137,9 +137,9 @@ B = 1/2 (Bp/RStar)³
 # Angles
 
 # Expressed in degrees:
-beta = 5  # Angle from rotation to magnetic axis
-phi = rotation = 5  # UCD star rotation
-inc = inclination = 84  # Orbit inclination measured from the Line of Sight
+beta = 1  # 5  # Angle from rotation to magnetic axis
+phi = rotation = 1  # 5  # UCD star rotation
+inc = inclination = 1  # 84 # Orbit inclination measured from the Line of Sight
 # Note: orbits with the rotation axis in the plane of the sky, does not modify
 # the coordinates system
 
@@ -149,7 +149,7 @@ p_r = p_rad = np.deg2rad(phi)
 i_r = i_rad = np.deg2rad(inc)
 
 ##############################################################################
-# Vectors of the LoS (Line of Sight) cube, expressed in the LoS coordinates
+# Points of the LoS (Line of Sight) cube, expressed in the LoS coordinates
 # Converted grid to array of 3D vectors. Each vector contains the geometric
 # coordinates of a 3D point in the grid. Grid in the orientation and
 # coordinates of the LoS (x', y', z'). The coordinates of each vector
@@ -157,27 +157,27 @@ i_r = i_rad = np.deg2rad(inc)
 
 # Num points in edge (use odd number in order to get one dot in the center
 # of the grid: center of the UCD):
-n = 7
+n = 3
 x_ = np.linspace(-L/2, L/2, n)
 y_ = np.linspace(-L/2, L/2, n)
 z_ = np.linspace(-L/2, L/2, n)
 
 x, y, z = np.meshgrid(x_, y_, z_)
-vectors = []
+points = []
 
-# vectors: vectors of each of the points of the grid in the LoS coordinates
+# points: vectors of each of the points of the grid in the LoS coordinates
 for i in range(0, n):
     for j in range(0, n):
         for k in range(0, n):
-            vectors.append([x[i, j, k], y[i, j, k], z[i, j, k]])
+            points.append([x[i, j, k], y[i, j, k], z[i, j, k]])
 
-pp.pprint(vectors)
+pp.pprint(points)
 
 """
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
-for vector in vectors:
-    ax.scatter(vector[0], vector[1], vector[2], color='b')   
+for point in points:
+    ax.scatter(point[0], point[1], point[2], color='b')
 plt.show()
 """
 
@@ -218,11 +218,11 @@ R3_inv = R3.transpose()
 """
 Notes about "complete" Rotation Matrices R and R_inv:
 
-R = R3 . R2 . R1 to go from vectors expressed in (x, y, z), to vectors
+R = R3 . R2 . R1 to go from points expressed in (x, y, z), to points
    expressed in (x', y', z')
 
-R^(-1) = R1^(-1) . R2^(-1) . R3^(-1) to go from vectors expressed 
-   in (x', y', z'), to vectors expressed in (x, y, z)
+R^(-1) = R1^(-1) . R2^(-1) . R3^(-1) to go from points expressed
+   in (x', y', z'), to points expressed in (x, y, z)
 """
 # Rotation Matrices (Complete Rotation)
 R = R3.dot(R2).dot(R1)
@@ -233,21 +233,21 @@ R_inv = R1_inv.dot(R2_inv).dot(R3_inv)
 # [LoS] coordinates (each point representing the center of each voxel)
 
 # 1:
-# vectors_LoS_in_B: Vectors of the Line of Sight cube (LoS coordinates),
+# points_LoS_in_B: Points of the Line of Sight cube (LoS coordinates),
 #   expressed in the magnetic coordinates
-vectors_LoS_in_B = []
-for vector in vectors:
-    vec_LoS_in_B = R_inv.dot(vector)
-    vectors_LoS_in_B.append(vec_LoS_in_B)
-# pp.pprint(vectors_LoS_in_B)
+points_LoS_in_B = []
+for point in points:
+    point_LoS_in_B = R_inv.dot(point)
+    points_LoS_in_B.append(point_LoS_in_B)
+# pp.pprint(points_LoS_in_B)
 
 # 2:
 # B = [Bx, By, Bz], in the points given by the grid of the LoS cube
 Bs_LoS = []
-for vec_LoS_in_B in vectors_LoS_in_B:
-    x = vec_LoS_in_B[0]
-    y = vec_LoS_in_B[1]
-    z = vec_LoS_in_B[2]
+for point_LoS_in_B in points_LoS_in_B:
+    x = point_LoS_in_B[0]
+    y = point_LoS_in_B[1]
+    z = point_LoS_in_B[2]
     if x == 0 and y == 0 and z == 0:
         continue
     r = np.sqrt(x**2 + y**2 + z**2)
@@ -270,8 +270,8 @@ print()
 """
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
-for vector in vectors_LoS_in_B:
-    ax.scatter(vector[0], vector[1], vector[2], color='b')
+for point in points_LoS_in_B:
+    ax.scatter(point[0], point[1], point[2], color='b')
 plt.show()
 """
 
@@ -287,41 +287,39 @@ pp.pprint(Bs_LoS_unit)
 
 ###############################################################################
 # Plotting
-""" UNCOMMENT AFTER FINDING MIDDLE MAGNETOSPHERE
+# UNCOMMENT AFTER FINDING MIDDLE MAGNETOSPHERE
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
 
-
-print(len(vectors_LoS_in_B))
+print(len(points_LoS_in_B))
 print(len(Bs_LoS_unit))
 
 # Remove point 0,0,0 from mesh (center of the star), to avoid mathematical
 # singularities
-vectors_LoS_in_B_no_null = []
-for vector_LoS_in_B in vectors_LoS_in_B:
-    if vector_LoS_in_B.any():
-        vectors_LoS_in_B_no_null.append(vector_LoS_in_B)
+points_LoS_in_B_no_null = []
+for point_LoS_in_B in points_LoS_in_B:
+    if point_LoS_in_B.any():
+        points_LoS_in_B_no_null.append(point_LoS_in_B)
 
-print(len(vectors_LoS_in_B_no_null))
+print(len(points_LoS_in_B_no_null))
 print(len(Bs_LoS_unit))
-for i in range(len(vectors_LoS_in_B_no_null)):
-    vector_LoS_in_B = vectors_LoS_in_B_no_null[i]
+for i in range(len(points_LoS_in_B_no_null)):
+    point_LoS_in_B = points_LoS_in_B_no_null[i]
     B_LoS_unit = Bs_LoS_unit[i]
 
     # Grid points
-    x = vector_LoS_in_B[0]
-    y = vector_LoS_in_B[1]
-    z = vector_LoS_in_B[2]
+    x = point_LoS_in_B[0]
+    y = point_LoS_in_B[1]
+    z = point_LoS_in_B[2]
     ax.scatter(x, y, z, color='b')
 
     # B vectors in each grid point
     u = B_LoS_unit[0]
     v = B_LoS_unit[1]
     w = B_LoS_unit[2]
-    ax.quiver(x, y, z, 3*u, 3*v, 3*w)
+    scale_factor = 3
+    ax.quiver(x, y, z, scale_factor*u, scale_factor*v, scale_factor*w)
 
-plt.show()
-"""
 ###############################################################################
 """
 Finding the points belonging to the middle magnetosphere
@@ -332,59 +330,69 @@ Finding the points belonging to the middle magnetosphere
   (Ra < r < Ra + l_mid)
   with l_mid: width of the middle magnetosphere
 - The radio emission in the inner magnetosphere is supposed to be
-  self-absorbed by the UCD 
+  self-absorbed by the UCD
 - In the outer magnetosphere the density of electrons decreases with the
   distance, which also lowers its contribution to the radio emission
 """
-Ra = 8
+Ra = 5
 # l for the middle magnetosphere added to Ra
-l_mid = 2.5
+l_mid = 4
 
 points_grid_middle_magnetosphere = []
-for i in range(len(vectors_LoS_in_B)):
+for i in range(len(points_LoS_in_B)):
     # We first find the angle λ (lam) associated with the specific point of
     # the LoS grid expressed in B coordinates. It is the angle between the
     # magnetic dipole "equatorial" plane and the radius vector r of the point
-    vector = vectors[i]
-    vector_LoS_in_B = vectors_LoS_in_B[i]
-    if vector_LoS_in_B[0] or vector_LoS_in_B[1]:
-        Vxy = np.sqrt(vector_LoS_in_B[0]**2 + vector_LoS_in_B[1]**2)
-        Vz = vector_LoS_in_B[2]
+    point = points[i]
+    point_LoS_in_B = points_LoS_in_B[i]
+    if point_LoS_in_B[0] or point_LoS_in_B[1]:
+        Vxy = np.sqrt(point_LoS_in_B[0]**2 + point_LoS_in_B[1]**2)
+        Vz = point_LoS_in_B[2]
         lam = np.arctan(Vz/Vxy)
 
         # Now by using the equation of the dipole field lines
         # r = L cos²λ
         # with Vxyz being L
-        Vxyz = np.sqrt(vector_LoS_in_B[0]**2 +
-                       vector_LoS_in_B[1]**2 +
-                       vector_LoS_in_B[2]**2)
+        Vxyz = np.sqrt(point_LoS_in_B[0]**2 +
+                       point_LoS_in_B[1]**2 +
+                       point_LoS_in_B[2]**2)
         # We have the longitude 'r' and λ of the specific point of the grid
         # that have been calculated in the B coordinate system:
         r = Vxyz * (np.cos(lam))**2
 
-        r_min = Ra * (np.cos(lam))**2
+        # Equation of the field line touching the Alvén Surface:
+        # Ra * (np.cos(lam))**2
+        r_min = Ra  # Emitting points are located outside the Alfvén Surface
         r_max = (Ra + l_mid) * (np.cos(lam))**2
         if r_min < r < r_max:
             point_grid_middle_magnetosphere = (
-                vector, vector_LoS_in_B, lam)
+                point, point_LoS_in_B, lam)
             points_grid_middle_magnetosphere.append(
                 point_grid_middle_magnetosphere)
+
+            x = point_LoS_in_B[0]
+            y = point_LoS_in_B[1]
+            z = point_LoS_in_B[2]
+            ax.scatter(x, y, z, color='r')
+
             """
             # Verification that the length 'r' of each specific point in the 
             # middle magnetosphere is between (Ra < r < Ra + l_mid), and that
-            # the found points (vectors) have the same length regardless of 
-            # the system of coordinates in which they are expressed
-            print(np.sqrt(vector_LoS_in_B[0]**2
-                          + vector_LoS_in_B[1]**2
-                          + vector_LoS_in_B[2]**2
+            # the distance to the found points is the same regardless
+            # of the system of coordinates in which they are expressed
+            print(np.sqrt(point_LoS_in_B[0]**2
+                          + point_LoS_in_B[1]**2
+                          + point_LoS_in_B[2]**2
                           ))
-            print(np.sqrt(vector[0] ** 2
-                          + vector[1] ** 2
-                          + vector[2] ** 2
+            print(np.sqrt(point[0] ** 2
+                          + point[1] ** 2
+                          + point[2] ** 2
                           ))
             print()
             """
+plt.show()
 
 pp.pprint(points_grid_middle_magnetosphere)
 print(len(points_grid_middle_magnetosphere))
-print(len(vectors))
+print(len(points))
+
