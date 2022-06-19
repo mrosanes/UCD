@@ -139,9 +139,8 @@ B = 1/2 (Bp/RStar)³
 # Expressed in degrees:
 beta = 1  # 5  # Angle from rotation to magnetic axis
 phi = rotation = 1  # 5  # UCD star rotation
-inc = inclination = 1  # 84 # Orbit inclination measured from the Line of Sight
-# Note: orbits with the rotation axis in the plane of the sky, does not modify
-# the coordinates system
+inc = inclination = 70  # Orbit inclination measured from the Line of Sight
+# Note: orbits with the rotation axis in the plane of the sky (~90)
 
 # Transformed to radians:
 b_r = b_rad = np.deg2rad(beta)
