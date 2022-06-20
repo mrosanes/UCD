@@ -4,9 +4,17 @@ import matplotlib.pyplot as plt
 
 pp = pprint.PrettyPrinter(indent=4)
 
+# TODO:
 """
-The GOAL of this file is to find all points of the grid inside the middle 
-magnetosphere
+# TODO
+Question Related with 'B' and with 'm'
+Units of magnetic field in Tesla:
+Shall I use the distances in meters or in Star Radius?
+"""
+
+"""
+The objective of this script is to find all points of the grid inside the 
+middle magnetosphere
 """
 
 """
@@ -33,14 +41,13 @@ toward the Earth
 Rj = 7e7
 
 # UCD Radius
-R_ucd = Rs = 1*Rj
+R_ucd = Rs = 1 * Rj
 
 # Star Period of Rotation in days
 Pr = 1
 
-# Total length of the cube:
-# L = 20 * R_ucd
-L = 20  # * R_ucd
+# Total length of the cube in number of (sub)stellar radius:
+L = 20  # (R_ucd)
 
 # Strength of the B at the pole of the star
 Bp = 1  # in Tesla [T];  (1T = 1e4G)
@@ -48,11 +55,6 @@ Bp = 1  # in Tesla [T];  (1T = 1e4G)
 # Magnetic Momentum:  m = 1/2 (Bp Rs)
 m = 1/2 * Bp * R_ucd
 
-"""
-Notes about magnetic field
-Units of magnetic field in Gauss:
-Question: Shall I use the distances in meters or in Star Radius?
-"""
 ##############################################################################
 # Important Parameters
 
@@ -138,14 +140,14 @@ B = 1/2 (Bp/RStar)³
 
 # Expressed in degrees:
 # Angle from rotation to magnetic axis: [~0º - ~180º]
-beta = 15  # 5
+beta = 1  # 5
 # UCD star rotation [~0º - ~360º]
-phi = rotation = 90  # 5
+phi = rotation = 0  # 5
 # Rotation Axis inclination measured from the Line of Sight: [~0º - ~180º]
-# Notes:
+# Information about rotation axis orientations:
 #   . Orbits with the rotation axis in the plane of the sky (~90º)
 #   . Orbits with the rotation axis towards the LoS (~0º)
-inc = inclination = 89
+inc = inclination = 1
 
 # Transformed to radians:
 b_r = b_rad = np.deg2rad(beta)
@@ -162,17 +164,29 @@ i_r = i_rad = np.deg2rad(inc)
 # Num points in edge (use odd number in order to get one dot in the center
 # of the grid: center of the UCD):
 n = 5
-x_ = np.linspace(-L/2, L/2, n)
-y_ = np.linspace(-L/2, L/2, n)
-z_ = np.linspace(-L/2, L/2, n)
+x_ = np.linspace(-L/2 * R_ucd, L/2 * R_ucd, n)
+y_ = np.linspace(-L/2 * R_ucd, L/2 * R_ucd, n)
+z_ = np.linspace(-L/2 * R_ucd, L/2 * R_ucd, n)
+x_pplot = np.linspace(-L/2, L/2, n)
+y_pplot = np.linspace(-L/2, L/2, n)
+z_pplot = np.linspace(-L/2, L/2, n)
 
 x, y, z = np.meshgrid(x_, y_, z_)
+# Grid for plotting in LoS coordinates (x_plot being the line of sight)
+x_plot, y_plot, z_plot = np.meshgrid(x_pplot, y_pplot, z_pplot)
 # Points of the grid in the Line of Sight (LoS) coordinates.
 points_LoS = []
+# Array for plotting in units of (sub)stellar radius R_ucd
+points_LoS_plot = []
 for i in range(0, n):
     for j in range(0, n):
         for k in range(0, n):
             points_LoS.append(np.array([x[i, j, k], y[i, j, k], z[i, j, k]]))
+            points_LoS_plot.append(np.array([x_plot[i, j, k],
+                                             y_plot[i, j, k],
+                                             z_plot[i, j, k]]))
+
+# pp.pprint(points_LoS)
 
 ###############################################################################
 # Trigonometric functions of the used angles
@@ -189,7 +203,7 @@ cos_i = np.round(np.cos(i_r), 4)
 # Rotation Matrices
 
 # Beta (b): angle from magnetic axis to rotation axis (b = beta)
-R1 = np.array([[ cos_b,  0,  - sin_b],  # sin_b],
+R1 = np.array([[ cos_b,  0,  sin_b  ],  # - sin_b],
                [ 0,      1,  0      ],
                [-sin_b,  0,  cos_b  ]])
 
@@ -209,7 +223,7 @@ R2_inv = R2.transpose()
 R3_inv = R3.transpose()
 
 """
-Notes about "complete" Rotation Matrices R and R_inv:
+Information about "complete" Rotation Matrices R and R_inv:
 
 R = R3 . R2 . R1 to go from points expressed in (x, y, z), to points
    expressed in (x', y', z')
@@ -258,7 +272,11 @@ for point_LoS_in_B in points_LoS_in_B:
 # pp.pprint(Bs_LoS)
 
 ###############################################################################
-# Make unit vectors from magnetic field vectors B in the LoS coordinates system
+# Plotting
+
+# For plotting, make unit vectors from magnetic field vectors B in
+#  the LoS coordinates system
+
 Bs_LoS_unit = []
 for B_LoS in Bs_LoS:
     B_LoS_unit = B_LoS / abs(np.linalg.norm(B_LoS))
@@ -269,39 +287,50 @@ for B_LoS in Bs_LoS:
                         round(B_LoS_unit[1], 3),
                         round(B_LoS_unit[2], 3)])
 
-###############################################################################
-# Plotting
-# UNCOMMENT AFTER FINDING MIDDLE MAGNETOSPHERE
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
 
-points_LoS_no_null = []
-for point_LoS in points_LoS:
-    if point_LoS.any():
-        points_LoS_no_null.append(point_LoS)
+# For plotting, take all points except the origin of coordinates, which is the
+# center of the (sub)stellar object
+points_LoS_plot_no_origin = []
+for point_LoS_plot in points_LoS_plot:
+    if point_LoS_plot.any():
+        points_LoS_plot_no_origin.append(point_LoS_plot)
 
-for i in range(len(points_LoS_no_null)):
-    point_LoS = points_LoS_no_null[i]
+for i in range(len(points_LoS_plot_no_origin)):
+    point_LoS = points_LoS_plot_no_origin[i]
     B_LoS_unit = Bs_LoS_unit[i]
 
     # Grid points
-    x = point_LoS[0]
-    y = point_LoS[1]
-    z = point_LoS[2]
-    ax.scatter(x, y, z, color='b')
+    x_plot = point_LoS[0]
+    y_plot = point_LoS[1]
+    z_plot = point_LoS[2]
+    ax.scatter(x_plot, y_plot, z_plot, color='b')
 
     # B vectors in each grid point
     u = round(B_LoS_unit[0], 3)
     v = round(B_LoS_unit[1], 3)
     w = round(B_LoS_unit[2], 3)
     scale_factor = 3
-    ax.quiver(x, y, z,
+    ax.quiver(x_plot, y_plot, z_plot,
               scale_factor*u, scale_factor*v, scale_factor*w)
 
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 
+###############################################################################
+# Plot (sub)stellar rotation axis
+# TODO: Find and set correct orientation for the rotation axis of the object
+len_rot_axis = 20
+line_x, line_y, line_z = [-len_rot_axis/2, len_rot_axis/2], [0, 0], [0, 0]
+ax.plot(line_x, line_y, line_z, color='black')
+
+# Plot Draw (sub)stellar dipole magnetic axis
+# TODO: Find and set correct orientation for the magnetic axis of the object
+len_rot_axis = 20
+line_x, line_y, line_z = [-len_rot_axis/2, len_rot_axis/2], [0, 0], [0, 0]
+ax.plot(line_x, line_y, line_z, color='black')
 ###############################################################################
 """
 Finding the points belonging to the middle magnetosphere
@@ -316,9 +345,9 @@ Finding the points belonging to the middle magnetosphere
 - In the outer magnetosphere the density of electrons decreases with the
   distance, which also lowers its contribution to the radio emission
 """
-Ra = 5
+Ra = 5 * R_ucd
 # l for the middle magnetosphere added to Ra
-l_mid = 4
+l_mid = 4 * R_ucd
 
 points_grid_middle_magnetosphere = []
 for i in range(len(points_LoS_in_B)):
@@ -346,14 +375,15 @@ for i in range(len(points_LoS_in_B)):
         r_max = (Ra + l_mid) * (np.cos(lam))**2
         if r_min < r < r_max:
             point_grid_middle_magnetosphere = (
-                point_LoS, point_LoS_in_B, lam)
+                points_LoS_plot[i], point_LoS_in_B, lam)
             points_grid_middle_magnetosphere.append(
                 point_grid_middle_magnetosphere)
 
-            x = point_LoS_in_B[0]
-            y = point_LoS_in_B[1]
-            z = point_LoS_in_B[2]
-            ax.scatter(x, y, z, color='r')
+            x_middlemag_plot = points_LoS_plot[i][0]
+            y_middlemag_plot = points_LoS_plot[i][1]
+            z_middlemag_plot = points_LoS_plot[i][2]
+            ax.scatter(x_middlemag_plot, y_middlemag_plot, z_middlemag_plot,
+                       color='r')
 
             """
             # Verification that the length 'r' of each specific point in the 
