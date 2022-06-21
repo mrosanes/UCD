@@ -58,15 +58,17 @@ toward the Earth
 ##############################################################################
 # Acronyms and Glossary
 # LoS: Line of Sight
-
+# Mag: Magnetic Field coordinates system
+# Rotax: Rotation axis coordinates system
+# Roted: Rotated (sub)stellar object coordinates system
 ##############################################################################
 # Parameters, constants and so on:
 # Num points per edge in meshgrid cube (use odd number in order to get one
 # point in the origin of coordinates [center of the grid and of the UCD]):
-n = 5
+n = 9
 
 # Total length of the meshgrid cube in number of (sub)stellar radius:
-L = 18
+L = 30
 
 # Jupyter Radius in meters [m] ~ Brown Dwarf Radius
 Rj = 7e7
@@ -83,8 +85,11 @@ Bp = 1  # in Tesla [T];  (1T = 1e4G)
 # Magnetic Momentum:  m = 1/2 (Bp Rs)
 m = 1/2 * Bp * R_ucd
 
-# TODO: Alfvén radius [TO BE COMPUTED]
+# TODO: Alfvén radius [TO BE COMPUTED IN SCRIPT: alfven_radius.py]
 Ra = 5 * R_ucd
+
+# Length magnetic and rotation  axes
+len_axes = 40
 
 """
 Other Important Parameters:
@@ -129,14 +134,14 @@ eq_thick = l_mid/Ra
 
 # Expressed in degrees:
 # Angle from rotation to magnetic axis: [~0º - ~180º]
-beta = 3  # 5
+beta = 30  # 5
 # UCD star rotation [~0º - ~360º]
-phi = rotation = 1  # 5
+phi = rotation = 60  # 5
 # Rotation Axis inclination measured from the Line of Sight: [~0º - ~180º]
 # Information about rotation axis orientations:
 #   . Orbits with the rotation axis in the plane of the sky (~90º)
 #   . Orbits with the rotation axis towards the LoS (~0º)
-inc = inclination = 89
+inc = inclination = 30
 
 # Transformed to radians:
 b_r = b_rad = np.deg2rad(beta)
@@ -230,14 +235,9 @@ cos_i = np.round(np.cos(i_r), 4)
 # Rotation Matrices
 
 # Beta (b): angle from magnetic axis to rotation axis (b = beta)
-R1 = np.array([[ cos_b,  0,  sin_b  ],  # - sin_b],
+R1 = np.array([[ cos_b,  0,  - sin_b], #sin_b  ],
                [ 0,      1,  0      ],
-               [-sin_b,  0,  cos_b  ]])
-
-# Beta (b): angle from magnetic axis to rotation axis (b = beta)
-R1 = np.array([[ cos_b,  0,  sin_b  ],  # - sin_b],
-               [ 0,      1,  0      ],
-               [-sin_b,  0,  cos_b  ]])
+               [sin_b,  0,  cos_b  ]])
 
 # p (phi): Rotation of the star angle (p = phi = rot)
 R2 = np.array([[cos_p, -sin_p, 0],
@@ -298,7 +298,12 @@ def coordinate_system_computation(coordinate_system_id="LoS"):
     return coordinate_system
 
 
-def display_coordinate_system(plot, origin_point, coordinate_system, scale=1):
+def display_coordinate_system(plot, origin_point, coordinate_system,
+                              scale=1, label="LoS"):
+    """
+    Coordinates System Display
+    In general: [x: red; y: green; z: blue]
+    """
     plot.quiver(
         origin_point[0], origin_point[1], origin_point[2],
         scale * coordinate_system[0][0],
@@ -309,7 +314,7 @@ def display_coordinate_system(plot, origin_point, coordinate_system, scale=1):
         origin_point[0], origin_point[1], origin_point[2],
         scale * coordinate_system[1][0],
         scale * coordinate_system[1][1],
-        scale * coordinate_system[2][2],
+        scale * coordinate_system[1][2],
         color="green")
     plot.quiver(
         origin_point[0], origin_point[1], origin_point[2],
@@ -317,6 +322,7 @@ def display_coordinate_system(plot, origin_point, coordinate_system, scale=1):
         scale * coordinate_system[2][1],
         scale * coordinate_system[2][2],
         color="blue")
+    plot.text(origin_point[0], origin_point[1], origin_point[2]+5, label)
 
 
 ###############################################################################
@@ -372,10 +378,43 @@ for B_LoS in Bs_LoS:
                         round(B_LoS_unit[2], 3)])
 
 fig = plt.figure(figsize=(10, 7))
-ax = fig.add_subplot(111, projection='3d')
-ax.set_xlim3d(-18, 18)
-ax.set_ylim3d(-18, 18)
-ax.set_zlim3d(-18, 25)
+min_lim_axis = -18
+max_lim_axis = 18
+ax = fig.add_subplot(121, projection='3d')
+ax.set_xlim3d(min_lim_axis, max_lim_axis)
+ax.set_ylim3d(min_lim_axis, max_lim_axis)
+ax.set_zlim3d(min_lim_axis, max_lim_axis)
+
+ax2 = fig.add_subplot(122, projection='3d')
+ax2.set_xlim3d(min_lim_axis, max_lim_axis)
+ax2.set_ylim3d(min_lim_axis, max_lim_axis)
+ax2.set_zlim3d(min_lim_axis, max_lim_axis)
+
+
+###############################################################################
+# Plotting: Link both subplots
+def on_move(event):
+    if event.inaxes == ax:
+        if ax.button_pressed in ax._rotate_btn:
+            ax2.view_init(elev=ax.elev, azim=ax.azim)
+        elif ax.button_pressed in ax._zoom_btn:
+            ax2.set_xlim3d(ax.get_xlim3d())
+            ax2.set_ylim3d(ax.get_ylim3d())
+            ax2.set_zlim3d(ax.get_zlim3d())
+    elif event.inaxes == ax2:
+        if ax2.button_pressed in ax2._rotate_btn:
+            ax.view_init(elev=ax2.elev, azim=ax2.azim)
+        elif ax2.button_pressed in ax2._zoom_btn:
+            ax.set_xlim3d(ax2.get_xlim3d())
+            ax.set_ylim3d(ax2.get_ylim3d())
+            ax.set_zlim3d(ax2.get_zlim3d())
+    else:
+        return
+    fig.canvas.draw_idle()
+
+
+c1 = fig.canvas.mpl_connect('motion_notify_event', on_move)
+###############################################################################
 
 # For plotting, take all points except the origin of coordinates, which is the
 # center of the (sub)stellar object
@@ -423,34 +462,43 @@ def plot_axis(rotation_matrix=R, color="blue", len_axis=20):
 
 
 # Plot (sub)stellar object rotation axis
-plot_axis(rotation_matrix=R3, color="purple")
+plot_axis(rotation_matrix=R3, color="purple", len_axis=len_axes)
 
 # Plot the (sub)stellar dipole magnetic axis
-plot_axis(rotation_matrix=R, color="orange")
+plot_axis(rotation_matrix=R, color="darkblue", len_axis=len_axes)
+
+###############################################################################
+# Plot (sub)stellar object coordinates systems
+scale_axis = 10
 
 # LoS coordinate system
 coord_system = coordinate_system_computation(
-    coordinate_system_id="magnetic_field")
-display_coordinate_system(plot=ax, origin_point=[-7.5, 0, 20],
-                          coordinate_system=coord_system, scale=3)
-
-# Rotation axis coordinate system
-coord_system = coordinate_system_computation(
-    coordinate_system_id="rotation_axis")
-display_coordinate_system(plot=ax, origin_point=[-2.5, 0, 20],
-                          coordinate_system=coord_system, scale=3)
+    coordinate_system_id="LoS")
+display_coordinate_system(plot=ax2, origin_point=[-10, -10, 0],
+                          coordinate_system=coord_system, scale=scale_axis,
+                          label="LoS")
 
 # (Sub)Stellar object rotated coordinate system
 coord_system = coordinate_system_computation(
     coordinate_system_id="ucd_rotated")
-display_coordinate_system(plot=ax, origin_point=[2.5, 0, 20],
-                          coordinate_system=coord_system, scale=3)
+display_coordinate_system(plot=ax2, origin_point=[-10, 10, 0],
+                          coordinate_system=coord_system, scale=scale_axis,
+                          label="Roted")
+
+# Rotation axis coordinate system
+coord_system = coordinate_system_computation(
+    coordinate_system_id="rotation_axis")
+display_coordinate_system(plot=ax2, origin_point=[10, 10, 0],
+                          coordinate_system=coord_system, scale=scale_axis,
+                          label="Rotax")
 
 # Magnetic Field coordinate system
 coord_system = coordinate_system_computation(
-    coordinate_system_id="LoS")
-display_coordinate_system(plot=ax, origin_point=[7.5, 0, 20],
-                          coordinate_system=coord_system, scale=3)
+    coordinate_system_id="magnetic_field")
+display_coordinate_system(plot=ax2, origin_point=[10, -10, 0],
+                          coordinate_system=coord_system, scale=scale_axis,
+                          label="Mag")
+
 ###############################################################################
 """
 Finding the points belonging to the middle magnetosphere
