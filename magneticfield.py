@@ -25,8 +25,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import numpy as np
 import pprint
+from time import sleep
+import numpy as np
 import matplotlib.pyplot as plt
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -65,7 +66,7 @@ toward the Earth
 # Parameters, constants and so on:
 # Num points per edge in meshgrid cube (use odd number in order to get one
 # point in the origin of coordinates [center of the grid and of the UCD]):
-n = 9
+n = 21
 
 # Total length of the meshgrid cube in number of (sub)stellar radius:
 L = 30
@@ -110,8 +111,10 @@ eq_thick = l_mid/Ra
 """
 – Ne: total number density of the non-thermal electrons: 
     Ne: [10^2 - 10^6 cm^(−3)], with Ne < n{e,A}
+    [Ne/n{e,A} in the range 10^(−4) to 1]
     with:
       n{e,A}: number density of thermal plasma at the Alfvén point
+      
 – δ: spectral index of the non-thermal electron energy distribution
     δ: [2, 4]
 – Tp:  temperature of the inner magnetosphere
@@ -134,14 +137,14 @@ eq_thick = l_mid/Ra
 
 # Expressed in degrees:
 # Angle from rotation to magnetic axis: [~0º - ~180º]
-beta = 30  # 5
+beta = 1  # 5
 # UCD star rotation [~0º - ~360º]
-phi = rotation = 60  # 5
+phi = rotation = 1  # 5
 # Rotation Axis inclination measured from the Line of Sight: [~0º - ~180º]
 # Information about rotation axis orientations:
 #   . Orbits with the rotation axis in the plane of the sky (~90º)
 #   . Orbits with the rotation axis towards the LoS (~0º)
-inc = inclination = 30
+inc = inclination = 89
 
 # Transformed to radians:
 b_r = b_rad = np.deg2rad(beta)
@@ -431,6 +434,7 @@ for i in range(len(points_LoS_plot_no_origin)):
     x_plot = point_LoS[0]
     y_plot = point_LoS[1]
     z_plot = point_LoS[2]
+    # Do not show grid points, only vectors
     # ax.scatter(x_plot, y_plot, z_plot, color='b')
 
     # B vectors in each grid point
@@ -438,8 +442,10 @@ for i in range(len(points_LoS_plot_no_origin)):
     v = round(B_LoS_unit[1], 3)
     w = round(B_LoS_unit[2], 3)
     scale_factor = 3
-    ax.quiver(x_plot, y_plot, z_plot,
-              scale_factor*u, scale_factor*v, scale_factor*w)
+    # To uncomment once the middle magnetosphere radio emission computation
+    # is done:
+    # ax.quiver(x_plot, y_plot, z_plot,
+    #          scale_factor*u, scale_factor*v, scale_factor*w)
 
 ax.set_xlabel('x')
 ax.set_ylabel('y')
@@ -501,11 +507,11 @@ display_coordinate_system(plot=ax2, origin_point=[10, -10, 0],
 
 ###############################################################################
 """
-Finding the points belonging to the middle magnetosphere
+Finding the points belonging to the middle magnetosphere (emission points)
 - Points in the middle magnetosphere (between the inner and the outer
   magnetosphere): the ones with a clear contribution to the UCD radio emission
   arriving to the earth. The radio emission occurs in this zone, which contains
-  the open magnetic field lines that generating the current sheets
+  the open magnetic field lines generating the current sheets:
   (Ra < r < Ra + l_mid)
   with l_mid: width of the middle magnetosphere
 - The radio emission in the inner magnetosphere is supposed to be
@@ -515,6 +521,9 @@ Finding the points belonging to the middle magnetosphere
 """
 
 points_grid_middle_magnetosphere = []
+x_points_middle_mag = []
+y_points_middle_mag = []
+z_points_middle_mag = []
 for i in range(len(points_LoS_in_B)):
     # We first find the angle λ (lam) associated with the specific point of
     # the LoS grid expressed in B coordinates. It is the angle between the
@@ -534,9 +543,9 @@ for i in range(len(points_LoS_in_B)):
         # that have been calculated in the B coordinate system:
         r = L_xyz * (np.cos(lam))**2
 
-        # Equation of the field line touching the Alvén Surface:
+        # Equation of the field line touching the Alfvén Surface:
         # Ra * (np.cos(lam))**2
-        r_min = Ra  # Emitting points are located outside the Alfvén Surface
+        r_min = Ra * (np.cos(lam))**2
         r_max = (Ra + l_mid) * (np.cos(lam))**2
         if r_min < r < r_max:
             point_grid_middle_magnetosphere = (
@@ -548,7 +557,11 @@ for i in range(len(points_LoS_in_B)):
             y_middlemag_plot = points_LoS_plot[i][1]
             z_middlemag_plot = points_LoS_plot[i][2]
             ax.scatter(x_middlemag_plot, y_middlemag_plot, z_middlemag_plot,
-                       color='r')
+                       color='r', s=1)
+
+            x_points_middle_mag.append(x_middlemag_plot)
+            y_points_middle_mag.append(y_middlemag_plot)
+            z_points_middle_mag.append(z_middlemag_plot)
 
             """
             # Verification that the length 'r' of each specific point in the 
@@ -564,6 +577,40 @@ for i in range(len(points_LoS_in_B)):
                           + point[2] ** 2
                           ))
             """
+
 plt.show()
 
+
+def plot_middlemagnetosphere_in_slices(
+        x_points_middlemag, y_points_middlemag, z_points_middlemag):
+    """
+    Show middle-magnetosphere in 2D slices perpendicular to the LoS ('x' axis)
+    """
+    x_different_values_in_middlemag = []
+    for x_point_middlemag in x_points_middlemag:
+        if x_point_middlemag not in x_different_values_in_middlemag:
+            x_different_values_in_middlemag.append(x_point_middlemag)
+    x_different_values_in_middlemag = sorted(x_different_values_in_middlemag)
+    print(x_different_values_in_middlemag)
+
+    # Middle-magnetosphere slices, to show the emitting points (points which
+    #  belong to the middle magnetosphere)
+    fig2 = plt.figure(figsize=(3, 3))
+    for ii in range(len(x_different_values_in_middlemag)):
+        y_slice = []
+        z_slice = []
+        x_middlemag = x_different_values_in_middlemag[ii]
+        print(x_middlemag)
+        for jj in range(len(x_points_middlemag)):
+            x_coord = x_points_middlemag[jj]
+            if x_coord == x_middlemag:
+                y_slice.append(y_points_middlemag[jj])
+                z_slice.append(z_points_middlemag[jj])
+
+        plt.plot(y_slice, z_slice, 'ro')
+        plt.show()
+
+
+plot_middlemagnetosphere_in_slices(
+        x_points_middle_mag, y_points_middle_mag, z_points_middle_mag)
 
