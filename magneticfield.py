@@ -1,28 +1,30 @@
-"""magneticfield.py
-   The objectives of this file are:
+"""
+magneticfield.py
+
+2022 - Marc Rosanes Siscart (marcrosanes@gmail.com)
+C/ Carles Collet, 7; Barcelona (08031); Catalonia
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+The objectives of this file are:
     - Compute the magnetic vector field 'B' of a dipole of a
       (sub)stellar object at different points of a meshgrid, for an object
       with not aligned magnetic, rotation, and line of sight [LoS] axes.
     - Find all points of the grid inside the middle magnetosphere
-    - Apply the Pipeline of C.Trigilio el al. (ESO 2004) [Appendix A]
-      A&A 418, 593–605 (2004)
+      Following the ideas in the Pipeline:
+      C.Trigilio el al. (ESO 2004) A&A 418, 593–605 (2004); [Appendix A]
       DOI: 10.1051/0004-6361:20040060
-
-    2022 - Marc Rosanes Siscart (marcrosanes@gmail.com)
-    C/ Carles Collet, 7; Barcelona (08031); Catalonia
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import pprint
