@@ -512,9 +512,10 @@ coord_system = coordinate_system_computation(
 display_coordinate_system(plot=ax2, origin_point=[10, -10, 0],
                           coordinate_system=coord_system, scale=scale_axis,
                           label="Mag")
+
+
 ###############################################################################
 # Find Middle-Magnetosphere
-
 def find_middle_magnetosphere():
     """
     Finding the points belonging to the middle magnetosphere (emission points)
@@ -629,22 +630,6 @@ def plot_middlemagnetosphere_in_slices(points_LoS_grid_middle_mag,
 
         plt.plot(y_slice, z_slice, 'ro', markersize=marker_size)
         plt.show()
-
-    """
-    points_LoS_slice_0 = []
-    # print(points_grid_middle_magnetosphere[0])
-    for point_grid_middle_magnetosphere in points_grid_middle_magnetosphere:
-        if point_grid_middle_magnetosphere[0][0] == 0:
-            points_LoS_slice_0.append(point_grid_middle_magnetosphere[0])
-
-    # pp.pprint(points_LoS_slice_0)
-    # print(len(points_LoS_slice_0))
-    for point_LoS_slice_0 in points_LoS_slice_0:
-        plt.plot(point_LoS_slice_0[1], point_LoS_slice_0[2], 'ro',
-                 markersize=marker_size)
-
-    plt.show()
-    """
 
 
 points_middle_mag = find_middle_magnetosphere()
