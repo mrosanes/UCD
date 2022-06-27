@@ -460,7 +460,6 @@ ax.set_zlabel('z')
 # Plot (sub)stellar object axes
 
 def plot_axis(rotation_matrix=R, color="blue", len_axis=20):
-    # global line_x, line_y, line_z
     axis_point1 = [0, 0, -len_axis / 2]
     axis_point2 = [0, 0, len_axis / 2]
     axis_point1_LoS = rotation_matrix.dot(axis_point1)
