@@ -8,7 +8,8 @@ import bpy
 ############################################################################
 
 # B (Magnetic Field) coordinates system (xB, yB, zB):
-# If not modified -> equivalent to the absolute (Blender) coordinates system (xBlend, yBlend, zBlend)
+# If not modified -> equivalent to the absolute (Blender) coordinates system (
+# xBlend, yBlend, zBlend)
 # xB=x, yB=y, zB=z
 xB = 0
 yB = 0
@@ -19,12 +20,14 @@ yB = 0
 yRot = 10 # Angle in degrees
 
 # UCD rotation coordinates system (x2, z2 in Plane of Sight)
-# UCD rotation coordinates system rotated around zRot -> UCD rotation coordinates system
+# UCD rotation coordinates system rotated around zRot -> UCD rotation
+# coordinates system
 # x2=xPlaneOfSight, y2=y'=yf, z2=z1=zRot=zPlaneOfSight
 z2 = 20 # Angle in degrees
 
 # Final UCD Line of Sight coordinates system
-# UCD rotation coordinates system rotated around y2=y' -> Final coordinates system
+# UCD rotation coordinates system rotated around y2=y' -> Final coordinates
+# system
 # x' in Line of Sight direction, z' in Plane of Sight
 # x'=xf=xLineOfSight, y'=yf=y2, z'=zf
 y2 = 30 # Angle in degrees
@@ -47,7 +50,8 @@ bpy.data.objects["ref2_UCD_rotation"].rotation_euler[1] = math.radians(yRot)
 bpy.data.objects["ref3_planeSight"].rotation_euler[2] = math.radians(z2)
 
 # Final UCD Line of Sight coordinates system
-# UCD rotation coordinates system rotated around y2=y' -> Final coordinates system
+# UCD rotation coordinates system rotated around y2=y' -> Final coordinates
+# system
 bpy.data.objects["ref4_LineOfSight"].rotation_euler[1] = math.radians(y2)
 
 # Earth to UCD distance along Line of sight (x' axis):
@@ -56,5 +60,4 @@ bpy.data.objects["earth"].location[0] = earth_location
 # Camera Location to see the UCD from the earth
 camera_location = earth_location - camera_offset_for_correct_view
 bpy.data.objects["Camera"].location[0] = camera_location
-
 
