@@ -1,3 +1,27 @@
+"""
+meshgrid_plt.py
+
+2022 - Marc Rosanes Siscart (marcrosanes@gmail.com)
+C/ Carles Collet, 7; Barcelona (08031); Catalonia
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+The objective(s) of this file are:
+  - Compute, through rotation matrices, a "magnetic" grid, and plot it,
+    in order to apply it later, in other files.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -11,10 +35,10 @@ vectors = []
 # Convert meshgrid to array of 3D vectors. Each vector contains the 
 # geometric coordinates of a 3D point in the mesh. The coordinates
 # of each vector represents the center of each of the voxels of the grid.
-for i in range(0,3):
-    for j in range(0,3):
-        for k in range(0,3):
-            vectors.append([y[i,j,k], x[i,j,k], z[i,j,k]])
+for i in range(0, 3):
+    for j in range(0, 3):
+        for k in range(0, 3):
+            vectors.append([y[i, j, k], x[i, j, k], z[i, j, k]])
             
 for vector in vectors:
     print(vector)
@@ -81,7 +105,7 @@ print(R)
 print()
 print(R_inv)
 
-vector = [1,1,1]
+vector = [1, 1, 1]
 vec_out = R_inv.dot(vector)
 print(vec_out)
 
@@ -94,11 +118,9 @@ for vector in vectors:
     
 print(vectors_LoS_in_B)    
     
-fig = plt.figure(figsize=(8,8))   
+fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
 for vector in vectors_LoS_in_B:
     ax.scatter(vector[0], vector[1], vector[2], color='b')   
 plt.show()   
-    
-
 

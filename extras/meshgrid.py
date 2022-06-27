@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 x_ = np.linspace(-1., 1., 3)
 y_ = np.linspace(-1., 1., 3)
