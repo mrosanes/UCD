@@ -448,8 +448,6 @@ for i in range(len(points_LoS_plot_no_origin)):
     v = round(B_LoS_unit[1], 3)
     w = round(B_LoS_unit[2], 3)
     scale_factor = 3
-    # To uncomment once the middle magnetosphere radio emission computation
-    # is done:
     ax.quiver(x_plot, y_plot, z_plot,
              scale_factor*u, scale_factor*v, scale_factor*w)
 
