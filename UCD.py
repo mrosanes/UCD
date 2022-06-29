@@ -31,7 +31,7 @@ The objectives of this file are:
 import pprint
 import numpy as np
 import matplotlib.pyplot as plt
-
+from voxel import Voxel
 ###############################################################################
 # PIPELINE
 
@@ -59,7 +59,7 @@ toward the Earth
 
 class UCD(object):
 
-    def __init__(self, n=17, L=30, Rucd_Rj_scale=1, Pr=1, Bp=1,
+    def __init__(self, n=5, L=30, Rucd_Rj_scale=1, Pr=1, Bp=1,
                  beta=1, rotation_angle=1, inclination=89):
         #######################################################################
         # Utils
@@ -256,23 +256,6 @@ class UCD(object):
          Bz = m(3z^2/r^5 - 1/r^3)
         """
 
-        # Plotting canvas
-        self.fig = plt.figure(figsize=(10, 7))
-        min_lim_axis = -18
-        max_lim_axis = 18
-        self.ax = self.fig.add_subplot(121, projection='3d')
-        self.ax.set_xlabel('x')
-        self.ax.set_ylabel('y')
-        self.ax.set_zlabel('z')
-        self.ax.set_xlim3d(min_lim_axis, max_lim_axis)
-        self.ax.set_ylim3d(min_lim_axis, max_lim_axis)
-        self.ax.set_zlim3d(min_lim_axis, max_lim_axis)
-
-        self.ax2 = self.fig.add_subplot(122, projection='3d')
-        self.ax2.set_xlim3d(min_lim_axis, max_lim_axis)
-        self.ax2.set_ylim3d(min_lim_axis, max_lim_axis)
-        self.ax2.set_zlim3d(min_lim_axis, max_lim_axis)
-
     ###########################################################################
     def coordinate_system_computation(
             self, coordinate_system_id="LoS"):
@@ -375,19 +358,24 @@ class UCD(object):
 
         return points_LoS, points_LoS_in_B, points_LoS_plot
 
-    def magnetic_field_vectors_LoS(self, points_LoS_in_B):
+    def magnetic_field_vectors_LoS(self, points_LoS_plot, points_LoS_in_B):
         """
         Magnetic field vectors B in each point of the grid in Line of Sight
         [LoS] coordinates (each point representing the center of each voxel)
 
-        :param points_LoS:
+        :param points_LoS_plot:
+        :param points_LoS_in_B:
         :return Bs_LoS:
         """
 
         # B = [Bx, By, Bz], in the LoS coordinates system frame:
         #  in the points given by the grid of the LoS cube
+        voxels = []
         Bs_LoS = []
-        for point_LoS_in_B in points_LoS_in_B:
+        for i in range(len(points_LoS_plot)):
+            # point_LoS in units of sub(stellar) radius
+            point_LoS = points_LoS_plot[i]
+            point_LoS_in_B = points_LoS_in_B[i]
             x = point_LoS_in_B[0]
             y = point_LoS_in_B[1]
             z = point_LoS_in_B[2]
@@ -404,9 +392,13 @@ class UCD(object):
             # Magnetic Field Vector B in LoS Coordinates System (x', y', z')
             B_LoS = self.R.dot(B)
             Bs_LoS.append(B_LoS)
-        return Bs_LoS
+            voxel = Voxel(B_LoS[0],
+                          position_LoS=np.array([point_LoS]),
+                          position_in_B=np.array(point_LoS_in_B))
+            voxels.append(voxel)
+        return Bs_LoS, voxels
 
-    def B_LoS_unit_vectors(self, Bs_LoS, points_LoS_plot):
+    def plot_B_LoS_unit_vectors(self, Bs_LoS, points_LoS_plot):
         """
         Plot magnetic unit vectors in LoS coordinates:
         - Compute unit vectors from magnetic field vectors B in the LoS
@@ -488,7 +480,7 @@ class UCD(object):
 
     ###########################################################################
     # Find Middle-Magnetosphere
-    def find_middle_magnetosphere(self, points_LoS, points_LoS_in_B):
+    def find_middle_magnetosphere(self, points_LoS_plot, points_LoS_in_B):
         """
         Finding the points belonging to the middle magnetosphere (emission
         points)
@@ -504,7 +496,6 @@ class UCD(object):
           the distance, which also lowers its contribution to the radio
           emission
         """
-
         x_points_middle_mag = []
         y_points_middle_mag = []
         z_points_middle_mag = []
@@ -532,19 +523,13 @@ class UCD(object):
                 r_max = (self.Ra + self.l_mid) * (np.cos(lam))**2
 
                 if r_min < L_xyz < r_max:
-                    point_LoS = points_LoS[i_point]
+                    point_LoS = points_LoS_plot[i_point]
                     x_middlemag = point_LoS[0]
                     y_middlemag = point_LoS[1]
                     z_middlemag = point_LoS[2]
                     x_points_middle_mag.append(x_middlemag)
                     y_points_middle_mag.append(y_middlemag)
                     z_points_middle_mag.append(z_middlemag)
-
-                    # Verification that the length 'r' of each specific point
-                    # in the middle magnetosphere is between
-                    # (Ra < r < Ra + l_mid), and that the distance to the found
-                    # points is the same regardless of the system of
-                    # coordinates in which they are expressed
 
                     """
                     # Check that the absolute value of the distance to a 
@@ -563,6 +548,7 @@ class UCD(object):
                                   ))
                     print()
                     """
+
         points_middlemag = (x_points_middle_mag,
                             y_points_middle_mag,
                             z_points_middle_mag)
@@ -604,73 +590,102 @@ class UCD(object):
             plt.plot(y_slice, z_slice, 'ro', markersize=marker_size)
             plt.show()
 
-    def ucd_compute_and_plot(self, points_LoS_in_B, points_LoS_plot):
-        # Plot (sub)stellar object rotation axis
-        self.plot_axis(rotation_matrix=self.R3, color="darkorange",
-                       len_axis=self.len_axes)
+    def ucd_compute_and_plot(self, points_LoS_in_B, points_LoS_plot,
+                             plot=True):
+        if plot:
+            # Plotting canvas
+            self.fig = plt.figure(figsize=(10, 7))
+            min_lim_axis = -18
+            max_lim_axis = 18
+            self.ax = self.fig.add_subplot(121, projection='3d')
+            self.ax.set_xlabel('x')
+            self.ax.set_ylabel('y')
+            self.ax.set_zlabel('z')
+            self.ax.set_xlim3d(min_lim_axis, max_lim_axis)
+            self.ax.set_ylim3d(min_lim_axis, max_lim_axis)
+            self.ax.set_zlim3d(min_lim_axis, max_lim_axis)
 
-        # Plot the (sub)stellar dipole magnetic axis
-        self.plot_axis(rotation_matrix=self.R, color="darkblue",
-                       len_axis=self.len_axes)
+            self.ax2 = self.fig.add_subplot(122, projection='3d')
+            self.ax2.set_xlim3d(min_lim_axis, max_lim_axis)
+            self.ax2.set_ylim3d(min_lim_axis, max_lim_axis)
+            self.ax2.set_zlim3d(min_lim_axis, max_lim_axis)
 
-        #######################################################################
-        # Plot (sub)stellar object coordinates systems
-        scale_axis = 10
-        # LoS coordinate system
-        coord_system = self.coordinate_system_computation(
-            coordinate_system_id="LoS")
-        self.display_coordinate_system(
-            plot=self.ax2, origin_point=[-10, -10, 0],
-            coordinate_system=coord_system, scale=scale_axis, label="LoS")
+            # Plot (sub)stellar object rotation axis
+            self.plot_axis(rotation_matrix=self.R3, color="darkorange",
+                           len_axis=self.len_axes)
 
-        # (Sub)Stellar object rotated coordinate system
-        coord_system = self.coordinate_system_computation(
-            coordinate_system_id="ucd_rotated")
-        self.display_coordinate_system(
-            plot=self.ax2, origin_point=[-10, 10, 0],
-            coordinate_system=coord_system, scale=scale_axis, label="Roted")
+            # Plot the (sub)stellar dipole magnetic axis
+            self.plot_axis(rotation_matrix=self.R, color="darkblue",
+                           len_axis=self.len_axes)
 
-        # Rotation axis coordinate system
-        coord_system = self.coordinate_system_computation(
-            coordinate_system_id="rotation_axis")
-        self.display_coordinate_system(
-            plot=self.ax2, origin_point=[10, 10, 0],
-            coordinate_system=coord_system, scale=scale_axis, label="Rotax")
+            ###################################################################
+            # Plot (sub)stellar object coordinates systems
+            scale_axis = 10
+            # LoS coordinate system
+            coord_system = self.coordinate_system_computation(
+                coordinate_system_id="LoS")
+            self.display_coordinate_system(
+                plot=self.ax2, origin_point=[-10, -10, 0],
+                coordinate_system=coord_system, scale=scale_axis, label="LoS")
 
-        # Magnetic Field coordinate system
-        coord_system = self.coordinate_system_computation(
-            coordinate_system_id="magnetic_field")
-        self.display_coordinate_system(
-            plot=self.ax2, origin_point=[10, -10, 0],
-            coordinate_system=coord_system, scale=scale_axis, label="Mag")
+            # (Sub)Stellar object rotated coordinate system
+            coord_system = self.coordinate_system_computation(
+                coordinate_system_id="ucd_rotated")
+            self.display_coordinate_system(
+                plot=self.ax2, origin_point=[-10, 10, 0],
+                coordinate_system=coord_system, scale=scale_axis,
+                label="Roted")
 
-        #######################################################################
-        # Plot LoS Grid, compute and plot magnetic field vectors
-        Bs_LoS = self.magnetic_field_vectors_LoS(points_LoS_in_B)
-        self.B_LoS_unit_vectors(Bs_LoS, points_LoS_plot)
-        self.fig.canvas.mpl_connect('motion_notify_event', self.on_move)
-        plt.show()
+            # Rotation axis coordinate system
+            coord_system = self.coordinate_system_computation(
+                coordinate_system_id="rotation_axis")
+            self.display_coordinate_system(
+                plot=self.ax2, origin_point=[10, 10, 0],
+                coordinate_system=coord_system, scale=scale_axis,
+                label="Rotax")
+
+            # Magnetic Field coordinate system
+            coord_system = self.coordinate_system_computation(
+                coordinate_system_id="magnetic_field")
+            self.display_coordinate_system(
+                plot=self.ax2, origin_point=[10, -10, 0],
+                coordinate_system=coord_system, scale=scale_axis, label="Mag")
+
+            ###################################################################
+            # Plot LoS Grid, compute and plot magnetic field vectors
+            Bs_LoS, voxels = self.magnetic_field_vectors_LoS(
+                points_LoS_plot, points_LoS_in_B)
+            self.plot_B_LoS_unit_vectors(Bs_LoS, points_LoS_plot)
+            self.fig.canvas.mpl_connect('motion_notify_event', self.on_move)
+            plt.show()
+        else:
+            # Compute and plot magnetic field vectors
+            Bs_LoS, voxels = self.magnetic_field_vectors_LoS(
+                points_LoS_plot, points_LoS_in_B)
+        return voxels
 
 
 def main():
     beta = 1
+    n = 11
 
     # Create one UCD with a low grid sampling "n" per edge, to be able to
     # represent the vectors without losing a relatively good visibility
     # of the vectors
-    ucd_vectors_B = UCD(n=9, beta=beta)
+    ucd_vectors_B = UCD(n=n, beta=beta)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B, points_LoS_plot = ucd_vectors_B.LoS_cube()
     # Compute and Plot the UCD (or other (sub)stellar object) dipolar
     # magnetic vector field and plot it together with the rotation and the
     # magnetic axes, and the different coordinate systems
-    ucd_vectors_B.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
+    ucd_vectors_B.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot,
+                                       plot=True)
 
     # Create a second UCD, which will represent the same UCD as before,
     # with the same parameters, but with a higher grid sampling "n" per edge,
     # to be able to represent the middle magnetosphere with enough points, to
     # improve the model resolution of the middle magnetosphere.
-    ucd_middle_magnetosphere = UCD(n=31, beta=beta)
+    ucd_middle_magnetosphere = UCD(n=n, beta=beta)
     (points_LoS, points_LoS_in_B,
      points_LoS_plot) = ucd_middle_magnetosphere.LoS_cube()
     points_middle_mag = ucd_middle_magnetosphere.find_middle_magnetosphere(
