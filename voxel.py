@@ -27,8 +27,9 @@ import numpy as np
 
 class Voxel(object):
     def __init__(self, B_LoS_x, f=5e9, Ne=1,
-                 position_LoS=np.array([0,0,0]),
-                 position_in_B=np.array([0,0,0])):
+                 position_LoS_plot=np.array([0,0,0]),
+                 position_in_B=np.array([0,0,0]),
+                 middle_mag=False):
         """
         :param Ne: Electron Density Number
         :param position_LoS: Position of the center of the voxel in Line of
@@ -36,6 +37,10 @@ class Voxel(object):
         :param position_in_B: Position of the center of the voxel in B
         (Dipole Magnetic Field) coordinates.
         """
+
+        # Boolean indicating if the Voxel belongs or not to the
+        # middle-magnetosphere.
+        self.middle_mag = middle_mag
 
         # Free parameters:  l, Ne , δ, Tp , np
 
@@ -58,7 +63,8 @@ class Voxel(object):
         #######################################################################
         # Attributes of Voxel objects
         self.Ne = Ne
-        self.position_LoS = position_LoS
+        # In units of sub(stellar) radius
+        self.position_LoS_plot = position_LoS_plot
         self.position_in_B = position_in_B
         # Tp: from ~10e5 to ~10e6 caused by the rotating magnetosphere
 
@@ -79,3 +85,5 @@ class Voxel(object):
         # inner magnetosphere filled by a thermal plasma consistent with a
         # wind-shock model that provides also X-ray emission
 
+    def set_middle_mag(self, bool_middle_mag):
+        self.middle_mag = bool_middle_mag

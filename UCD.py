@@ -50,17 +50,18 @@ toward the Earth
 """
 ###############################################################################
 # Acronyms and Glossary
-# LoS: Line of Sight
-# Mag: Magnetic Field coordinates system
-# Rotax: Rotation axis coordinates system
-# Roted: Rotated (sub)stellar object coordinates system
+# - LoS: Line of Sight
+# - in_B (suffix): Magnetic Field coordinates system
+# - Middlemag: Middle-magnetosphere
+# - Rotax: Rotation axis coordinates system
+# - Roted: Rotated (sub)stellar object coordinates system
 ###############################################################################
 
 
 class UCD(object):
 
     def __init__(self, n=5, L=30, Rucd_Rj_scale=1, Pr=1, Bp=1,
-                 beta=1, rotation_angle=1, inclination=89):
+                 beta=1, rotation_angle=1, inclination=89, plot3d=False):
         #######################################################################
         # Utils
         self.pp = pprint.PrettyPrinter(indent=4)
@@ -217,7 +218,6 @@ class UCD(object):
 
         #######################################################################
         # Formulas
-
         """
         Ram pressure:
         p{ram} = ρ.v^2
@@ -256,13 +256,43 @@ class UCD(object):
          Bz = m(3z^2/r^5 - 1/r^3)
         """
 
-    ###########################################################################
-    def coordinate_system_computation(
-            self, coordinate_system_id="LoS"):
-        """ Compute Coordinate Systems: computes the values of the vectors
+        # Plotting canvas
+        self.plot3d = plot3d
+        if self.plot3d:
+            self.fig = plt.figure(figsize=(10, 7))
+            min_lim_axis = -18
+            max_lim_axis = 18
+            self.ax = self.fig.add_subplot(121, projection='3d')
+            self.ax.set_xlabel('x')
+            self.ax.set_ylabel('y')
+            self.ax.set_zlabel('z')
+            self.ax.set_xlim3d(min_lim_axis, max_lim_axis)
+            self.ax.set_ylim3d(min_lim_axis, max_lim_axis)
+            self.ax.set_zlim3d(min_lim_axis, max_lim_axis)
+
+            self.ax2 = self.fig.add_subplot(122, projection='3d')
+            self.ax2.set_xlim3d(min_lim_axis, max_lim_axis)
+            self.ax2.set_ylim3d(min_lim_axis, max_lim_axis)
+            self.ax2.set_zlim3d(min_lim_axis, max_lim_axis)
+
+            # Plot (sub)stellar object rotation axis
+            self.plot_axis(rotation_matrix=self.R3, color="darkorange",
+                           len_axis=self.len_axes)
+
+            # Plot the (sub)stellar dipole magnetic axis
+            self.plot_axis(rotation_matrix=self.R, color="darkblue",
+                           len_axis=self.len_axes)
+
+    def coordinate_system_computation(self, coordinate_system_id="LoS"):
+        """
+        Compute Coordinate Systems: computes the values of the vectors
         forming a given coordinate system from the four different
         coordinate systems used in the model, expressed in the coordinates
-        of the Line of Sight [LoS] coordinate system"""
+        of the Line of Sight [LoS] coordinate system
+
+        :param coordinate_system_id:
+        :return coordinate_system:
+        """
         coordinate_system_init_x = [1, 0, 0]
         coordinate_system_init_y = [0, 1, 0]
         coordinate_system_init_z = [0, 0, 1]
@@ -291,6 +321,13 @@ class UCD(object):
         """
         Coordinates System Display
         In general: [x: red; y: green; z: blue]
+
+        :param plot:
+        :param origin_point:
+        :param coordinate_system:
+        :param scale:
+        :param label:
+        :return:
         """
         plot.quiver(
             origin_point[0], origin_point[1], origin_point[2],
@@ -322,6 +359,11 @@ class UCD(object):
         Grid in the orientation and coordinates of the LoS (x', y', z').
         The coordinates of each vector represents the center of each of the
         voxels of the grid.
+
+        :returns:
+            - points_LoS
+            - points_LoS_plot
+            - points_LoS_in_B
         """
         x_ = np.linspace(
             -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
@@ -356,7 +398,7 @@ class UCD(object):
             point_LoS_in_B = self.R_inv.dot(point_LoS)
             points_LoS_in_B.append(point_LoS_in_B)
 
-        return points_LoS, points_LoS_in_B, points_LoS_plot
+        return points_LoS, points_LoS_plot, points_LoS_in_B
 
     def magnetic_field_vectors_LoS(self, points_LoS_plot, points_LoS_in_B):
         """
@@ -365,7 +407,9 @@ class UCD(object):
 
         :param points_LoS_plot:
         :param points_LoS_in_B:
-        :return Bs_LoS:
+        :returns:
+            - Bs_LoS
+            - voxels
         """
 
         # B = [Bx, By, Bz], in the LoS coordinates system frame:
@@ -393,8 +437,8 @@ class UCD(object):
             B_LoS = self.R.dot(B)
             Bs_LoS.append(B_LoS)
             voxel = Voxel(B_LoS[0],
-                          position_LoS=np.array([point_LoS]),
-                          position_in_B=np.array(point_LoS_in_B))
+                          position_LoS_plot=point_LoS,
+                          position_in_B=point_LoS_in_B)
             voxels.append(voxel)
         return Bs_LoS, voxels
 
@@ -406,6 +450,10 @@ class UCD(object):
         - Take all points except the origin of coordinates, which is the
           center of the (sub)stellar object
         - Plot magnetic (Bs) unit vectors
+
+        :param Bs_LoS:
+        :param points_LoS_plot:
+        :return Bs_LoS_unit:
         """
         Bs_LoS_unit = []
         for B_LoS in Bs_LoS:
@@ -467,7 +515,13 @@ class UCD(object):
         self.fig.canvas.draw_idle()
 
     def plot_axis(self, rotation_matrix, color="blue", len_axis=20):
-        """Plot (sub)stellar object axes"""
+        """
+        Plot (sub)stellar object axes
+        :param rotation_matrix:
+        :param color:
+        :param len_axis:
+        :return:
+        """
         axis_point1 = [0, 0, -len_axis / 2]
         axis_point2 = [0, 0, len_axis / 2]
         axis_point1_LoS = rotation_matrix.dot(axis_point1)
@@ -478,146 +532,16 @@ class UCD(object):
             [axis_point2_LoS[2], axis_point1_LoS[2]])
         self.ax.plot(line_x, line_y, line_z, color=color)
 
-    ###########################################################################
-    # Find Middle-Magnetosphere
-    def find_middle_magnetosphere(self, points_LoS_plot, points_LoS_in_B):
-        """
-        Finding the points belonging to the middle magnetosphere (emission
-        points)
-        - Points in the middle magnetosphere (between the inner and the outer
-          magnetosphere): the ones with a clear contribution to the UCD radio
-          emission arriving to the earth. The radio emission occurs in this
-          zone, which contains the open magnetic field lines generating the
-          current sheets: (Ra < r < Ra + l_mid)
-          with l_mid: width of the middle magnetosphere
-        - The radio emission in the inner magnetosphere is supposed to be
-          self-absorbed by the UCD
-        - In the outer magnetosphere the density of electrons decreases with
-          the distance, which also lowers its contribution to the radio
-          emission
-        """
-        x_points_middle_mag = []
-        y_points_middle_mag = []
-        z_points_middle_mag = []
-        for i_point in range(len(points_LoS_in_B)):
-            # We first find the angle λ (lam) associated with the specific
-            # point of the LoS grid expressed in B coordinates. It is the angle
-            # between the magnetic dipole "equatorial" plane and the radius
-            # vector r of the point
-            point_LoS_in_B = points_LoS_in_B[i_point]
-            if point_LoS_in_B[0] or point_LoS_in_B[1]:
-                L_xy = np.sqrt(point_LoS_in_B[0]**2 + point_LoS_in_B[1]**2)
-                L_z = point_LoS_in_B[2]
-                lam = np.arctan(L_z/L_xy)
-                L_xyz = np.sqrt(point_LoS_in_B[0]**2 +
-                                point_LoS_in_B[1]**2 +
-                                point_LoS_in_B[2]**2)
-                # Using the equation of the dipole field lines
-                # r = L_xyz = L cos²λ; with L in [Ra, Ra+l_mid]
-                # We have the longitude 'r' (r = L_xyz) and λ of the specific
-                # point of the grid that have been calculated in the B
-                # coordinate system.
-                # Equation of the field line touching the Alfvén Surface:
-                # Ra * (np.cos(lam))**2
-                r_min = self.Ra * (np.cos(lam))**2
-                r_max = (self.Ra + self.l_mid) * (np.cos(lam))**2
-
-                if r_min < L_xyz < r_max:
-                    point_LoS = points_LoS_plot[i_point]
-                    x_middlemag = point_LoS[0]
-                    y_middlemag = point_LoS[1]
-                    z_middlemag = point_LoS[2]
-                    x_points_middle_mag.append(x_middlemag)
-                    y_points_middle_mag.append(y_middlemag)
-                    z_points_middle_mag.append(z_middlemag)
-
-                    """
-                    # Check that the absolute value of the distance to a 
-                    # specific point of the grid is the same, independently of
-                    # the coordinates (B or LoS coords) in which the point is 
-                    # expressed
-                    print()
-                    print("Verify")
-                    print(np.sqrt(point_LoS_in_B[0]**2
-                                  + point_LoS_in_B[1]**2
-                                  + point_LoS_in_B[2]**2
-                                  ))
-                    print(np.sqrt(point_LoS[0] ** 2
-                                  + point_LoS[1] ** 2
-                                  + point_LoS[2] ** 2
-                                  ))
-                    print()
-                    """
-
-        points_middlemag = (x_points_middle_mag,
-                            y_points_middle_mag,
-                            z_points_middle_mag)
-        return points_middlemag
-
-    def plot_middlemagnetosphere_in_slices(
-            self, points_LoS_grid_middle_mag, marker_size=5):
-        """
-        Show middle-magnetosphere in 2D slices perpendicular to the LoS
-        ('x' axis)
+    def ucd_compute_and_plot(self, points_LoS_in_B, points_LoS_plot):
         """
 
-        x_points_middlemag = points_LoS_grid_middle_mag[0]
-        y_points_middlemag = points_LoS_grid_middle_mag[1]
-        z_points_middlemag = points_LoS_grid_middle_mag[2]
-
-        x_different_values_in_middlemag = []
-        for x_point_middlemag in x_points_middlemag:
-            if x_point_middlemag not in x_different_values_in_middlemag:
-                x_different_values_in_middlemag.append(x_point_middlemag)
-        x_different_values_in_middlemag = sorted(
-            x_different_values_in_middlemag)
-        # print(x_different_values_in_middlemag)
-
-        # Middle-magnetosphere slices, to show the emitting points (points
-        # which belong to the middle magnetosphere)
-        plt.close()
-        fig2 = plt.figure(figsize=(3, 3))
-        for ii in range(len(x_different_values_in_middlemag)):
-            y_slice = []
-            z_slice = []
-            x_middlemag = x_different_values_in_middlemag[ii]
-            for jj in range(len(x_points_middlemag)):
-                x_coord = x_points_middlemag[jj]
-                if x_coord == x_middlemag:
-                    y_slice.append(y_points_middlemag[jj])
-                    z_slice.append(z_points_middlemag[jj])
-
-            plt.plot(y_slice, z_slice, 'ro', markersize=marker_size)
-            plt.show()
-
-    def ucd_compute_and_plot(self, points_LoS_in_B, points_LoS_plot,
-                             plot=True):
-        if plot:
-            # Plotting canvas
-            self.fig = plt.figure(figsize=(10, 7))
-            min_lim_axis = -18
-            max_lim_axis = 18
-            self.ax = self.fig.add_subplot(121, projection='3d')
-            self.ax.set_xlabel('x')
-            self.ax.set_ylabel('y')
-            self.ax.set_zlabel('z')
-            self.ax.set_xlim3d(min_lim_axis, max_lim_axis)
-            self.ax.set_ylim3d(min_lim_axis, max_lim_axis)
-            self.ax.set_zlim3d(min_lim_axis, max_lim_axis)
-
-            self.ax2 = self.fig.add_subplot(122, projection='3d')
-            self.ax2.set_xlim3d(min_lim_axis, max_lim_axis)
-            self.ax2.set_ylim3d(min_lim_axis, max_lim_axis)
-            self.ax2.set_zlim3d(min_lim_axis, max_lim_axis)
-
-            # Plot (sub)stellar object rotation axis
-            self.plot_axis(rotation_matrix=self.R3, color="darkorange",
-                           len_axis=self.len_axes)
-
-            # Plot the (sub)stellar dipole magnetic axis
-            self.plot_axis(rotation_matrix=self.R, color="darkblue",
-                           len_axis=self.len_axes)
-
+        :param points_LoS_in_B:
+        :param points_LoS_plot:
+        :param plot:
+        :return voxels:
+        """
+        if self.plot3d:
+            # Compute and plot magnetic field vectors
             ###################################################################
             # Plot (sub)stellar object coordinates systems
             scale_axis = 10
@@ -659,39 +583,126 @@ class UCD(object):
             self.fig.canvas.mpl_connect('motion_notify_event', self.on_move)
             plt.show()
         else:
-            # Compute and plot magnetic field vectors
-            Bs_LoS, voxels = self.magnetic_field_vectors_LoS(
+            # Compute magnetic field vectors
+            _, voxels = self.magnetic_field_vectors_LoS(
                 points_LoS_plot, points_LoS_in_B)
         return voxels
 
+    ###########################################################################
+    # Find Middle-Magnetosphere
+    def find_middle_magnetosphere(self, voxels):
+        """
+        Finding the points belonging to the middle magnetosphere (emission
+        points)
+        - Points in the middle magnetosphere (between the inner and the outer
+          magnetosphere): the ones with a clear contribution to the UCD radio
+          emission arriving to the earth. The radio emission occurs in this
+          zone, which contains the open magnetic field lines generating the
+          current sheets: (Ra < r < Ra + l_mid)
+          with l_mid: width of the middle magnetosphere
+        - The radio emission in the inner magnetosphere is supposed to be
+          self-absorbed by the UCD
+        - In the outer magnetosphere the density of electrons decreases with
+          the distance, which also lowers its contribution to the radio
+          emission
+
+        :param voxels:
+        :return voxels_middlemag:
+        """
+        voxels_middlemag = []
+        for i in range(len(voxels)):
+            # We first find the angle λ (lam) associated with the specific
+            # point of the LoS grid expressed in B coordinates. It is the angle
+            # between the magnetic dipole "equatorial" plane and the radius
+            # vector r of the point
+            voxel = voxels[i]
+            point_LoS_in_B = voxel.position_in_B
+            if point_LoS_in_B[0] or point_LoS_in_B[1]:
+                L_xy = np.sqrt(point_LoS_in_B[0]**2 + point_LoS_in_B[1]**2)
+                L_z = point_LoS_in_B[2]
+                lam = np.arctan(L_z/L_xy)
+                L_xyz = np.sqrt(point_LoS_in_B[0]**2 +
+                                point_LoS_in_B[1]**2 +
+                                point_LoS_in_B[2]**2)
+                # Using the equation of the dipole field lines
+                # r = L_xyz = L cos²λ; with L in [Ra, Ra+l_mid]
+                # We have the longitude 'r' (r = L_xyz) and λ of the specific
+                # point of the grid that have been calculated in the B
+                # coordinate system.
+                # Equation of the field line touching the Alfvén Surface:
+                # Ra * (np.cos(lam))**2
+                r_min = self.Ra * (np.cos(lam))**2
+                r_max = (self.Ra + self.l_mid) * (np.cos(lam))**2
+                if r_min < L_xyz < r_max:
+                    voxel.set_middle_mag(True)
+                    voxels_middlemag.append(voxel)
+        return voxels_middlemag
+
+    def plot_middlemag_in_slices(self, voxels_middlemag, marker_size=2):
+        """
+        Show middle-magnetosphere in 2D slices perpendicular to the LoS
+        ('x' axis)
+
+        :param voxels_middlemag:
+        :param marker_size:
+        :return:
+        """
+        x_points_middlemag = []
+        y_points_middlemag = []
+        z_points_middlemag = []
+
+        for voxel_middlemag in voxels_middlemag:
+            x_points_middlemag.append(voxel_middlemag.position_LoS_plot[0])
+            y_points_middlemag.append(voxel_middlemag.position_LoS_plot[1])
+            z_points_middlemag.append(voxel_middlemag.position_LoS_plot[2])
+
+        x_different_values_in_middlemag = []
+        for x_point_middlemag in x_points_middlemag:
+            if x_point_middlemag not in x_different_values_in_middlemag:
+                x_different_values_in_middlemag.append(x_point_middlemag)
+        x_different_values_in_middlemag = sorted(
+            x_different_values_in_middlemag)
+
+        # Middle-magnetosphere slices, to show the emitting points (points
+        # which belong to the middle magnetosphere)
+        plt.close()
+        fig2 = plt.figure(figsize=(3, 3))
+        for ii in range(len(x_different_values_in_middlemag)):
+            y_slice = []
+            z_slice = []
+            x_middlemag = x_different_values_in_middlemag[ii]
+            for jj in range(len(x_points_middlemag)):
+                x_coord = x_points_middlemag[jj]
+                if x_coord == x_middlemag:
+                    y_slice.append(y_points_middlemag[jj])
+                    z_slice.append(z_points_middlemag[jj])
+
+            plt.plot(y_slice, z_slice, 'ro', markersize=marker_size)
+            plt.show()
+
 
 def main():
-    beta = 1
-    n = 11
+    """
+    Notes:
+    - Create a UCD with a low grid sampling "n" per edge (eg: <13),
+      to be able to plot the vectors without losing a relatively good
+      visibility of the vectors
+    - Create a UCD with a higher grid sampling "n" per edge (eg: >31 <101)
+      in order to have a middle-magnetosphere with a better sampling
+      resolution, but without going to too long computation times (for
+      101 points per cube edge, ~2min for finding the points of the
+      middle-magnetosphere)
+    """
 
-    # Create one UCD with a low grid sampling "n" per edge, to be able to
-    # represent the vectors without losing a relatively good visibility
-    # of the vectors
-    ucd_vectors_B = UCD(n=n, beta=beta)
+    ucd = UCD(n=101, beta=1, plot3d=False)
     # LoS grid points in different systems of coordinates
-    points_LoS, points_LoS_in_B, points_LoS_plot = ucd_vectors_B.LoS_cube()
-    # Compute and Plot the UCD (or other (sub)stellar object) dipolar
+    points_LoS, points_LoS_plot, points_LoS_in_B = ucd.LoS_cube()
+    # Compute and Plot the UCD (or other (sub)stellar object) dipole
     # magnetic vector field and plot it together with the rotation and the
     # magnetic axes, and the different coordinate systems
-    ucd_vectors_B.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot,
-                                       plot=True)
-
-    # Create a second UCD, which will represent the same UCD as before,
-    # with the same parameters, but with a higher grid sampling "n" per edge,
-    # to be able to represent the middle magnetosphere with enough points, to
-    # improve the model resolution of the middle magnetosphere.
-    ucd_middle_magnetosphere = UCD(n=n, beta=beta)
-    (points_LoS, points_LoS_in_B,
-     points_LoS_plot) = ucd_middle_magnetosphere.LoS_cube()
-    points_middle_mag = ucd_middle_magnetosphere.find_middle_magnetosphere(
-        points_LoS, points_LoS_in_B)
-    ucd_middle_magnetosphere.plot_middlemagnetosphere_in_slices(
-        points_middle_mag, marker_size=2)
+    voxels = ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
+    voxels_middlemag = ucd.find_middle_magnetosphere(voxels)
+    ucd.plot_middlemag_in_slices(voxels_middlemag, marker_size=2)
 
 
 if __name__ == "__main__":
