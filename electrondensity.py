@@ -18,22 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-"""
-Knowing "Ra" and defining "l", look for the points of the grid that are
-inside the middle magnetosphere, that are the ones which have a contribution
-in the radio (non-thermal) emission. If possible, paint these points in
-another color, in order to know that the computations are correct
-"""
 
+def compute_electron_density():
+    print("Electron density")
+    return "hi"
 
-class UCD:
-    """UCD object"""
-
-    def compute_electron_density():
-        print("Electron density")
-        return "hi"
-
-
-ucd = UCD()
-ucd_hiho = ucd.compute_electron_density()
-print(ucd_hiho)
