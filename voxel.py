@@ -29,7 +29,8 @@ class Voxel(object):
     def __init__(self, B_LoS_x, f=5e9, Ne=1,
                  position_LoS_plot=np.array([0,0,0]),
                  position_in_B=np.array([0,0,0]),
-                 middle_mag=False):
+                 inner_mag=False, middle_mag=False, outer_mag=False,
+                 coef_emission=1, coef_absorption=1):
         """
         :param Ne: Electron Density Number
         :param position_LoS: Position of the center of the voxel in Line of
@@ -40,7 +41,13 @@ class Voxel(object):
 
         # Boolean indicating if the Voxel belongs or not to the
         # middle-magnetosphere.
+        self.inner_mag = inner_mag
         self.middle_mag = middle_mag
+        self.outer_mag = outer_mag
+
+        # Emission and absorption coefficients
+        self.em = coef_emission
+        self.ab = coef_absorption
 
         # Free parameters:  l, Ne , δ, Tp , np
 
@@ -85,5 +92,12 @@ class Voxel(object):
         # inner magnetosphere filled by a thermal plasma consistent with a
         # wind-shock model that provides also X-ray emission
 
+    def set_inner_mag(self, bool_inner_mag):
+        self.inner_mag = bool_inner_mag
+
     def set_middle_mag(self, bool_middle_mag):
         self.middle_mag = bool_middle_mag
+
+    def set_outer_mag(self, bool_outer_mag):
+        self.outer_mag = bool_outer_mag
+

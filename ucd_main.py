@@ -14,14 +14,14 @@ def main():
       middle-magnetosphere)
     """
 
-    ucd = UCD(n=13, beta=1, plot3d=True)
+    ucd = UCD(n=15, beta=1, plot3d=True)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_plot, points_LoS_in_B = ucd.LoS_cube()
     # Compute and Plot the UCD (or other (sub)stellar object) dipole
     # magnetic vector field and plot it together with the rotation and the
     # magnetic axes, and the different coordinate systems
-    voxels = ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
-    voxels_middlemag = ucd.find_middle_magnetosphere(voxels)
+    ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
+    voxels_middlemag = ucd.find_middle_magnetosphere()
     ucd.plot_middlemag_in_slices(voxels_middlemag, marker_size=2)
 
 

@@ -31,7 +31,10 @@ The objectives of this file are:
 import pprint
 import numpy as np
 import matplotlib.pyplot as plt
+
 from voxel import Voxel
+from LoS_voxels_ray import LoS_Voxels_Ray
+
 ###############################################################################
 # PIPELINE
 
@@ -41,8 +44,9 @@ from voxel import Voxel
   magnetosphere (~DONE)
 
 – Calculation of the number density ne of the non-thermal electrons in each 
-point of the grid
+point of the grid (middle-magnetosphere)
 – Calculation of emission and absorption coefficients
+
 – Integration of the transfer equation along paths parallel to the 
 line of sight
 – Brightness distribution in the plane of the sky, total flux emitted 
@@ -66,6 +70,8 @@ class UCD(object):
         # Utils
         self.pp = pprint.PrettyPrinter(indent=4)
 
+        #######################################################################
+        self.voxels = []
         #######################################################################
         # Constants:
         # Length magnetic and rotation axes
@@ -116,7 +122,7 @@ class UCD(object):
         # l/rA: equatorial thickness of the magnetic shell
         # in Alfvén Radius units
         # l/rA: [0.025, 1];
-        eq_thick = self.l_mid / self.Ra
+        self.eq_thick = self.l_mid / self.Ra
 
         """
         – Ne: total number density of the non-thermal electrons: 
@@ -256,6 +262,24 @@ class UCD(object):
          Bz = m(3z^2/r^5 - 1/r^3)
         """
 
+        # x, y, z different positions in the LoS coordinates
+        self.x_ = np.linspace(
+            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
+        self.y_ = np.linspace(
+            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
+        self.z_ = np.linspace(
+            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
+        self.x_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
+        self.y_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
+        self.z_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
+
+        # Coordinates Y'Z' in plane perpendicular to the LoS (x')
+        self.coordinates_yz = []
+        for y in self.y_pplot:
+            for z in self.z_pplot:
+                if [y, z] != [0, 0]:
+                    self.coordinates_yz.append([y, z])
+
         # Plotting canvas
         self.plot3d = plot3d
         if self.plot3d:
@@ -365,19 +389,11 @@ class UCD(object):
             - points_LoS_plot
             - points_LoS_in_B
         """
-        x_ = np.linspace(
-            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
-        y_ = np.linspace(
-            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
-        z_ = np.linspace(
-            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
-        x_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
-        y_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
-        z_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
 
-        x, y, z = np.meshgrid(x_, y_, z_)
+        x, y, z = np.meshgrid(self.x_, self.y_, self.z_)
         # Grid for plotting in LoS coordinates (x_plot being the line of sight)
-        x_plot, y_plot, z_plot = np.meshgrid(x_pplot, y_pplot, z_pplot)
+        x_plot, y_plot, z_plot = np.meshgrid(
+            self.x_pplot, self.y_pplot, self.z_pplot)
         # Points of the grid in the Line of Sight (LoS) coordinates.
         points_LoS = []
         # Array for plotting in units of (sub)stellar radius R_ucd
@@ -409,12 +425,10 @@ class UCD(object):
         :param points_LoS_in_B:
         :returns:
             - Bs_LoS
-            - voxels
         """
 
         # B = [Bx, By, Bz], in the LoS coordinates system frame:
         #  in the points given by the grid of the LoS cube
-        voxels = []
         Bs_LoS = []
         for i in range(len(points_LoS_plot)):
             # point_LoS in units of sub(stellar) radius
@@ -439,8 +453,8 @@ class UCD(object):
             voxel = Voxel(B_LoS[0],
                           position_LoS_plot=point_LoS,
                           position_in_B=point_LoS_in_B)
-            voxels.append(voxel)
-        return Bs_LoS, voxels
+            self.voxels.append(voxel)
+        return Bs_LoS
 
     def plot_B_LoS_unit_vectors(self, Bs_LoS, points_LoS_plot):
         """
@@ -538,7 +552,6 @@ class UCD(object):
         :param points_LoS_in_B:
         :param points_LoS_plot:
         :param plot:
-        :return voxels:
         """
         if self.plot3d:
             # Compute and plot magnetic field vectors
@@ -577,23 +590,22 @@ class UCD(object):
 
             ###################################################################
             # Plot LoS Grid, compute and plot magnetic field vectors
-            Bs_LoS, voxels = self.magnetic_field_vectors_LoS(
+            Bs_LoS = self.magnetic_field_vectors_LoS(
                 points_LoS_plot, points_LoS_in_B)
             self.plot_B_LoS_unit_vectors(Bs_LoS, points_LoS_plot)
             self.fig.canvas.mpl_connect('motion_notify_event', self.on_move)
             plt.show()
         else:
             # Compute magnetic field vectors
-            _, voxels = self.magnetic_field_vectors_LoS(
-                points_LoS_plot, points_LoS_in_B)
-        return voxels
+            self.magnetic_field_vectors_LoS(points_LoS_plot, points_LoS_in_B)
 
     ###########################################################################
     # Find Middle-Magnetosphere
-    def find_middle_magnetosphere(self, voxels):
+    def find_middle_magnetosphere(self):
         """
-        Finding the points belonging to the middle magnetosphere (emission
-        points)
+        Finding the points belonging to the inner, middle and outer
+        magnetosphere. GyroSynchrotron Emission created in the
+        middle-magnetosphere points
         - Points in the middle magnetosphere (between the inner and the outer
           magnetosphere): the ones with a clear contribution to the UCD radio
           emission arriving to the earth. The radio emission occurs in this
@@ -606,16 +618,17 @@ class UCD(object):
           the distance, which also lowers its contribution to the radio
           emission
 
-        :param voxels:
         :return voxels_middlemag:
         """
+        voxels_inner = []
         voxels_middlemag = []
-        for i in range(len(voxels)):
+        voxels_outer = []
+        for i in range(len(self.voxels)):
             # We first find the angle λ (lam) associated with the specific
             # point of the LoS grid expressed in B coordinates. It is the angle
             # between the magnetic dipole "equatorial" plane and the radius
             # vector r of the point
-            voxel = voxels[i]
+            voxel = self.voxels[i]
             point_LoS_in_B = voxel.position_in_B
             if point_LoS_in_B[0] or point_LoS_in_B[1]:
                 L_xy = np.sqrt(point_LoS_in_B[0]**2 + point_LoS_in_B[1]**2)
@@ -633,9 +646,14 @@ class UCD(object):
                 # Ra * (np.cos(lam))**2
                 r_min = self.Ra * (np.cos(lam))**2
                 r_max = (self.Ra + self.l_mid) * (np.cos(lam))**2
-                if r_min < L_xyz < r_max:
+
+                if L_xyz < r_min:
+                    voxel.set_inner_mag(True)
+                if r_min <= L_xyz <= r_max:
                     voxel.set_middle_mag(True)
                     voxels_middlemag.append(voxel)
+                if L_xyz > r_max:
+                    voxel.set_outer_mag(True)
         return voxels_middlemag
 
     def plot_middlemag_in_slices(self, voxels_middlemag, marker_size=2):
@@ -680,3 +698,18 @@ class UCD(object):
             plt.plot(y_slice, z_slice, 'ro', markersize=marker_size)
             plt.show()
 
+    def LoS_voxel_groups(self):
+        """
+        Define the LoS_Voxels objects, thanks to the voxels of the UCD.
+        Each LoS_Voxels objects contains the voxels in a given "ray" parallel
+        to the LoS. All voxels of the same ray share the same coordinates Y'Z'
+        of the plane perpendicular to the LoS (x')
+        :return: LoS_voxel_groups
+        """
+
+        # As many rays as points present in the plane Y'Z' perpendicular to
+        # the LoS (x')
+        len_rays = self.n**2
+
+        for voxel in self.voxels:
+            pass
