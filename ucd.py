@@ -280,6 +280,10 @@ class UCD(object):
                 if [y, z] != [0, 0]:
                     self.coordinates_yz.append([y, z])
 
+        # LoS_rays of voxels along the LoS. Each ray passing through a
+        # specific Y'Z' coordinate in the plane perpendicular to the LoS
+        self.LoS_rays = []
+
         # Plotting canvas
         self.plot3d = plot3d
         if self.plot3d:
@@ -698,18 +702,27 @@ class UCD(object):
             plt.plot(y_slice, z_slice, 'ro', markersize=marker_size)
             plt.show()
 
-    def LoS_voxel_groups(self):
+    def LoS_voxel_rays(self):
         """
-        Define the LoS_Voxels objects, thanks to the voxels of the UCD.
-        Each LoS_Voxels objects contains the voxels in a given "ray" parallel
-        to the LoS. All voxels of the same ray share the same coordinates Y'Z'
-        of the plane perpendicular to the LoS (x')
-        :return: LoS_voxel_groups
+        Define the LoS_Voxels_Ray objects, thanks to the voxels of the UCD.
+        Each LoS_Voxels_Ray object contains the voxels in a given "ray"
+        parallel to the LoS. All voxels of the same ray share the same
+        coordinates Y'Z' of the plane perpendicular to the LoS (x')
+        :return: LoS_rays
         """
+
+        # NOTE: This organization of the voxels into rays along the LoS
+        # is slow
 
         # As many rays as points present in the plane Y'Z' perpendicular to
         # the LoS (x')
-        len_rays = self.n**2
+        for coordinate_yz in self.coordinates_yz:
+            y = coordinate_yz[0]
+            z = coordinate_yz[1]
+            ray = LoS_Voxels_Ray(y=y, z=z)
+            for voxel in self.voxels:
+                if (voxel.position_LoS_plot[1] == y
+                        and voxel.position_LoS_plot[2] == z):
+                    ray.LoS_voxels_in_ray.append(voxel)
+            self.LoS_rays.append(ray)
 
-        for voxel in self.voxels:
-            pass

@@ -25,7 +25,7 @@ The objectives of this file is:
 
 
 class LoS_Voxels_Ray(object):
-    def __init__(self, y, z, LoS_voxels_in_ray):
+    def __init__(self, y, z):
         """
 
         :param y: position y' from plane perpendicular to LoS (Y'Z')
@@ -36,5 +36,5 @@ class LoS_Voxels_Ray(object):
 
         self.y = y
         self.z = z
-        self.LoS_voxels_in_ray = LoS_voxels_in_ray
+        self.LoS_voxels_in_ray = []
 
