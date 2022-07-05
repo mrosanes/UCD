@@ -25,6 +25,9 @@ def main():
     voxels_middlemag = ucd.find_middle_magnetosphere()
     ucd.plot_middlemag_in_slices(voxels_middlemag, marker_size=2)
     ucd.LoS_voxel_rays()
+    ucd.compute_specific_intensity_LoS()
+    print("Total Specific Intensity in the plane perpendicular to the LoS")
+    print("{:.3g}".format(ucd.total_specific_intensity_LoS))
     end_time = time.time()
     print("UCD computations took %d seconds\n"
           "for %d elements per cube edge" % (end_time - start_time, ucd.n))

@@ -26,12 +26,15 @@ import numpy as np
 
 
 class Voxel(object):
-    def __init__(self, B_LoS_x, f=5e9, Ne=1,
+    def __init__(self, B_LoS_x, voxel_len, f=5e9, Ne=1,
                  position_LoS_plot=np.array([0,0,0]),
                  position_in_B=np.array([0,0,0]),
                  inner_mag=False, middle_mag=False, outer_mag=False,
                  coef_emission=1, coef_absorption=1):
         """
+        :param B_LoS_x: B field of the voxel in the LoS (x') direction
+        :param voxel_len: Voxel length
+        :param f: Frequency of Radio radiation
         :param Ne: Electron Density Number
         :param position_LoS: Position of the center of the voxel in Line of
         Sight (LoS) coordinates.
@@ -91,6 +94,16 @@ class Voxel(object):
         # Hard energetic population of non-thermal-emitting electrons, and an
         # inner magnetosphere filled by a thermal plasma consistent with a
         # wind-shock model that provides also X-ray emission
+
+        # Specific intensity inside the voxel object
+        # TODO: use correct formula; Ne and B shall influence the emission and
+        #   absorption coefficients: they shall be embedded in them.
+        self.voxel_len = voxel_len
+        self.spec_intensity = self.Ne * np.abs(B_LoS_x) * self.em / self.ab * (
+                1 - np.e**(-self.ab * self.voxel_len))
+
+        # Column matter optical depth between each grid element and the Earth
+        self.optical_depth = 0
 
     def set_inner_mag(self, bool_inner_mag):
         self.inner_mag = bool_inner_mag

@@ -72,6 +72,7 @@ class UCD(object):
 
         #######################################################################
         self.voxels = []
+
         #######################################################################
         # Constants:
         # Length magnetic and rotation axes
@@ -93,6 +94,9 @@ class UCD(object):
         # UCD Radius
         self.R_ucd = self.Rs = Rucd_Rj_scale * self.Rj
 
+        # Voxel edge length
+        self.voxel_len = (L / (n - 1)) * self.R_ucd
+
         # Star Period of Rotation in days
         self.Pr = Pr
 
@@ -104,6 +108,8 @@ class UCD(object):
 
         # TODO: Alfvén radius [TO BE COMPUTED IN SCRIPT: alfven_radius.py]
         self.Ra = 5 * self.R_ucd
+
+        self.total_specific_intensity_LoS = 0
 
         """
         r: Radius vector:
@@ -277,8 +283,7 @@ class UCD(object):
         self.coordinates_yz = []
         for y in self.y_pplot:
             for z in self.z_pplot:
-                if [y, z] != [0, 0]:
-                    self.coordinates_yz.append([y, z])
+                self.coordinates_yz.append([y, z])
 
         # LoS_rays of voxels along the LoS. Each ray passing through a
         # specific Y'Z' coordinate in the plane perpendicular to the LoS
@@ -454,7 +459,7 @@ class UCD(object):
             # Magnetic Field Vector B in LoS Coordinates System (x', y', z')
             B_LoS = self.R.dot(B)
             Bs_LoS.append(B_LoS)
-            voxel = Voxel(B_LoS[0],
+            voxel = Voxel(B_LoS[0], self.voxel_len,
                           position_LoS_plot=point_LoS,
                           position_in_B=point_LoS_in_B)
             self.voxels.append(voxel)
@@ -724,5 +729,13 @@ class UCD(object):
                 if (voxel.position_LoS_plot[1] == y
                         and voxel.position_LoS_plot[2] == z):
                     ray.LoS_voxels_in_ray.append(voxel)
+            ray.set_number_voxels_in_ray(len(ray.LoS_voxels_in_ray))
             self.LoS_rays.append(ray)
+        for LoS_ray in self.LoS_rays:
+            LoS_ray.voxels_optical_depth()
+            LoS_ray.compute_specific_intensity_ray()
+
+    def compute_specific_intensity_LoS(self):
+        for LoS_ray in self.LoS_rays:
+            self.total_specific_intensity_LoS += LoS_ray.ray_specific_intensity
 

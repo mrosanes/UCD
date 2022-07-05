@@ -23,18 +23,37 @@ The objectives of this file is:
     direction (x')
 """
 
+import numpy as np
 
 class LoS_Voxels_Ray(object):
     def __init__(self, y, z):
         """
-
         :param y: position y' from plane perpendicular to LoS (Y'Z')
         :param z: position z' from plane perpendicular to LoS (Y'Z')
         :param voxels: Array of voxels in the same direction along x' for a
         specific point of the plane Y'Z'
         """
 
+        self.n = 0
         self.y = y
         self.z = z
         self.LoS_voxels_in_ray = []
+        self.ray_specific_intensity = 0
+
+    def set_number_voxels_in_ray(self, n):
+        self.n = n
+
+    def voxels_optical_depth(self):
+        # Calculation of the column matter optical depth between each grid
+        # element and the Earth
+        for i in range(self.n):
+            voxel = self.LoS_voxels_in_ray[i]
+            voxel.optical_depth = 0
+            for j in range(i+1, self.n):
+                voxel.optical_depth += voxel.ab * voxel.voxel_len
+
+    def compute_specific_intensity_ray(self):
+        for voxel in self.LoS_voxels_in_ray:
+            self.ray_specific_intensity += (
+                    voxel.spec_intensity * np.e**(-voxel.optical_depth))
 
