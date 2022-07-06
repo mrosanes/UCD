@@ -88,6 +88,11 @@ class UCD(object):
         # of the UCD]):
         self.n = n
 
+        # Distance from the Earth (point of observation) to the source (UCD)
+        # or other (sub)stellar object
+        # TODO: in Parsecs??
+        self.D = 1
+
         # Total length of the meshgrid cube in number of (sub)stellar radius:
         self.L = L
 
@@ -109,7 +114,12 @@ class UCD(object):
         # TODO: Alfvén radius [TO BE COMPUTED IN SCRIPT: alfven_radius.py]
         self.Ra = 5 * self.R_ucd
 
-        self.total_specific_intensity_LoS = 0
+        # Array 2D (image) of specific intensities in the plane perpendicular
+        # to the LoS
+        self.specific_intensities_array = np.zeros((self.n, self.n))
+
+        # Total Flux Density (Sv) in the plane perpendicular to the LoS
+        self.total_flux_density_LoS = 0
 
         """
         r: Radius vector:
@@ -735,7 +745,31 @@ class UCD(object):
             LoS_ray.voxels_optical_depth()
             LoS_ray.compute_specific_intensity_ray()
 
-    def compute_specific_intensity_LoS(self):
+        for i in range(self.n):
+            row_list_intensities = []
+            for j in range(self.n):
+                row_list_intensities.append(
+                    self.LoS_rays[i * self.n + j].ray_specific_intensity)
+            self.specific_intensities_array[i, :] = row_list_intensities
+
+    def compute_flux_density_LoS(self):
+        total_flux_density_LoS = 0
         for LoS_ray in self.LoS_rays:
-            self.total_specific_intensity_LoS += LoS_ray.ray_specific_intensity
+            total_flux_density_LoS += (
+                LoS_ray.ray_specific_intensity * self.voxel_len**2)
+
+        self.total_flux_density_LoS = 1/(self.D**2) * total_flux_density_LoS
+
+    def plot_specific_intensity_LoS(self):
+        """
+        Plot (2D) specific intensity in the plane perpendicular to the LoS
+        at the specific rotation phase of the UCD (or other (sub)stellar)
+        object
+        """
+        plt.figure(figsize=(3, 3))
+        plt.imshow(self.specific_intensities_array, cmap='gray',
+                   vmin=np.amin(self.specific_intensities_array),
+                   vmax=np.amax(self.specific_intensities_array))
+                   # vmin=0, vmax=255)
+        plt.show()
 
