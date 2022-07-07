@@ -746,11 +746,11 @@ class UCD(object):
             LoS_ray.compute_specific_intensity_ray()
 
         for i in range(self.n):
-            row_list_intensities = []
+            column_list_intensities = []
             for j in range(self.n):
-                row_list_intensities.append(
+                column_list_intensities.append(
                     self.LoS_rays[i * self.n + j].ray_specific_intensity)
-            self.specific_intensities_array[i, :] = row_list_intensities
+            self.specific_intensities_array[:, i] = column_list_intensities
 
     def compute_flux_density_LoS(self):
         total_flux_density_LoS = 0
