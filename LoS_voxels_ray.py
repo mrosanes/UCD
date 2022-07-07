@@ -25,6 +25,7 @@ The objectives of this file is:
 
 import numpy as np
 
+
 class LoS_Voxels_Ray(object):
     def __init__(self, y, z):
         """
