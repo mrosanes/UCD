@@ -31,6 +31,7 @@ The objectives of this file are:
 import pprint
 import numpy as np
 import matplotlib.pyplot as plt
+import pyqtgraph as pg
 
 from voxel import Voxel
 from LoS_voxels_ray import LoS_Voxels_Ray
@@ -752,15 +753,7 @@ class UCD(object):
                     self.LoS_rays[i * self.n + j].ray_specific_intensity)
             self.specific_intensities_array[:, i] = column_list_intensities
 
-    def compute_flux_density_LoS(self):
-        total_flux_density_LoS = 0
-        for LoS_ray in self.LoS_rays:
-            total_flux_density_LoS += (
-                LoS_ray.ray_specific_intensity * self.voxel_len**2)
-
-        self.total_flux_density_LoS = 1/(self.D**2) * total_flux_density_LoS
-
-    def plot_specific_intensity_LoS(self):
+    def plot_2D_specific_intensity_LoS(self):
         """
         Plot (2D) specific intensity in the plane perpendicular to the LoS
         at the specific rotation phase of the UCD (or other (sub)stellar)
@@ -772,4 +765,18 @@ class UCD(object):
                    vmax=np.amax(self.specific_intensities_array))
                    # vmin=0, vmax=255)
         plt.show()
+
+    def compute_flux_density_LoS(self):
+        total_flux_density_LoS = 0
+        for LoS_ray in self.LoS_rays:
+            total_flux_density_LoS += (
+                LoS_ray.ray_specific_intensity * self.voxel_len**2)
+
+        self.total_flux_density_LoS = 1/(self.D**2) * total_flux_density_LoS
+
+    def plot_1D_flux_densities_rotation(self, rotation_phase, flux_densities):
+        """Plot 1D of the Flux Density in the different rotation phases"""
+        app = pg.mkQApp()
+        pg.plot(rotation_phase, flux_densities, pen="b", symbol='o')
+        app.exec_()
 
