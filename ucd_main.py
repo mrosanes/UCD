@@ -4,25 +4,36 @@ import numpy as np
 from ucd import UCD
 
 
-def main():
+def plot_3D(n=7, beta=0, rotation_angle=0, inclination=90,
+            plot3d=True):
+    ucd = UCD(
+        n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
+        plot3d=plot3d)
+    # LoS grid points in different systems of coordinates
+    points_LoS, points_LoS_plot, points_LoS_in_B = ucd.LoS_cube()
+    # Compute and Plot the UCD (or other (sub)stellar object) dipole
+    # magnetic vector field and plot it together with the rotation and the
+    # magnetic axes, and the different coordinate systems
+    ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
+
+
+def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
+                            plot3d=True):
     """
     Notes:
-    - Create a UCD with a low grid sampling "n" per edge (eg: <13),
-      to be able to plot the vectors without losing a relatively good
-      visibility of the vectors
-    - Create a UCD with a higher grid sampling "n" per edge (eg: >31 <101)
-      in order to have a middle-magnetosphere with a better sampling
-      resolution, but without going to too long computation times (for
-      101 points per cube edge, ~2min for finding the points of the
-      middle-magnetosphere)
-    """
-
-    """
-    Full process for a certain rotation phase of the UCD (or
-    other (sub)stellar object)
+      - Create a UCD with a low grid sampling "n" per edge (eg: <13),
+        to be able to plot the vectors without losing a relatively good
+        visibility of the vectors
+      - Create a UCD with a higher grid sampling "n" per edge (eg: >31 <101)
+        in order to have a middle-magnetosphere with a better sampling
+        resolution, but without going to too long computation times (for
+        101 points per cube edge, ~2min for finding the points of the
+        middle-magnetosphere)
     """
     start_time = time.time()
-    ucd = UCD(n=15, beta=1, plot3d=True)
+    ucd = UCD(
+        n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
+        plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_plot, points_LoS_in_B = ucd.LoS_cube()
     # Compute and Plot the UCD (or other (sub)stellar object) dipole
@@ -40,9 +51,13 @@ def main():
     print("\nUCD computations for %d elements per cube edge, took:\n"
           "%d seconds\n" % (ucd.n, end_time - start_time))
 
+
+def flux_densities_1D(
+        n=15, beta=0, inclination=90,
+        plot3d=False):
     """
-    Flux densities in function of the rotation phase angles of the UCD (or
-    other (sub)stellar object)
+    Flux densities 1D in function of the rotation phase angles of the UCD (
+    or other (sub)stellar object)
     """
     start_time_flux_densities = time.time()
     # Rotation phase angles from 0º to 360º (each 10º)
@@ -53,7 +68,9 @@ def main():
     # Flux densities in function of the rotation phase angles
     flux_densities = []
     for rot_phase in rotation_phases:
-        ucd = UCD(n=15, beta=1, rotation_angle=rot_phase, plot3d=False)
+        ucd = UCD(n=n,
+                  beta=beta, inclination=inclination, rotation_angle=rot_phase,
+                  plot3d=plot3d)
         points_LoS, points_LoS_plot, points_LoS_in_B = ucd.LoS_cube()
         ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
         ucd.find_middle_magnetosphere()
@@ -66,10 +83,27 @@ def main():
     print("Time to compute the 1D specific intensities graph along the\n"
           " rotation of the UCD (or other (sub)stellar object), "
           "took:\n%d seconds\n" % (
-            end_time_flux_densities - start_time_flux_densities))
+                  end_time_flux_densities - start_time_flux_densities))
 
     # 1D Plot of the flux densities in function of the rotation phase angles
     ucd.plot_1D_flux_densities_rotation(rotation_phases, flux_densities)
+
+
+def main():
+    # Angles in degrees
+    beta = 0
+    rotation_angle = 0
+    inclination = 90
+
+    plot_3D(
+        n=7, beta=beta, rotation_angle=rotation_angle, inclination=inclination)
+
+    specific_intensities_2D(
+        n=25,
+        beta=beta, rotation_angle=rotation_angle, inclination=inclination,
+        plot3d=False)
+
+    flux_densities_1D(n=15, beta=beta, inclination=inclination, plot3d=False)
 
 
 if __name__ == "__main__":
