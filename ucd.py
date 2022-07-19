@@ -470,7 +470,7 @@ class UCD(object):
             # Magnetic Field Vector B in LoS Coordinates System (x', y', z')
             B_LoS = self.R.dot(B)
             Bs_LoS.append(B_LoS)
-            voxel = Voxel(B_LoS[0], self.voxel_len,
+            voxel = Voxel(B_LoS, self.voxel_len,
                           position_LoS_plot=point_LoS,
                           position_in_B=point_LoS_in_B)
             self.voxels.append(voxel)
@@ -518,13 +518,12 @@ class UCD(object):
             # ax.scatter(x_plot, y_plot, z_plot, color='b')
 
             # B vectors in each grid point
-            u = round(B_LoS_unit[0], 3)
-            v = round(B_LoS_unit[1], 3)
-            w = round(B_LoS_unit[2], 3)
             scale_factor = 3
             self.ax.quiver(
                 x_plot, y_plot, z_plot,
-                scale_factor * u, scale_factor * v, scale_factor * w)
+                scale_factor * B_LoS_unit[0],
+                scale_factor * B_LoS_unit[1],
+                scale_factor * B_LoS_unit[2])
 
         return Bs_LoS_unit
 
@@ -568,7 +567,7 @@ class UCD(object):
 
     def ucd_compute_and_plot(self, points_LoS_in_B, points_LoS_plot):
         """
-
+        UCD compute and plot
         :param points_LoS_in_B:
         :param points_LoS_plot:
         :param plot:

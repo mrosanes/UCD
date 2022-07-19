@@ -26,13 +26,12 @@ import numpy as np
 
 
 class Voxel(object):
-    def __init__(self, B_LoS_x, voxel_len, f=5e9, Ne=1,
+    def __init__(self, B_LoS, voxel_len,
                  position_LoS_plot=np.array([0,0,0]),
                  position_in_B=np.array([0,0,0]),
-                 inner_mag=False, middle_mag=False, outer_mag=False,
-                 coef_emission=1, coef_absorption=1):
+                 inner_mag=False, middle_mag=False, outer_mag=False):
         """
-        :param B_LoS_x: B field of the voxel in the LoS (x') direction
+        :param B_LoS: B field of the voxel
         :param voxel_len: Voxel length
         :param f: Frequency of Radio radiation
         :param Ne: Electron Density Number
@@ -48,31 +47,31 @@ class Voxel(object):
         self.middle_mag = middle_mag
         self.outer_mag = outer_mag
 
-        # Emission and absorption coefficients
-        self.em = coef_emission
-        self.ab = coef_absorption
+        # Gyrofrequency of electrons; Frequency of radiation
+        v = 5e9  # 5 GHz
 
         # Free parameters:  l, Ne , δ, Tp , np
+        self.Ne = Ne = 1e50
 
-        """
-        NOTE: What interests us is the Longitudinal Magnetic Field (along 
-        the Line of Sight (LoS), which 
-        """
-        # Longitudinal Magnetic Field
-        self.B_LoS_x = B_LoS_x
-
-        # Gyrofrequency of electrons
-        self.f = f
+        # Module of the Magnetic Field
+        self.B = B = np.linalg.norm(B_LoS)
 
         # Lorentz factor
         γ = 1.2
 
         # δ~2 in some MCP stars according C.Trigilio el al. (ESO 2004))
-        self.δ = 2
+        self.δ = δ = 2
+
+        # Emission and absorption coefficients
+        #  [np.e**(-self.ab * self.voxel_len)] is 1, if Ne is too small,
+        #  thus spec_intensity = 0 if Ne is too small (required Ne~1e60
+        #  to begin having spec_intensity > 0).
+        self.em = 10**(-31.32 + 5.24 * δ) * Ne * B**(
+                -0.22 + 0.9 * δ) * v**(1.22 - 0.9 * δ)
+        self.ab = 10**(-0.47 + 6.06 * δ) * Ne * B**(
+                0.3 + 0.98 * δ) * v**(- 1.3 - 0.98 * δ)
 
         #######################################################################
-        # Attributes of Voxel objects
-        self.Ne = Ne
         # In units of sub(stellar) radius
         self.position_LoS_plot = position_LoS_plot
         self.position_in_B = position_in_B
@@ -89,17 +88,13 @@ class Voxel(object):
         sampled that computational times are prohibitive
         """
 
-        self.f = 5e9  # Frequency of radiation 5 GHz
-
         # Hard energetic population of non-thermal-emitting electrons, and an
         # inner magnetosphere filled by a thermal plasma consistent with a
         # wind-shock model that provides also X-ray emission
 
         # Specific intensity inside the voxel object
-        # TODO: use correct formula; Ne and B shall influence the emission and
-        #   absorption coefficients: they shall be embedded in them.
         self.voxel_len = voxel_len
-        self.spec_intensity = self.Ne * np.abs(B_LoS_x) * self.em / self.ab * (
+        self.spec_intensity = (self.em / self.ab) * (
                 1 - np.e**(-self.ab * self.voxel_len))
 
         # Column matter optical depth between each grid element and the Earth

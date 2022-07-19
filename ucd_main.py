@@ -95,8 +95,8 @@ def main():
     rotation_angle = 0
     inclination = 90
 
-    plot_3D(
-        n=7, beta=beta, rotation_angle=rotation_angle, inclination=inclination)
+    plot_3D(n=7, beta=beta, rotation_angle=rotation_angle,
+            inclination=inclination)
 
     specific_intensities_2D(
         n=25,
