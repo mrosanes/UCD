@@ -82,6 +82,13 @@ class UCD(object):
         # Jupyter Radius in meters [m] ~ Brown Dwarf Radius
         self.Rj = 7e7
 
+        # Masa del protón:
+        Mp = 1.6726e-27
+
+        # TODO: We take the velocity of the wind as a free parameter?
+        # Velocity of the wind:
+        v_inf = 400e3  # [m/s]
+
         #######################################################################
         # Parameters of the model
         # n: Num points per edge in meshgrid cube (use odd number in order to
@@ -113,7 +120,16 @@ class UCD(object):
         self.m = 1 / 2 * Bp * self.R_ucd
 
         # TODO: Alfvén radius [TO BE COMPUTED IN SCRIPT: alfven_radius.py]
-        self.Ra = 5 * self.R_ucd
+        self.Ra = 15 * self.R_ucd
+
+        # |B_Ra| -> z = 0
+        self.B_Ra = self.m / (self.Ra ** 3)
+
+        # TODO: Verify
+        # From Leto2006
+        # B**2 / (8*PI) = 1/2 * pw * v_inf**2
+        # With: pw = Mp * nw
+        nw = self.B_Ra**2 / (4 * np.pi * Mp * v_inf**2)
 
         # Array 2D (image) of specific intensities in the plane perpendicular
         # to the LoS
@@ -759,7 +775,7 @@ class UCD(object):
         object
         """
         plt.figure(figsize=(3, 3))
-        plt.imshow(self.specific_intensities_array, cmap='gray',
+        plt.imshow(self.specific_intensities_array, cmap='gray_r',
                    vmin=np.amin(self.specific_intensities_array),
                    vmax=np.amax(self.specific_intensities_array))
                    # vmin=0, vmax=255)
@@ -779,3 +795,5 @@ class UCD(object):
         pg.plot(rotation_phase, flux_densities, pen="b", symbol='o')
         app.exec_()
 
+    def get_B_Ra(self):
+        return self.B_Ra
