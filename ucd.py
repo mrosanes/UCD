@@ -129,7 +129,22 @@ class UCD(object):
         # From Leto2006
         # B**2 / (8*PI) = 1/2 * pw * v_inf**2
         # With: pw = Mp * nw
-        nw = self.B_Ra**2 / (4 * np.pi * Mp * v_inf**2)
+        nw = neA = self.B_Ra**2 / (4 * np.pi * Mp * v_inf**2)
+        r_ne = 0.5  # Ratio r_ne = Ne / neA: from 10^(-4) - 1 (Trigilio_2004)
+        self.Ne = Ne = r_ne * neA
+
+        # Lorentz factor
+        γ = 1.2
+
+        # δ~2 in some MCP stars according C.Trigilio el al. (ESO 2004))
+        self.δ = δ = 2
+
+        # In each point of the middle magnetosphere (Formula 6 - Trigilio_2004)
+        # Electrons isotropically distributed
+        self.N_γ = N_γ = Ne * (γ - 1) ** (-δ)
+        print("Ne and N_γ")
+        print(Ne)
+        print(N_γ)
 
         # Array 2D (image) of specific intensities in the plane perpendicular
         # to the LoS
@@ -488,7 +503,8 @@ class UCD(object):
             Bs_LoS.append(B_LoS)
             voxel = Voxel(B_LoS, self.voxel_len,
                           position_LoS_plot=point_LoS,
-                          position_in_B=point_LoS_in_B)
+                          position_in_B=point_LoS_in_B,
+                          δ=self.δ, Ne=self.Ne)
             self.voxels.append(voxel)
         return Bs_LoS
 
@@ -684,11 +700,14 @@ class UCD(object):
 
                 if L_xyz < r_min:
                     voxel.set_inner_mag(True)
+                    voxel.set_Ne(0)
                 if r_min <= L_xyz <= r_max:
                     voxel.set_middle_mag(True)
+                    voxel.set_Ne(self.N_γ)
                     voxels_middlemag.append(voxel)
                 if L_xyz > r_max:
                     voxel.set_outer_mag(True)
+                    voxel.set_Ne(0)
         return voxels_middlemag
 
     def plot_middlemag_in_slices(self, voxels_middlemag, marker_size=2):

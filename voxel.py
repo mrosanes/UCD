@@ -29,7 +29,8 @@ class Voxel(object):
     def __init__(self, B_LoS, voxel_len,
                  position_LoS_plot=np.array([0,0,0]),
                  position_in_B=np.array([0,0,0]),
-                 inner_mag=False, middle_mag=False, outer_mag=False):
+                 inner_mag=False, middle_mag=False, outer_mag=False,
+                 δ=1.2, Ne=0):
         """
         :param B_LoS: B field of the voxel
         :param voxel_len: Voxel length
@@ -51,16 +52,14 @@ class Voxel(object):
         v = 5e9  # 5 GHz
 
         # Free parameters:  l, Ne , δ, Tp , np
-        self.Ne = Ne = 1e50
+        self.Ne = Ne
+
+        # TODO: Comment to use the real computed Ne; uncomment to see
+        #  something in the 2D resulting image
+        # self.Ne = Ne = 1e50
 
         # Module of the Magnetic Field
         self.B = B = np.linalg.norm(B_LoS)
-
-        # Lorentz factor
-        γ = 1.2
-
-        # δ~2 in some MCP stars according C.Trigilio el al. (ESO 2004))
-        self.δ = δ = 2
 
         # Emission and absorption coefficients
         #  [np.e**(-self.ab * self.voxel_len)] is 1, if Ne is too small,
@@ -108,4 +107,7 @@ class Voxel(object):
 
     def set_outer_mag(self, bool_outer_mag):
         self.outer_mag = bool_outer_mag
+
+    def set_Ne(self, Ne):
+        self.Ne = Ne
 
