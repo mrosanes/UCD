@@ -28,7 +28,7 @@ import numpy as np
 import pyqtgraph as pg
 
 Rsun = 6.96e8  # [m]
-Rs = Rucd = Rstar = 4*Rsun
+R_obj = 4*Rsun
 
 rotation_phase = [
  0.0, 0.08726646, 0.17453293, 0.26179939, 0.34906585,
@@ -74,7 +74,7 @@ alfven_radius_array = [
 
 alfven_radius_array = np.array(alfven_radius_array)
 time.sleep(1)
-alfven_radius_array_norm = np.round(alfven_radius_array / Rs, 3)
+alfven_radius_array_norm = np.round(alfven_radius_array / R_obj, 3)
 
 app = pg.mkQApp()
 pg.plot(rotation_phase, alfven_radius_array_norm, pen="b", symbol='o')

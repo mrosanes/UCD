@@ -42,7 +42,7 @@ from LoS_voxels_ray import LoS_Voxels_Ray
 """
 – Magnetosphere 3D sampling and magnetic field vectors B calculation (DONE)
 – Definition of the Alfvén radius and of inner, middle and outer 
-  magnetosphere (~DONE)
+  magnetosphere (DONE)
 
 – Calculation of the number density ne of the non-thermal electrons in each 
 point of the grid (middle-magnetosphere)
@@ -64,8 +64,12 @@ toward the Earth
 
 
 class UCD(object):
-
-    def __init__(self, n=5, L=30, Rucd_Rj_scale=1, Pr=1, Bp=1,
+    """
+    Class UCD dedicated to the object under study. However, the object that
+    can be studied with the present 3D model, can be a UCD or another stellar
+    object with similar magnetic characteristics.
+    """
+    def __init__(self, n=5, L=30, Robj_Rj_scale=2, Pr=1, Bp=1,
                  beta=1, rotation_angle=1, inclination=89, plot3d=False):
         #######################################################################
         # Utils
@@ -81,6 +85,19 @@ class UCD(object):
 
         # Jupyter Radius in meters [m] ~ Brown Dwarf Radius
         self.Rj = 7e7
+
+        # Radius of sun
+        self.Rsun = 6.96e8
+
+        # UCD Radius
+        # self.R_obj = Robj_Rj_scale * self.Rj
+        # TODO: TO BE FIXED: I used UCD to account for any object
+        Robj_Rsun_scale = Robj_Rj_scale
+
+        # R_obj: is the radius of the object; being the object a (sub)stellar
+        # object like a UCD, or a bigger stellar object, like an MCP star or
+        # other
+        self.R_obj = Robj_Rsun_scale * self.Rsun
 
         # Masa del protón:
         Mp = 1.6726e-27
@@ -104,23 +121,21 @@ class UCD(object):
         # Total length of the meshgrid cube in number of (sub)stellar radius:
         self.L = L
 
-        # UCD Radius
-        self.R_ucd = self.Rs = Rucd_Rj_scale * self.Rj
-
         # Voxel edge length
-        self.voxel_len = (L / (n - 1)) * self.R_ucd
+        self.voxel_len = (L / (n - 1)) * self.R_obj
 
         # Star Period of Rotation in days
         self.Pr = Pr
 
         # Strength of the B at the pole of the star
-        self.Bp = Bp  # in Tesla [T];  (1T = 1e4G)
+        self.Bp = Bp * 10000  # in Gauss (1T = 10000 Gauss)
 
         # Magnetic Momentum:  m = 1/2 (Bp Rs)
-        self.m = 1 / 2 * Bp * self.R_ucd
+        self.m = 1 / 2 * self.Bp * self.R_obj
 
-        # TODO: Alfvén radius [TO BE COMPUTED IN SCRIPT: alfven_radius.py]
-        self.Ra = 15 * self.R_ucd
+        # TODO: Alfvén radius TO BE CORRECTED according to output of script:
+        #  alfven_radius.py]
+        self.Ra = 15 * self.R_obj
 
         # |B_Ra| -> z = 0
         self.B_Ra = self.m / (self.Ra ** 3)
@@ -156,7 +171,7 @@ class UCD(object):
         """
         r: Radius vector:
            Distance from the (sub)stellar object center till a concrete point
-           outside of the star (at the surface of the star: r = R_ucd)
+           outside of the star (at the surface of the star: r = R_obj)
         """
 
         #######################################################################
@@ -165,7 +180,7 @@ class UCD(object):
 
         # l_mid (or 'l'): equatorial thickness of the magnetic shell for the
         # middle magnetosphere (which is added to Ra)
-        self.l_mid = 4 * self.R_ucd
+        self.l_mid = 4 * self.R_obj
 
         # l/rA: equatorial thickness of the magnetic shell
         # in Alfvén Radius units
@@ -278,7 +293,7 @@ class UCD(object):
         
         p{ram} = B^2 / (8*PI) ~ np Tp K{B}
         
-        v(r) = v(inf).(1 - R_ucd/r)
+        v(r) = v(inf).(1 - R_obj/r)
           with r: [Rstar, +inf]
         
         Delta = Smin / Smax 
@@ -312,11 +327,11 @@ class UCD(object):
 
         # x, y, z different positions in the LoS coordinates
         self.x_ = np.linspace(
-            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
+            -self.L / 2 * self.R_obj, self.L / 2 * self.R_obj, self.n)
         self.y_ = np.linspace(
-            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
+            -self.L / 2 * self.R_obj, self.L / 2 * self.R_obj, self.n)
         self.z_ = np.linspace(
-            -self.L / 2 * self.R_ucd, self.L / 2 * self.R_ucd, self.n)
+            -self.L / 2 * self.R_obj, self.L / 2 * self.R_obj, self.n)
         self.x_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
         self.y_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
         self.z_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
@@ -447,7 +462,7 @@ class UCD(object):
             self.x_pplot, self.y_pplot, self.z_pplot)
         # Points of the grid in the Line of Sight (LoS) coordinates.
         points_LoS = []
-        # Array for plotting in units of (sub)stellar radius R_ucd
+        # Array for plotting in units of (sub)stellar radius R_obj
         points_LoS_plot = []
         for i in range(0, self.n):
             for j in range(0, self.n):

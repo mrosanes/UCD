@@ -24,13 +24,13 @@ import pyqtgraph as pg
 """Plot 1D Alfvén radius along magnetic equator (magnetic longitude)"""
 
 Rsun = 6.96e8
-Rs = 4 * Rsun
+R_obj = 4 * Rsun
 alfven_radius_array = [64979666585.0315, 51855086500.8173, 63577100496.4035,
                        52492395361.1043, 60517419853.7907]
 
 alfven_radius_array_norm = []
 alfven_radius_array = np.array(alfven_radius_array)
-alfven_radius_array_norm = np.round(alfven_radius_array / Rs, 3)
+alfven_radius_array_norm = np.round(alfven_radius_array / R_obj, 3)
 
 rotation_phase = zet = [0, 80, 160, 240, 320]
 

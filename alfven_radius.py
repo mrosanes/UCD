@@ -29,7 +29,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 # Available data
 Rsun = 6.96e8  # [m]
-Rs = Rucd = Rstar = 4*Rsun  # [m]
+R_obj = 4*Rsun  # [m]
 vinf = 600e3  # [m/s]
 # Bp = 1  # 1 Tesla = 1e4 Gauss
 Bp = 1e4  # Gauss
@@ -48,8 +48,8 @@ mu = magnetic_permeability = 1.256637e-6
 r = symbols('r')
 
 # Formulas
-vw = vinf * (1 - Rs / r)
-B = 1/2 * Bp * (Rs / r)**3
+vw = vinf * (1 - R_obj / r)
+B = 1/2 * Bp * (R_obj / r)**3
 ro = Mlos / (4 * np.pi * r**2 * vw)
 
 rotation_phase = zet_array = np.deg2rad(np.array(range(0, 361, 5)))
@@ -61,7 +61,7 @@ for zet in zet_array:
     # pp.pprint(solve(eq1))
     for solution in solutions:
         if solution.is_real:
-            if solution >= 0 and solution > 2*Rs:
+            if solution >= 0 and solution > 2*R_obj:
                 alfven_radius_array.append(solution)
 
 print(alfven_radius_array)
@@ -72,10 +72,10 @@ print(alfven_radius_array)
 """
 aa = 4*Mlos*w**2*(1-(np.sin(bet))**2*(np.cos(zet))**2)
 bb = 4*Mlos*(vinf**2)
-cc = -8*Mlos*Rs*(vinf**2)
-dd = 4*Mlos*(Rs**2)*(vinf**2)
-ee = -(Bp**2)*(Rs**6)*vinf/mu
-ff = (Bp**2)*(Rs**7)*vinf/mu
+cc = -8*Mlos*R_obj*(vinf**2)
+dd = 4*Mlos*(R_obj**2)*(vinf**2)
+ee = -(Bp**2)*(R_obj**6)*vinf/mu
+ff = (Bp**2)*(R_obj**7)*vinf/mu
 
 eq2 = Eq(aa * r**7 + bb * r**5 + cc * r**4 + dd * r**3 + ee * r + ff, 0)
 pp.pprint(solve(eq2))

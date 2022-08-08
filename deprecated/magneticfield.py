@@ -36,7 +36,7 @@ pp = pprint.PrettyPrinter(indent=4)
 # TODO: Questions
 """
 Question Related with 'B' and with 'm'
-Units of magnetic field in Tesla:
+Units of magnetic field in Gauss or in Tesla
 Shall distances be expressed in meters or in Star Radius, etc.?
 """
 
@@ -76,7 +76,7 @@ L = 30
 Rj = 7e7
 
 # UCD Radius
-R_ucd = Rs = 1 * Rj
+R_obj = 1 * Rj
 
 # Star Period of Rotation in days
 Pr = 1
@@ -84,11 +84,11 @@ Pr = 1
 # Strength of the B at the pole of the star
 Bp = 1  # in Tesla [T];  (1T = 1e4G)
 
-# Magnetic Momentum:  m = 1/2 (Bp Rs)
-m = 1/2 * Bp * R_ucd
+# Magnetic Momentum:  m = 1/2 (Bp R_obj)
+m = 1/2 * Bp * R_obj
 
 # TODO: Alfvén radius [TO BE COMPUTED IN SCRIPT: alfven_radius.py]
-Ra = 5 * R_ucd
+Ra = 5 * R_obj
 
 # Length magnetic and rotation  axes
 len_axes = 40
@@ -97,7 +97,7 @@ len_axes = 40
 Other Important Parameters:
 r: Radius vector:
    Distance from the (sub)stellar object center till a concrete point 
-   outside of the star (at the surface of the star: r = R_ucd) 
+   outside of the star (at the surface of the star: r = R_obj) 
 """
 
 ##############################################################################
@@ -124,7 +124,7 @@ i_r = i_rad = np.deg2rad(inc)
 
 # l_mid (or 'l'): equatorial thickness of the magnetic shell for the
 # middle magnetosphere (which is added to Ra)
-l_mid = 4 * R_ucd
+l_mid = 4 * R_obj
 # l/rA: equatorial thickness of the magnetic shell in Alfvén Radius units
 # l/rA: [0.025, 1];
 eq_thick = l_mid / Ra
@@ -161,14 +161,14 @@ p{ram} = ρ.v^2
 
 p{ram} = B^2 / (8*PI) ~ np Tp K{B}
 
-v(r) = v(inf).(1 - R_ucd/r)
-  with r: [Rstar, +inf]
+v(r) = v(inf).(1 - R_obj/r)
+  with r: [R_obj, +inf]
 
 Delta = Smin / Smax 
   -> if Smin == Smax -> Delta = 1 
 
 L = (Bp^2/(16.PI.np.Tp.K{B}))^(1/6)
-  L ~ [18.Rstar, 23.Rstar] for 
+  L ~ [18.R_obj, 23.R_obj] for 
   Bp ~ [5000 Gauss, 10000 Gauss]
 
 Gas density in outer region:
@@ -200,9 +200,9 @@ Dipole Magnetic Field components in the magnetic field frame:
 # coordinates of the LoS (x', y', z'). The coordinates of each vector
 # represents the center of each of the voxels of the grid.
 
-x_ = np.linspace(-L/2 * R_ucd, L/2 * R_ucd, n)
-y_ = np.linspace(-L/2 * R_ucd, L/2 * R_ucd, n)
-z_ = np.linspace(-L/2 * R_ucd, L/2 * R_ucd, n)
+x_ = np.linspace(-L/2 * R_obj, L/2 * R_obj, n)
+y_ = np.linspace(-L/2 * R_obj, L/2 * R_obj, n)
+z_ = np.linspace(-L/2 * R_obj, L/2 * R_obj, n)
 x_pplot = np.linspace(-L/2, L/2, n)
 y_pplot = np.linspace(-L/2, L/2, n)
 z_pplot = np.linspace(-L/2, L/2, n)
@@ -212,7 +212,7 @@ x, y, z = np.meshgrid(x_, y_, z_)
 x_plot, y_plot, z_plot = np.meshgrid(x_pplot, y_pplot, z_pplot)
 # Points of the grid in the Line of Sight (LoS) coordinates.
 points_LoS = []
-# Array for plotting in units of (sub)stellar radius R_ucd
+# Array for plotting in units of (sub)stellar radius R_obj
 points_LoS_plot = []
 for i in range(0, n):
     for j in range(0, n):

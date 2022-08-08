@@ -1,3 +1,27 @@
+"""
+ucd_main.py
+
+2022 - Marc Rosanes Siscart (marcrosanes@gmail.com)
+C/ Carles Collet, 7; Barcelona (08031); Catalonia
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+The objective(s) of this file is to execute the 3D model, implementing the
+developments done in the other Python files of the project. This file
+contains the function "main".
+"""
+
 import time
 import numpy as np
 
@@ -103,7 +127,7 @@ def main():
         beta=beta, rotation_angle=rotation_angle, inclination=inclination,
         plot3d=False)
 
-    flux_densities_1D(n=15, beta=beta, inclination=inclination, plot3d=False)
+    flux_densities_1D(n=7, beta=beta, inclination=inclination, plot3d=False)
 
 
 if __name__ == "__main__":
