@@ -65,12 +65,26 @@ toward the Earth
 
 class UCD(object):
     """
-    Class UCD dedicated to the object under study. However, the object that
-    can be studied with the present 3D model, can be a UCD or another stellar
-    object with similar magnetic characteristics.
+    Class UCD dedicated to the object under study. The object studied with
+    the present 3D model, can be a UCD or another stellar object with similar
+    magnetic characteristics (MPC star, etc.).
     """
-    def __init__(self, n=5, L=30, Robj_Rj_scale=2, Pr=1, Bp=1,
+    def __init__(self, n=5, L=30, Robj_Rsun_scale=2, Pr=1, Bp=1,
                  beta=1, rotation_angle=1, inclination=89, plot3d=False):
+        """
+        Constructor method
+        :param int n: Number of points per side of the mesh grid
+        :param int L: Length of the mesh grid in stellar radius units
+        :param float Robj_Rsun_scale: Ratio of the UCD or other
+          (sub)stellar object radius, regarding the Sun
+        :param float Pr: Rotation Period [days]
+        :param float Bp: Magnetic Field at the pole of the (sub)stellar object
+        :param float beta: Angle between Magnetic and Rotation axis [degrees]
+        :param float rotation_angle: Rotation angle [degrees]
+        :param float inclination: Angle between LoS and Rotation axis [degrees]
+        :param bool plot3d: Plot or not the magnetic field in a 3D plot
+        """
+
         #######################################################################
         # Utils
         self.pp = pprint.PrettyPrinter(indent=4)
@@ -83,21 +97,22 @@ class UCD(object):
         # Length magnetic and rotation axes
         self.len_axes = 40
 
-        # Jupyter Radius in meters [m] ~ Brown Dwarf Radius
-        self.Rj = 7e7
-
         # Radius of sun
         self.Rsun = 6.96e8
 
-        # UCD Radius
-        # self.R_obj = Robj_Rj_scale * self.Rj
-        # TODO: TO BE FIXED: I used UCD to account for any object
-        Robj_Rsun_scale = Robj_Rj_scale
+        # Jupyter Radius in meters [m] (approx) ~ Brown Dwarf Radius
+        self.Rj = 0.1 * self.Rsun
 
-        # R_obj: is the radius of the object; being the object a (sub)stellar
-        # object like a UCD, or a bigger stellar object, like an MCP star or
-        # other
+        # Robj_Rsun_scale: Ratio of the UCD or other (sub)stellar object
+        # radius, regarding the Sun radius.
+        # R_obj: radius of the object; being the object a (sub)stellar object
+        # like a UCD, or a bigger stellar object, like an MCP star or
+        # other with similar magnetic properties
         self.R_obj = Robj_Rsun_scale * self.Rsun
+
+        # TODO: Alfvén radius to be updated according to output of script:
+        #  alfven_radius.py
+        self.Ra = 15 * self.R_obj
 
         # Masa del protón:
         Mp = 1.6726e-27
@@ -132,10 +147,6 @@ class UCD(object):
 
         # Magnetic Momentum:  m = 1/2 (Bp Rs)
         self.m = 1 / 2 * self.Bp * self.R_obj
-
-        # TODO: Alfvén radius TO BE CORRECTED according to output of script:
-        #  alfven_radius.py]
-        self.Ra = 15 * self.R_obj
 
         # |B_Ra| -> z = 0
         self.B_Ra = self.m / (self.Ra ** 3)
@@ -379,7 +390,6 @@ class UCD(object):
         forming a given coordinate system from the four different
         coordinate systems used in the model, expressed in the coordinates
         of the Line of Sight [LoS] coordinate system
-
         :param coordinate_system_id:
         :return coordinate_system:
         """
@@ -831,3 +841,4 @@ class UCD(object):
 
     def get_B_Ra(self):
         return self.B_Ra
+
