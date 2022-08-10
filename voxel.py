@@ -27,7 +27,7 @@ import numpy as np
 
 class Voxel(object):
     def __init__(self, B_LoS, voxel_len,
-                 position_LoS_plot=np.array([0,0,0]),
+                 position_LoS=np.array([0,0,0]),
                  position_in_B=np.array([0,0,0]),
                  inner_mag=False, middle_mag=False, outer_mag=False,
                  δ=1.2, Ne=0):
@@ -72,7 +72,7 @@ class Voxel(object):
 
         #######################################################################
         # In units of sub(stellar) radius
-        self.position_LoS_plot = position_LoS_plot
+        self.position_LoS = position_LoS
         self.position_in_B = position_in_B
         # Tp: from ~10e5 to ~10e6 caused by the rotating magnetosphere
 

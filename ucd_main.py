@@ -35,11 +35,11 @@ def plot_3D(n=7, beta=0, rotation_angle=0, inclination=90,
         n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
         plot3d=plot3d)
     # LoS grid points in different systems of coordinates
-    points_LoS, points_LoS_plot, points_LoS_in_B = ucd.LoS_cube()
+    points_LoS, points_LoS_in_B = ucd.LoS_cube()
     # Compute and Plot the UCD (or other (sub)stellar object) dipole
     # magnetic vector field and plot it together with the rotation and the
     # magnetic axes, and the different coordinate systems
-    ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
+    ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS)
 
 
 def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
@@ -60,11 +60,11 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
         n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
         plot3d=plot3d)
     # LoS grid points in different systems of coordinates
-    points_LoS, points_LoS_plot, points_LoS_in_B = ucd.LoS_cube()
+    points_LoS, points_LoS_in_B = ucd.LoS_cube()
     # Compute and Plot the UCD (or other (sub)stellar object) dipole
     # magnetic vector field and plot it together with the rotation and the
     # magnetic axes, and the different coordinate systems
-    ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
+    ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS)
     voxels_middlemag = ucd.find_middle_magnetosphere()
     # ucd.plot_middlemag_in_slices(voxels_middlemag, marker_size=2)
     ucd.LoS_voxel_rays()
@@ -96,8 +96,8 @@ def flux_densities_1D(
         ucd = UCD(n=n,
                   beta=beta, inclination=inclination, rotation_angle=rot_phase,
                   plot3d=plot3d)
-        points_LoS, points_LoS_plot, points_LoS_in_B = ucd.LoS_cube()
-        ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
+        points_LoS, points_LoS_in_B = ucd.LoS_cube()
+        ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS)
         ucd.find_middle_magnetosphere()
         ucd.LoS_voxel_rays()
         ucd.compute_flux_density_LoS()

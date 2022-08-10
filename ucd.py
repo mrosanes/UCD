@@ -338,20 +338,14 @@ class UCD(object):
         """
 
         # x, y, z different positions in the LoS coordinates
-        self.x_ = np.linspace(
-            -self.L / 2 * self.R_obj, self.L / 2 * self.R_obj, self.n)
-        self.y_ = np.linspace(
-            -self.L / 2 * self.R_obj, self.L / 2 * self.R_obj, self.n)
-        self.z_ = np.linspace(
-            -self.L / 2 * self.R_obj, self.L / 2 * self.R_obj, self.n)
-        self.x_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
-        self.y_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
-        self.z_pplot = np.linspace(-self.L / 2, self.L / 2, self.n)
+        self.x = np.linspace(-self.L / 2, self.L / 2, self.n)
+        self.y = np.linspace(-self.L / 2, self.L / 2, self.n)
+        self.z = np.linspace(-self.L / 2, self.L / 2, self.n)
 
         # Coordinates Y'Z' in plane perpendicular to the LoS (x')
         self.coordinates_yz = []
-        for y in self.y_pplot:
-            for z in self.z_pplot:
+        for y in self.y:
+            for z in self.z:
                 self.coordinates_yz.append([y, z])
 
         # LoS_rays of voxels along the LoS. Each ray passing through a
@@ -463,26 +457,22 @@ class UCD(object):
 
         :returns:
             - points_LoS
-            - points_LoS_plot
             - points_LoS_in_B
         """
 
-        x, y, z = np.meshgrid(self.x_, self.y_, self.z_)
-        # Grid for plotting in LoS coordinates (x_plot being the line of sight)
-        x_plot, y_plot, z_plot = np.meshgrid(
-            self.x_pplot, self.y_pplot, self.z_pplot)
-        # Points of the grid in the Line of Sight (LoS) coordinates.
+        # Grid for computations & grid for plotting (same grid)
+        # Grid in LoS coordinates
+        # (x being the LoS direction [equivalent to x' in Trigilio 2004])
+        x, y, z = np.meshgrid(self.x, self.y, self.z)
+
+        # Points of the grid in the Line of Sight (LoS) coordinates. In units
+        # of (sub)stellar radius R_obj
         points_LoS = []
-        # Array for plotting in units of (sub)stellar radius R_obj
-        points_LoS_plot = []
         for i in range(0, self.n):
             for j in range(0, self.n):
                 for k in range(0, self.n):
                     points_LoS.append(
                         np.array([x[i, j, k], y[i, j, k], z[i, j, k]]))
-                    points_LoS_plot.append(np.array([x_plot[i, j, k],
-                                                     y_plot[i, j, k],
-                                                     z_plot[i, j, k]]))
 
         # points_LoS_in_B: Points of the Line of Sight cube (LoS coordinates),
         #   expressed in the magnetic coordinates
@@ -491,14 +481,14 @@ class UCD(object):
             point_LoS_in_B = self.R_inv.dot(point_LoS)
             points_LoS_in_B.append(point_LoS_in_B)
 
-        return points_LoS, points_LoS_plot, points_LoS_in_B
+        return points_LoS, points_LoS_in_B
 
-    def magnetic_field_vectors_LoS(self, points_LoS_plot, points_LoS_in_B):
+    def magnetic_field_vectors_LoS(self, points_LoS, points_LoS_in_B):
         """
         Magnetic field vectors B in each point of the grid in Line of Sight
         [LoS] coordinates (each point representing the center of each voxel)
 
-        :param points_LoS_plot:
+        :param points_LoS:
         :param points_LoS_in_B:
         :returns:
             - Bs_LoS
@@ -507,34 +497,33 @@ class UCD(object):
         # B = [Bx, By, Bz], in the LoS coordinates system frame:
         #  in the points given by the grid of the LoS cube
         Bs_LoS = []
-        for i in range(len(points_LoS_plot)):
+        for i in range(len(points_LoS)):
             # point_LoS in units of sub(stellar) radius
-            point_LoS = points_LoS_plot[i]
+            point_LoS = points_LoS[i]
             point_LoS_in_B = points_LoS_in_B[i]
             x = point_LoS_in_B[0]
             y = point_LoS_in_B[1]
             z = point_LoS_in_B[2]
-            if x == 0 and y == 0 and z == 0:
-                continue
-            r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
-            # Compute Bx, By, Bz in the points of the grid of the LoS cube
-            #   expressed in magnetic coordinates x, y, z
-            Bx = 3 * self.m * (x * z / r ** 5)
-            By = 3 * self.m * (y * z / r ** 5)
-            Bz = self.m * (3 * z ** 2 / r ** 5 - 1 / r ** 3)
-            # Magnetic Field Vector B in Magnetic Coordinates System (x, y, z)
-            B = np.array([Bx, By, Bz])
-            # Magnetic Field Vector B in LoS Coordinates System (x', y', z')
-            B_LoS = self.R.dot(B)
-            Bs_LoS.append(B_LoS)
-            voxel = Voxel(B_LoS, self.voxel_len,
-                          position_LoS_plot=point_LoS,
-                          position_in_B=point_LoS_in_B,
-                          δ=self.δ, Ne=self.Ne)
-            self.voxels.append(voxel)
+            if x != 0 or y != 0 or z != 0:
+                r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
+                # Compute Bx, By, Bz in the points of the grid of the LoS cube
+                #   expressed in magnetic coordinates x, y, z
+                Bx = 3 * self.m * (x * z / r ** 5)
+                By = 3 * self.m * (y * z / r ** 5)
+                Bz = self.m * (3 * z ** 2 / r ** 5 - 1 / r ** 3)
+                # Magnetic Field Vector B in Magnetic Coordinates (x, y, z)
+                B = np.array([Bx, By, Bz])
+                # Magnetic Field Vector B in LoS Coordinates (x', y', z')
+                B_LoS = self.R.dot(B)
+                Bs_LoS.append(B_LoS)
+                voxel = Voxel(B_LoS, self.voxel_len,
+                              position_LoS=point_LoS,
+                              position_in_B=point_LoS_in_B,
+                              δ=self.δ, Ne=self.Ne)
+                self.voxels.append(voxel)
         return Bs_LoS
 
-    def plot_B_LoS_unit_vectors(self, Bs_LoS, points_LoS_plot):
+    def plot_B_LoS_unit_vectors(self, Bs_LoS, points_LoS):
         """
         Plot magnetic unit vectors in LoS coordinates:
         - Compute unit vectors from magnetic field vectors B in the LoS
@@ -544,7 +533,7 @@ class UCD(object):
         - Plot magnetic (Bs) unit vectors
 
         :param Bs_LoS:
-        :param points_LoS_plot:
+        :param points_LoS:
         :return Bs_LoS_unit:
         """
         Bs_LoS_unit = []
@@ -558,31 +547,28 @@ class UCD(object):
                                 round(B_LoS_unit[2], 3)])
 
         # Remove origin point
-        points_LoS_plot_no_origin = []
-        for point_LoS_plot in points_LoS_plot:
-            if point_LoS_plot.any():
-                points_LoS_plot_no_origin.append(point_LoS_plot)
+        points_LoS_no_origin = []
+        for point_LoS in points_LoS:
+            if point_LoS.any():
+                points_LoS_no_origin.append(point_LoS)
 
         # Plot scaled unit vectors
-        for i in range(len(points_LoS_plot_no_origin)):
-            point_LoS = points_LoS_plot_no_origin[i]
+        for i in range(len(points_LoS_no_origin)):
+            point_LoS = points_LoS_no_origin[i]
             B_LoS_unit = Bs_LoS_unit[i]
 
             # Grid points
-            x_plot = point_LoS[0]
-            y_plot = point_LoS[1]
-            z_plot = point_LoS[2]
-            # Do not show grid points, only vectors
-            # ax.scatter(x_plot, y_plot, z_plot, color='b')
+            x = point_LoS[0]
+            y = point_LoS[1]
+            z = point_LoS[2]
+            # Uncomment if grid points shall be plotted (together with vectors)
+            # ax.scatter(x, y, z, color='b')
 
-            # B vectors in each grid point
-            scale_factor = 3
+            # Plot B vectors in each grid point
+            scale_factor = sf = 3
             self.ax.quiver(
-                x_plot, y_plot, z_plot,
-                scale_factor * B_LoS_unit[0],
-                scale_factor * B_LoS_unit[1],
-                scale_factor * B_LoS_unit[2])
-
+                x, y, z,
+                sf * B_LoS_unit[0], sf * B_LoS_unit[1], sf * B_LoS_unit[2])
         return Bs_LoS_unit
 
     def on_move(self, event):
@@ -623,11 +609,11 @@ class UCD(object):
             [axis_point2_LoS[2], axis_point1_LoS[2]])
         self.ax.plot(line_x, line_y, line_z, color=color)
 
-    def ucd_compute_and_plot(self, points_LoS_in_B, points_LoS_plot):
+    def ucd_compute_and_plot(self, points_LoS_in_B, points_LoS):
         """
         UCD compute and plot
         :param points_LoS_in_B:
-        :param points_LoS_plot:
+        :param points_LoS:
         :param plot:
         """
         if self.plot3d:
@@ -668,13 +654,13 @@ class UCD(object):
             ###################################################################
             # Plot LoS Grid, compute and plot magnetic field vectors
             Bs_LoS = self.magnetic_field_vectors_LoS(
-                points_LoS_plot, points_LoS_in_B)
-            self.plot_B_LoS_unit_vectors(Bs_LoS, points_LoS_plot)
+                points_LoS, points_LoS_in_B)
+            self.plot_B_LoS_unit_vectors(Bs_LoS, points_LoS)
             self.fig.canvas.mpl_connect('motion_notify_event', self.on_move)
             plt.show()
         else:
             # Compute magnetic field vectors
-            self.magnetic_field_vectors_LoS(points_LoS_plot, points_LoS_in_B)
+            self.magnetic_field_vectors_LoS(points_LoS, points_LoS_in_B)
 
     ###########################################################################
     # Find Middle-Magnetosphere
@@ -750,9 +736,9 @@ class UCD(object):
         z_points_middlemag = []
 
         for voxel_middlemag in voxels_middlemag:
-            x_points_middlemag.append(voxel_middlemag.position_LoS_plot[0])
-            y_points_middlemag.append(voxel_middlemag.position_LoS_plot[1])
-            z_points_middlemag.append(voxel_middlemag.position_LoS_plot[2])
+            x_points_middlemag.append(voxel_middlemag.position_LoS[0])
+            y_points_middlemag.append(voxel_middlemag.position_LoS[1])
+            z_points_middlemag.append(voxel_middlemag.position_LoS[2])
 
         x_different_values_in_middlemag = []
         for x_point_middlemag in x_points_middlemag:
@@ -797,8 +783,8 @@ class UCD(object):
             z = coordinate_yz[1]
             ray = LoS_Voxels_Ray(y=y, z=z)
             for voxel in self.voxels:
-                if (voxel.position_LoS_plot[1] == y
-                        and voxel.position_LoS_plot[2] == z):
+                if (voxel.position_LoS[1] == y
+                        and voxel.position_LoS[2] == z):
                     ray.LoS_voxels_in_ray.append(voxel)
             ray.set_number_voxels_in_ray(len(ray.LoS_voxels_in_ray))
             self.LoS_rays.append(ray)
