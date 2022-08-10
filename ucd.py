@@ -68,7 +68,7 @@ class UCD(object):
     the present 3D model, can be a UCD or another stellar object with similar
     magnetic characteristics (MPC star, etc.).
     """
-    def __init__(self, n=5, L=30, Robj_Rsun_scale=2, Pr=1, Bp=1,
+    def __init__(self, n=5, L=30, Robj_Rsun_scale=4, Pr=1, Bp=3000,
                  beta=1, rotation_angle=1, inclination=89, plot3d=False):
         """
         Constructor method
@@ -97,9 +97,9 @@ class UCD(object):
         self.len_axes = 40
 
         # Radius of sun
-        self.Rsun = 6.96e8
+        self.Rsun = 6.96e10  # [cm]
 
-        # Jupyter Radius in meters [m] (approx) ~ Brown Dwarf Radius
+        # Jupyter Radius in [cm] (approx) ~ Brown Dwarf Radius
         self.Rj = 0.1 * self.Rsun
 
         # Robj_Rsun_scale: Ratio of the UCD or other (sub)stellar object
@@ -107,20 +107,19 @@ class UCD(object):
         # R_obj: radius of the object; being the object a (sub)stellar object
         # like a UCD, or a bigger stellar object, like an MCP star or
         # other with similar magnetic properties
-        self.R_obj = Robj_Rsun_scale * self.Rsun
+        self.R_obj = Robj_Rsun_scale * self.Rsun  # in [cm]
 
         # TODO: Alfvén radius to be updated according to output of script:
         #  alfven_radius.py
-        self.Ra = 15 * self.R_obj
+        self.Ra = 16  # In units of [R_obj] ([Rs] on Trigilio 2004)
 
         # Masa del protón:
         # Mp = 1.6726e-27  # [kg]
         Mp = 1.6726e-24  # [g]
 
-        # TODO: We take the velocity of the wind as a free parameter?
         # Velocity of the wind:
-        # v_inf = 400e3  # [m/s]
-        v_inf = 400e5  # [cm/s]
+        # v_inf = 600e3  # [m/s]
+        v_inf = 600e5  # [cm/s]
 
         #######################################################################
         # Parameters of the model
@@ -131,8 +130,10 @@ class UCD(object):
 
         # Distance from the Earth (point of observation) to the source (UCD)
         # or other (sub)stellar object
-        # TODO: in Parsecs??
-        self.D = 1
+        D_pc = 352 #  [pc]
+        # Conversion factor from Parsecs to cm
+        pc2cm = 3.086e+18
+        self.D = D_pc * pc2cm  # in [cm]
 
         # Total length of the meshgrid cube in number of (sub)stellar radius:
         self.L = L
@@ -144,21 +145,29 @@ class UCD(object):
         self.Pr = Pr
 
         # Strength of the B at the pole of the star
-        self.Bp = Bp * 10000  # in Gauss (1T = 10000 Gauss)
+        self.Bp = Bp  # in Gauss [G] (10000 Gauss = 1 T)
 
         # Magnetic Momentum:  m = 1/2 (Bp Rs)
-        self.m = 1 / 2 * self.Bp * self.R_obj
+        # self.m = 1 / 2 * self.Bp * self.R_obj
+        # In units of R_obj ->
+        self.m = 1 / 2 * self.Bp  # [Rs]
 
         # |B_Ra| -> z = 0
         self.B_Ra = self.m / (self.Ra ** 3)
+        print("B_Ra")
+        print(self.B_Ra)
 
-        # TODO: Verify
-        # From Leto2006
+        ###
+        # From Leto2006:
+        # Deducing the non-thermal electrons number (density of non-thermal e-)
         # B**2 / (8*PI) = 1/2 * pw * v_inf**2
-        # With: pw = Mp * nw
+        # With: ρw = Mp * nw
         nw = neA = self.B_Ra**2 / (4 * np.pi * Mp * v_inf**2)
-        r_ne = 0.5  # Ratio r_ne = Ne / neA: from 10^(-4) - 1 (Trigilio_2004)
+        # Efficiency of the acceleration process:
+        # Ratio r_ne = Ne / neA: from 10^(-4) - 1 (Trigilio_2004)
+        r_ne = 0.002
         self.Ne = Ne = r_ne * neA
+        ###
 
         # Lorentz factor
         γ = 1.2
@@ -180,19 +189,13 @@ class UCD(object):
         # Total Flux Density (Sv) in the plane perpendicular to the LoS
         self.total_flux_density_LoS = 0
 
-        """
-        r: Radius vector:
-           Distance from the (sub)stellar object center till a concrete point
-           outside of the star (at the surface of the star: r = R_obj)
-        """
-
         #######################################################################
         # Free Parameters of the Model
         # (Parameter ranges indicated with: [x, y])
 
         # l_mid (or 'l'): equatorial thickness of the magnetic shell for the
         # middle magnetosphere (which is added to Ra)
-        self.l_mid = 4 * self.R_obj
+        self.l_mid = 4  # [R_obj]
 
         # l/rA: equatorial thickness of the magnetic shell
         # in Alfvén Radius units
@@ -200,12 +203,11 @@ class UCD(object):
         self.eq_thick = self.l_mid / self.Ra
 
         """
-        – Ne: total number density of the non-thermal electrons: 
+        – Ne: number density of the non-thermal electrons:
             Ne: [10^2 - 10^6 cm^(−3)], with Ne < n{e,A}
             [Ne/n{e,A} in the range 10^(−4) to 1]
             with:
               n{e,A}: number density of thermal plasma at the Alfvén point
-
         – δ: spectral index of the non-thermal electron energy distribution
             δ: [2, 4]
         – Tp:  temperature of the inner magnetosphere
@@ -223,6 +225,9 @@ class UCD(object):
             rotates, the thermal plasma density decreases linearly outward, 
             while the temperature increases. Tp and np are considered as the 
             values at r = R∗ (base of the inner magnetosphere)
+        - r: Radius vector:
+            Distance from the (sub)stellar object center till a concrete point
+            outside of the star (at the surface of the star: r = R_obj)
         """
 
         #######################################################################
@@ -818,8 +823,6 @@ class UCD(object):
             total_flux_density_LoS += (
                 LoS_ray.ray_specific_intensity * self.voxel_len**2)
 
-        self.total_flux_density_LoS = 1/(self.D**2) * total_flux_density_LoS
-
-    def get_B_Ra(self):
-        return self.B_Ra
+        # Flux density in mJy: 1e26 mJy -> 1 erg / (s * cm^2 * Hz)
+        self.total_flux_density_LoS = total_flux_density_LoS * 1e26 / self.D**2
 
