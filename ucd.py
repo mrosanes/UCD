@@ -31,7 +31,6 @@ The objectives of this file are:
 import pprint
 import numpy as np
 import matplotlib.pyplot as plt
-import pyqtgraph as pg
 
 from voxel import Voxel
 from LoS_voxels_ray import LoS_Voxels_Ray
@@ -115,11 +114,13 @@ class UCD(object):
         self.Ra = 15 * self.R_obj
 
         # Masa del protón:
-        Mp = 1.6726e-27
+        # Mp = 1.6726e-27  # [kg]
+        Mp = 1.6726e-24  # [g]
 
         # TODO: We take the velocity of the wind as a free parameter?
         # Velocity of the wind:
-        v_inf = 400e3  # [m/s]
+        # v_inf = 400e3  # [m/s]
+        v_inf = 400e5  # [cm/s]
 
         #######################################################################
         # Parameters of the model
@@ -832,12 +833,6 @@ class UCD(object):
                 LoS_ray.ray_specific_intensity * self.voxel_len**2)
 
         self.total_flux_density_LoS = 1/(self.D**2) * total_flux_density_LoS
-
-    def plot_1D_flux_densities_rotation(self, rotation_phase, flux_densities):
-        """Plot 1D of the Flux Density in the different rotation phases"""
-        app = pg.mkQApp()
-        pg.plot(rotation_phase, flux_densities, pen="b", symbol='o')
-        app.exec_()
 
     def get_B_Ra(self):
         return self.B_Ra

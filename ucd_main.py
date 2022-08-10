@@ -24,6 +24,7 @@ contains the function "main".
 
 import time
 import numpy as np
+import pyqtgraph as pg
 
 from ucd import UCD
 
@@ -65,7 +66,7 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
     # magnetic axes, and the different coordinate systems
     ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS_plot)
     voxels_middlemag = ucd.find_middle_magnetosphere()
-    ucd.plot_middlemag_in_slices(voxels_middlemag, marker_size=2)
+    # ucd.plot_middlemag_in_slices(voxels_middlemag, marker_size=2)
     ucd.LoS_voxel_rays()
     ucd.compute_flux_density_LoS()
     print("Total Flux Density in the plane perpendicular to the LoS:")
@@ -110,7 +111,9 @@ def flux_densities_1D(
                   end_time_flux_densities - start_time_flux_densities))
 
     # 1D Plot of the flux densities in function of the rotation phase angles
-    ucd.plot_1D_flux_densities_rotation(rotation_phases, flux_densities)
+    app = pg.mkQApp()
+    pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
+    app.exec_()
 
 
 def main():
