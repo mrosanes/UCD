@@ -42,6 +42,12 @@ class Voxel(object):
         (Dipole Magnetic Field) coordinates.
         """
 
+        # Speed of Light in cm/s
+        c = 3e10  # [cm/s]
+        # Boltzmann constant
+        k = 1.38e-16  # [erg / K] .
+        # Note on Units: 1 erg = 1e-7 J
+
         # Boolean indicating if the Voxel belongs or not to the
         # middle-magnetosphere.
         self.inner_mag = inner_mag
@@ -60,14 +66,36 @@ class Voxel(object):
         # Module of the Magnetic Field
         self.B = B = np.linalg.norm(B_LoS)
 
-        # Emission and absorption coefficients in the middle-magnetosphere:
-        # Gyrosynchrotron Emission from a Power-Law Electron Distribution
-        # Gudel, Manuel; 2002 (pag.6);
-        # Annual Review of Astronomy & Astrophysics 40:217-261
-        self.em = 10**(-31.32 + 5.24 * δ) * Ne * B**(
-                -0.22 + 0.9 * δ) * v**(1.22 - 0.9 * δ)
-        self.ab = 10**(-0.47 + 6.06 * δ) * Ne * B**(
-                0.3 + 0.98 * δ) * v**(- 1.3 - 0.98 * δ)
+        if self.inner_mag:
+            # Emission and absorption coefficients in the Inner-Magnetosphere:
+            # Bremsstrahlung
+            # Gudel, Manuel; 2002 (pag.5 / Formula [6]);
+            # Annual Review of Astronomy & Astrophysics 40:217-261
+            Teff = 1
+            # TODO: self.ab = ...
+            # self.em = self.ab * (2 * k * Teff * f**2) / c**2 ->
+            self.em = self.ab * 3.1e-37 * Teff * v**2
+        elif self.middle_mag:
+            # Emission and absorption coefficients in the Middle-Magnetosphere:
+            # Gyrosynchrotron Emission from a Power-Law Electron Distribution
+            # Gudel, Manuel; 2002 (pag.6);
+            # Annual Review of Astronomy & Astrophysics 40:217-261
+            self.em = 10**(-31.32 + 5.24 * δ) * Ne * B**(
+                    -0.22 + 0.9 * δ) * v**(1.22 - 0.9 * δ)
+            self.ab = 10**(-0.47 + 6.06 * δ) * Ne * B**(
+                    0.3 + 0.98 * δ) * v**(- 1.3 - 0.98 * δ)
+        else:
+            # TODO: remove this else condition, by setting correctly the
+            #  Voxels which are part of the middle-magnetosphere, and the
+            #  ones which are part from the inner-magnetosphere
+            # Emission and absorption coefficients in the Middle-Magnetosphere:
+            # Gyrosynchrotron Emission from a Power-Law Electron Distribution
+            # Gudel, Manuel; 2002 (pag.6);
+            # Annual Review of Astronomy & Astrophysics 40:217-261
+            self.em = 10 ** (-31.32 + 5.24 * δ) * Ne * B ** (
+                    -0.22 + 0.9 * δ) * v ** (1.22 - 0.9 * δ)
+            self.ab = 10 ** (-0.47 + 6.06 * δ) * Ne * B ** (
+                    0.3 + 0.98 * δ) * v ** (- 1.3 - 0.98 * δ)
 
         #######################################################################
         # In units of sub(stellar) radius
