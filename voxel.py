@@ -54,17 +54,16 @@ class Voxel(object):
         # Free parameters:  l, Ne , δ, Tp , np
         self.Ne = Ne
 
-        # TODO: Comment to use the real computed Ne; uncomment to see
-        #  something in the 2D resulting image
+        # For testing purposes: Uncomment to use an imposed (non-computed) Ne
         # self.Ne = Ne = 1e50
 
         # Module of the Magnetic Field
         self.B = B = np.linalg.norm(B_LoS)
 
-        # Emission and absorption coefficients
-        #  [np.e**(-self.ab * self.voxel_len)] is 1, if Ne is too small,
-        #  thus spec_intensity = 0 if Ne is too small (required Ne~1e60
-        #  to begin having spec_intensity > 0).
+        # Emission and absorption coefficients in the middle-magnetosphere:
+        # Gyrosynchrotron Emission from a Power-Law Electron Distribution
+        # Gudel, Manuel; 2002 (pag.6);
+        # Annual Review of Astronomy & Astrophysics 40:217-261
         self.em = 10**(-31.32 + 5.24 * δ) * Ne * B**(
                 -0.22 + 0.9 * δ) * v**(1.22 - 0.9 * δ)
         self.ab = 10**(-0.47 + 6.06 * δ) * Ne * B**(
