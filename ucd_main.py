@@ -22,9 +22,14 @@ developments done in the other Python files of the project. This file
 contains the function "main".
 """
 
+import sys
 import time
 import numpy as np
 import pyqtgraph as pg
+from PyQt5.QtWidgets import (QApplication, QDialog,
+                             QDialogButtonBox, QFormLayout, QGroupBox,
+                             QLabel, QSpinBox, QVBoxLayout)
+
 
 from ucd import UCD
 
@@ -66,7 +71,7 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
     # magnetic axes, and the different coordinate systems
     ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS)
     voxels_inner, voxels_middle = ucd.find_magnetosphere_regions()
-    ucd.plot_middlemag_in_slices(voxels_middle, marker_size=2)
+    # ucd.plot_middlemag_in_slices(voxels_middle, marker_size=2)
     ucd.LoS_voxel_rays()
     ucd.compute_flux_density_LoS()
     print("Total Flux Density in the plane perpendicular to the LoS:")
@@ -116,23 +121,66 @@ def flux_densities_1D(
     app.exec_()
 
 
-def main():
-    # Angles in degrees
-    beta = 0
-    rotation_angle = 0
-    inclination = 90
+class Dialog(QDialog):
+    def __init__(self):
+        super(Dialog, self).__init__()
+        self.form_group_box = QGroupBox("Form layout")
+        layout = QFormLayout()
 
-    plot_3D(n=7, beta=beta, rotation_angle=rotation_angle,
+        # Number of voxels per cube side: use odd number for n (it allows
+        # having one of the voxels in the middle of the (sub)stellar object)
+        self.n = QSpinBox()
+        self.n.setValue(25)
+        layout.addRow(QLabel("n:"), self.n)
+
+        # Angle between magnetic and rotation axes [degrees]
+        self.beta = QSpinBox()
+        self.beta.setValue(0)
+        layout.addRow(QLabel("beta:"), self.beta)
+
+        # Rotation angle [degrees]
+        self.rotation = QSpinBox()
+        self.rotation.setValue(0)
+        layout.addRow(QLabel("rotation:"), self.rotation)
+
+        # Inclination of the rotation axis regarding the LoS [degrees]
+        self.inclination = QSpinBox()
+        self.inclination.setValue(90)
+        layout.addRow(QLabel("inclination:"), self.inclination)
+        self.form_group_box.setLayout(layout)
+
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.form_group_box)
+        main_layout.addWidget(button_box)
+        self.setLayout(main_layout)
+
+        self.setWindowTitle("(Sub)Stellar Radio Emission Inputs")
+
+    def accept(self):
+        launch_app(n=self.n.value(),
+                   beta=self.beta.value(),
+                   rotation=self.rotation.value(),
+                   inclination=self.inclination.value())
+
+
+def launch_app(n=9, beta=0, rotation=0, inclination=90):
+    plot_3D(n=7, beta=beta, rotation_angle=rotation,
             inclination=inclination, plot3d=True)
 
     specific_intensities_2D(
-        n=25,
-        beta=beta, rotation_angle=rotation_angle, inclination=inclination,
+        n=n,
+        beta=beta, rotation_angle=rotation, inclination=inclination,
         plot3d=False)
 
-    flux_densities_1D(n=7, beta=beta, inclination=inclination, plot3d=False)
+    flux_densities_1D(n=n, beta=beta, inclination=inclination, plot3d=False)
 
 
-if __name__ == "__main__":
-    main()
-
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    dialog = Dialog()
+    sys.exit(dialog.exec_())
