@@ -27,9 +27,7 @@ import numpy as np
 
 class Voxel(object):
     def __init__(self, B_LoS, voxel_len,
-                 position_LoS=np.array([0,0,0]),
-                 position_in_B=np.array([0,0,0]),
-                 inner_mag=False, middle_mag=False, outer_mag=False,
+                 position_LoS=[0,0,0], position_in_B=[0,0,0],
                  δ=1.2, Ne=0):
         """
         :param B_LoS: B field of the voxel
@@ -43,59 +41,36 @@ class Voxel(object):
         """
 
         # Speed of Light in cm/s
-        c = 3e10  # [cm/s]
+        self.c = 3e10  # [cm/s]
         # Boltzmann constant
-        k = 1.38e-16  # [erg / K] .
         # Note on Units: 1 erg = 1e-7 J
+        self.k = 1.38e-16  # [erg / K]
 
-        # Boolean indicating if the Voxel belongs or not to the
-        # middle-magnetosphere.
-        self.inner_mag = inner_mag
-        self.middle_mag = middle_mag
-        self.outer_mag = outer_mag
+        self.voxel_len = voxel_len
 
         # Gyrofrequency of electrons; Frequency of radiation
-        v = 5e9  # 5 GHz
+        self.v = 5e9  # [GHz]
 
         # Free parameters:  l, Ne , δ, Tp , np
+        # Hard energetic population of non-thermal-emitting electrons, and an
+        # inner magnetosphere filled by a thermal plasma consistent with a
+        # wind-shock model that provides also X-ray emission
         self.Ne = Ne
+        self.δ = δ
 
-        # For testing purposes: Uncomment to use an imposed (non-computed) Ne
-        # self.Ne = Ne = 1e50
+        # Boolean indicating if the Voxel belongs or not to the inner,
+        # middle or outer magnetosphere.
+        self.inner_mag = False
+        self.middle_mag = False
+        self.outer_mag = False
 
         # Module of the Magnetic Field
-        self.B = B = np.linalg.norm(B_LoS)
+        self.B = np.linalg.norm(B_LoS)
 
-        if self.inner_mag:
-            # Emission and absorption coefficients in the Inner-Magnetosphere:
-            # Bremsstrahlung
-            # Gudel, Manuel; 2002 (pag.5 / Formula [6]);
-            # Annual Review of Astronomy & Astrophysics 40:217-261
-            Teff = 1
-            # TODO: self.ab = ...
-            # self.em = self.ab * (2 * k * Teff * f**2) / c**2 ->
-            self.em = self.ab * 3.1e-37 * Teff * v**2
-        elif self.middle_mag:
-            # Emission and absorption coefficients in the Middle-Magnetosphere:
-            # Gyrosynchrotron Emission from a Power-Law Electron Distribution
-            # Gudel, Manuel; 2002 (pag.6);
-            # Annual Review of Astronomy & Astrophysics 40:217-261
-            self.em = 10**(-31.32 + 5.24 * δ) * Ne * B**(
-                    -0.22 + 0.9 * δ) * v**(1.22 - 0.9 * δ)
-            self.ab = 10**(-0.47 + 6.06 * δ) * Ne * B**(
-                    0.3 + 0.98 * δ) * v**(- 1.3 - 0.98 * δ)
-        else:
-            # TODO: remove this else condition, by setting correctly the
-            #  Voxels which are part of the middle-magnetosphere, and the
-            #  ones which are part from the inner-magnetosphere
-            # Emission and absorption coefficients in the Middle-Magnetosphere:
-            # Gyrosynchrotron Emission from a Power-Law Electron Distribution
-            # Gudel, Manuel; 2002 (pag.6);
-            # Annual Review of Astronomy & Astrophysics 40:217-261
-            self.em = 10 ** (-31.32 + 5.24 * δ) * Ne * B ** (
-                    -0.22 + 0.9 * δ) * v ** (1.22 - 0.9 * δ)
-            self.ab = 10 ** (-0.47 + 6.06 * δ) * Ne * B ** (
-                    0.3 + 0.98 * δ) * v ** (- 1.3 - 0.98 * δ)
+        # Absorption and emission coefficients initialisation
+        self.em = 0
+        self.ab = 0
+        self.spec_intensity = 0
 
         #######################################################################
         # In units of sub(stellar) radius
@@ -113,27 +88,39 @@ class Voxel(object):
         2) at high frequency the magnetosphere must be so closely
         sampled that computational times are prohibitive
         """
-
-        # Hard energetic population of non-thermal-emitting electrons, and an
-        # inner magnetosphere filled by a thermal plasma consistent with a
-        # wind-shock model that provides also X-ray emission
-
-        # Specific intensity inside the voxel object
-        self.voxel_len = voxel_len
-        self.spec_intensity = (self.em / self.ab) * (
-                1 - np.e**(-self.ab * self.voxel_len))
-
-        # Column matter optical depth between each grid element and the Earth
+        # Initialize column matter optical depth between each grid element
+        # and the Earth
         self.optical_depth = 0
 
-    def set_inner_mag(self, bool_inner_mag):
-        self.inner_mag = bool_inner_mag
+    def set_inner_mag(self):
+        self.inner_mag = True
+        """
+        # Emission and absorption coefficients in the Inner-Magnetosphere:
+        # Bremsstrahlung
+        # Gudel, Manuel; 2002 (pag.5 / Formula [6]);
+        # Annual Review of Astronomy & Astrophysics 40:217-261
+        Teff = 1
+        # TODO: self.ab = ...
+        # self.em = self.ab * (2 * k * Teff * f**2) / c**2 ->
+        self.em = self.ab * 3.1e-37 * Teff * v**2
+        """
 
-    def set_middle_mag(self, bool_middle_mag):
-        self.middle_mag = bool_middle_mag
+    def set_middle_mag(self):
+        self.middle_mag = True
+        # Emission and absorption coefficients in the Middle-Magnetosphere:
+        # Gyrosynchrotron Emission from a Power-Law Electron Distribution
+        # Gudel, Manuel; 2002 (pag.6);
+        # Annual Review of Astronomy & Astrophysics 40:217-261
+        self.em = 10 ** (-31.32 + 5.24 * self.δ) * self.Ne * self.B ** (
+                -0.22 + 0.9 * self.δ) * self.v ** (1.22 - 0.9 * self.δ)
+        self.ab = 10 ** (-0.47 + 6.06 * self.δ) * self.Ne * self.B ** (
+                0.3 + 0.98 * self.δ) * self.v ** (- 1.3 - 0.98 * self.δ)
+        # Specific intensity inside the voxel object
+        self.spec_intensity = (self.em / self.ab) * (
+                1 - np.e ** (-self.ab * self.voxel_len))
 
-    def set_outer_mag(self, bool_outer_mag):
-        self.outer_mag = bool_outer_mag
+    def set_outer_mag(self):
+        self.outer_mag = True
 
     def set_Ne(self, Ne):
         self.Ne = Ne

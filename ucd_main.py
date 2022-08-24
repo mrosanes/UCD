@@ -65,8 +65,8 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
     # magnetic vector field and plot it together with the rotation and the
     # magnetic axes, and the different coordinate systems
     ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS)
-    voxels_middlemag = ucd.find_middle_magnetosphere()
-    # ucd.plot_middlemag_in_slices(voxels_middlemag, marker_size=2)
+    voxels_inner, voxels_middle = ucd.find_magnetosphere_regions()
+    ucd.plot_middlemag_in_slices(voxels_middle, marker_size=2)
     ucd.LoS_voxel_rays()
     ucd.compute_flux_density_LoS()
     print("Total Flux Density in the plane perpendicular to the LoS:")
@@ -98,7 +98,7 @@ def flux_densities_1D(
                   plot3d=plot3d)
         points_LoS, points_LoS_in_B = ucd.LoS_cube()
         ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS)
-        ucd.find_middle_magnetosphere()
+        ucd.find_magnetosphere_regions()
         ucd.LoS_voxel_rays()
         ucd.compute_flux_density_LoS()
         # ucd.plot_2D_specific_intensity_LoS()

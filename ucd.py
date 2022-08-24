@@ -109,8 +109,7 @@ class UCD(object):
         # other with similar magnetic properties
         self.R_obj = Robj_Rsun_scale * self.Rsun  # in [cm]
 
-        # TODO: Alfvén radius to be updated according to output of script:
-        #  alfven_radius.py
+        # Alfvén radius can be computed with: alfven_radius.py
         self.Ra = 16  # In units of [R_obj] ([Rs] on Trigilio 2004)
 
         # Masa del protón:
@@ -177,6 +176,8 @@ class UCD(object):
 
         # In each point of the middle magnetosphere (Formula 6 - Trigilio_2004)
         # Electrons isotropically distributed
+        # TODO: check if N_γ has to be used as in Trigilio04, or if only Ne
+        #  shall be used instead
         self.N_γ = N_γ = Ne * (γ - 1) ** (-δ)
         print("Ne and N_γ")
         print(Ne)
@@ -667,9 +668,7 @@ class UCD(object):
             # Compute magnetic field vectors
             self.magnetic_field_vectors_LoS(points_LoS, points_LoS_in_B)
 
-    ###########################################################################
-    # Find Middle-Magnetosphere
-    def find_middle_magnetosphere(self):
+    def find_magnetosphere_regions(self):
         """
         Finding the points belonging to the inner, middle and outer
         magnetosphere. GyroSynchrotron Emission created in the
@@ -688,9 +687,11 @@ class UCD(object):
 
         :return voxels_middlemag:
         """
+        # Voxels inner magnetosphere
         voxels_inner = []
-        voxels_middlemag = []
-        voxels_outer = []
+        # Voxels middle magnetosphere
+        voxels_middle = []
+
         for i in range(len(self.voxels)):
             # We first find the angle λ (lam) associated with the specific
             # point of the LoS grid expressed in B coordinates. It is the angle
@@ -714,18 +715,14 @@ class UCD(object):
                 # Ra * (np.cos(lam))**2
                 r_min = self.Ra * (np.cos(lam))**2
                 r_max = (self.Ra + self.l_mid) * (np.cos(lam))**2
-
                 if L_xyz < r_min:
-                    voxel.set_inner_mag(True)
-                    voxel.set_Ne(0)
-                if r_min <= L_xyz <= r_max:
-                    voxel.set_middle_mag(True)
+                    voxel.set_inner_mag()
+                    voxels_inner.append(voxel)
+                elif r_min <= L_xyz <= r_max:
                     voxel.set_Ne(self.N_γ)
-                    voxels_middlemag.append(voxel)
-                if L_xyz > r_max:
-                    voxel.set_outer_mag(True)
-                    voxel.set_Ne(0)
-        return voxels_middlemag
+                    voxel.set_middle_mag()
+                    voxels_middle.append(voxel)
+        return voxels_inner, voxels_middle
 
     def plot_middlemag_in_slices(self, voxels_middlemag, marker_size=2):
         """
@@ -778,7 +775,7 @@ class UCD(object):
         :return: LoS_rays
         """
 
-        # NOTE: This organization of the voxels into rays along the LoS
+        # NOTE: The organization of the voxels into rays along the LoS
         # is slow
 
         # As many rays as points present in the plane Y'Z' perpendicular to
