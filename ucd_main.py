@@ -26,7 +26,7 @@ import sys
 import time
 import numpy as np
 import pyqtgraph as pg
-from PyQt5.QtWidgets import (QApplication, QDialog,
+from PyQt5.QtWidgets import (QApplication, QDialog, QLineEdit,
                              QDialogButtonBox, QGroupBox,
                              QLabel, QSpinBox, QCheckBox,
                              QFormLayout, QHBoxLayout, QVBoxLayout)
@@ -123,28 +123,72 @@ def flux_densities_1D(
 class Dialog(QDialog):
     def __init__(self):
         super(Dialog, self).__init__()
-        form_group_box = QGroupBox()
-        layout = QFormLayout()
 
+        #######################################################################
+        form_group_box_angles = QGroupBox()
+        layout_angles = QFormLayout()
         # Angle between magnetic and rotation axes [degrees]
         self.beta = QSpinBox()
         self.beta.setMinimum(-360)
         self.beta.setValue(0)
-        layout.addRow(QLabel("beta:"), self.beta)
+        layout_angles.addRow(QLabel("beta [º]"), self.beta)
 
         # Rotation angle [degrees]
         self.rotation = QSpinBox()
         self.rotation.setMinimum(-360)
         self.rotation.setValue(0)
-        layout.addRow(QLabel("rotation:"), self.rotation)
+        layout_angles.addRow(QLabel("rotation [º]"), self.rotation)
 
         # Inclination of the rotation axis regarding the LoS [degrees]
         self.inclination = QSpinBox()
         self.inclination.setMinimum(-360)
         self.inclination.setValue(90)
-        layout.addRow(QLabel("inclination:"), self.inclination)
+        layout_angles.addRow(QLabel("inclination [º]"), self.inclination)
 
-        form_group_box.setLayout(layout)
+        form_group_box_angles.setLayout(layout_angles)
+
+        #######################################################################
+        form_group_box_middlemag = QGroupBox()
+        layout_middlemag = QFormLayout()
+
+        self.frequency = QLineEdit()
+        self.frequency.setText("5")
+        layout_middlemag.addRow(QLabel("Frequency [GHz]"), self.frequency)
+
+        self.r_alfven = QLineEdit()
+        self.r_alfven.setText("16")
+        layout_middlemag.addRow(QLabel("R_alfven [R_obj]"), self.r_alfven)
+
+        self.l_middlemag = QLineEdit()
+        self.l_middlemag.setText("4")
+        layout_middlemag.addRow(QLabel("l_middlemag [R_obj]"),
+                                self.l_middlemag)
+
+        self.acc_eff = QLineEdit()
+        self.acc_eff.setText("0.002")
+        layout_middlemag.addRow(QLabel("r_ne (acceleration efficiency)"),
+                                self.acc_eff)
+
+        self.delta = QLineEdit()
+        self.delta.setText("2")
+        layout_middlemag.addRow(QLabel("δ"), self.delta)
+
+        form_group_box_middlemag.setLayout(layout_middlemag)
+
+        #######################################################################
+        form_group_box_innermag = QGroupBox()
+        layout_innermag = QFormLayout()
+
+        self.n_p = QLineEdit()
+        self.n_p.setText("0")
+        layout_innermag.addRow(QLabel("np"), self.n_p)
+
+        self.T_p = QLineEdit()
+        self.T_p.setText("0")
+        layout_innermag.addRow(QLabel("Tp [K]"), self.T_p)
+
+        form_group_box_innermag.setLayout(layout_innermag)
+        #######################################################################
 
         # n_3d, n_2d and n_1d: Number of voxels per cube side: use
         # odd numbers for n (it allows having one of the voxels in the middle
@@ -179,13 +223,17 @@ class Dialog(QDialog):
         h_layout.addLayout(v_layout_2d)
         h_layout.addLayout(v_layout_1d)
 
+        #######################################################################
+
         button_box = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
         main_layout = QVBoxLayout()
-        main_layout.addWidget(form_group_box)
+        main_layout.addWidget(form_group_box_angles)
+        main_layout.addWidget(form_group_box_middlemag)
+        main_layout.addWidget(form_group_box_innermag)
         main_layout.addLayout(h_layout)
         main_layout.addWidget(button_box)
         self.setLayout(main_layout)
@@ -194,6 +242,19 @@ class Dialog(QDialog):
 
     def accept(self):
         # self.hide()
+
+        try:
+            frequency = float(self.frequency.text())
+            r_alfven = float(self.r_alfven.text())
+            l_middlemag = float(self.l_middlemag.text())
+            acc_eff = float(self.acc_eff.text())
+            delta = float(self.delta.text())
+            n_p = float(self.n_p.text())
+            T_p = float(self.T_p.text())
+        except ValueError:
+            raise Exception(
+                "Only Float (or Int) values are accepted as inputs")
+
         launch_app(
             d3_checkbox=self.checkbox_3d,
             d2_checkbox=self.checkbox_2d,
