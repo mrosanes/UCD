@@ -18,9 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 The objective(s) of this file are:
-  - Present the results of the Alfvén Radius computation of a UCD (
-  or other (sub)stellar/stellar) object), in function of the Magnetic
-  Longitude
+  - Present the results of the Alfvén Radius of a (sub)stellar object, as
+    a function of the Magnetic Longitude
 """
 
 import time
