@@ -27,10 +27,9 @@ import time
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import (QApplication, QDialog,
-                             QDialogButtonBox, QFormLayout, QGroupBox,
-                             QLabel, QSpinBox, QVBoxLayout)
-
-
+                             QDialogButtonBox, QGroupBox,
+                             QLabel, QSpinBox, QCheckBox,
+                             QFormLayout, QHBoxLayout, QVBoxLayout)
 from ucd import UCD
 
 
@@ -116,38 +115,69 @@ def flux_densities_1D(
                   end_time_flux_densities - start_time_flux_densities))
 
     # 1D Plot of the flux densities in function of the rotation phase angles
-    app = pg.mkQApp()
+    # app = pg.mkQApp()
     pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
-    app.exec_()
+    # app.exec_()
 
 
 class Dialog(QDialog):
     def __init__(self):
         super(Dialog, self).__init__()
-        self.form_group_box = QGroupBox("Form layout")
+        form_group_box = QGroupBox()
         layout = QFormLayout()
-
-        # Number of voxels per cube side: use odd number for n (it allows
-        # having one of the voxels in the middle of the (sub)stellar object)
-        self.n = QSpinBox()
-        self.n.setValue(25)
-        layout.addRow(QLabel("n:"), self.n)
 
         # Angle between magnetic and rotation axes [degrees]
         self.beta = QSpinBox()
+        self.beta.setMinimum(-360)
         self.beta.setValue(0)
         layout.addRow(QLabel("beta:"), self.beta)
 
         # Rotation angle [degrees]
         self.rotation = QSpinBox()
+        self.rotation.setMinimum(-360)
         self.rotation.setValue(0)
         layout.addRow(QLabel("rotation:"), self.rotation)
 
         # Inclination of the rotation axis regarding the LoS [degrees]
         self.inclination = QSpinBox()
+        self.inclination.setMinimum(-360)
         self.inclination.setValue(90)
         layout.addRow(QLabel("inclination:"), self.inclination)
-        self.form_group_box.setLayout(layout)
+
+        form_group_box.setLayout(layout)
+
+        # n_3d, n_2d and n_1d: Number of voxels per cube side: use
+        # odd numbers for n (it allows having one of the voxels in the middle
+        # of the (sub)stellar object)
+        v_layout_3d = QFormLayout()
+        self.checkbox_3d = QCheckBox("3D Magnetic Field")
+        v_layout_3d.addRow(self.checkbox_3d)
+        self.n_3d = QSpinBox()
+        self.n_3d.setValue(7)
+        v_layout_3d.addRow(QLabel("n:"), self.n_3d)
+        v_layout_3d.setContentsMargins(0, 0, 20, 0)
+
+        v_layout_2d = QFormLayout()
+        self.checkbox_2d = QCheckBox("2D Specific Intensities")
+        self.checkbox_2d.setChecked(True)
+        v_layout_2d.addRow(self.checkbox_2d)
+        self.n_2d = QSpinBox()
+        self.n_2d.setValue(25)
+        v_layout_2d.addRow(QLabel("n:"), self.n_2d)
+        v_layout_2d.setContentsMargins(0, 0, 20, 0)
+
+        v_layout_1d = QFormLayout()
+        self.checkbox_1d = QCheckBox("1D Flux Densities")
+        v_layout_1d.addRow(self.checkbox_1d)
+        self.n_1d = QSpinBox()
+        self.n_1d.setValue(7)
+        v_layout_1d.addRow(QLabel("n:"), self.n_1d)
+        v_layout_1d.setContentsMargins(0, 0, 20, 0)
+
+        h_layout = QHBoxLayout()
+        h_layout.addLayout(v_layout_3d)
+        h_layout.addLayout(v_layout_2d)
+        h_layout.addLayout(v_layout_1d)
 
         button_box = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -155,32 +185,49 @@ class Dialog(QDialog):
         button_box.rejected.connect(self.reject)
 
         main_layout = QVBoxLayout()
-        main_layout.addWidget(self.form_group_box)
+        main_layout.addWidget(form_group_box)
+        main_layout.addLayout(h_layout)
         main_layout.addWidget(button_box)
         self.setLayout(main_layout)
 
         self.setWindowTitle("(Sub)Stellar Radio Emission Inputs")
 
     def accept(self):
-        launch_app(n=self.n.value(),
-                   beta=self.beta.value(),
-                   rotation=self.rotation.value(),
-                   inclination=self.inclination.value())
+        # self.hide()
+        launch_app(
+            d3_checkbox=self.checkbox_3d,
+            d2_checkbox=self.checkbox_2d,
+            d1_checkbox=self.checkbox_1d,
+            beta=self.beta.value(),
+            rotation=self.rotation.value(),
+            inclination=self.inclination.value(),
+            n_3d=self.n_3d.value(),
+            n_2d=self.n_2d.value(),
+            n_1d=self.n_1d.value()
+        )
 
 
-def launch_app(n=9, beta=0, rotation=0, inclination=90):
-    plot_3D(n=7, beta=beta, rotation_angle=rotation,
-            inclination=inclination, plot3d=True)
+def launch_app(d3_checkbox=False, d2_checkbox=False, d1_checkbox=False,
+               beta=0, rotation=0, inclination=90, n_3d=7, n_2d=25, n_1d=7):
 
-    specific_intensities_2D(
-        n=n,
-        beta=beta, rotation_angle=rotation, inclination=inclination,
-        plot3d=False)
+    if d3_checkbox.isChecked():
+        plot_3D(
+            n=n_3d, beta=beta, rotation_angle=rotation, inclination=inclination,
+            plot3d=True)
 
-    flux_densities_1D(n=n, beta=beta, inclination=inclination, plot3d=False)
+    if d2_checkbox.isChecked():
+        specific_intensities_2D(
+            n=n_2d,
+            beta=beta, rotation_angle=rotation, inclination=inclination,
+            plot3d=False)
+
+    if d1_checkbox.isChecked():
+        flux_densities_1D(
+            n=n_1d, beta=beta, inclination=inclination, plot3d=False)
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication([])
     dialog = Dialog()
     sys.exit(dialog.exec_())
+
