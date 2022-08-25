@@ -99,9 +99,6 @@ class UCD(object):
         # Radius of sun
         self.Rsun = 6.96e10  # [cm]
 
-        # Jupyter Radius in [cm] (approx) ~ Brown Dwarf Radius
-        self.Rj = 0.1 * self.Rsun
-
         # Robj_Rsun_scale: Ratio of the UCD or other (sub)stellar object
         # radius, regarding the Sun radius.
         # R_obj: radius of the object; being the object a (sub)stellar object
@@ -153,8 +150,6 @@ class UCD(object):
 
         # |B_Ra| -> z = 0
         self.B_Ra = self.m / (self.Ra ** 3)
-        print("B_Ra")
-        print(self.B_Ra)
 
         ###
         # From Leto2006:
@@ -166,22 +161,17 @@ class UCD(object):
         # Ratio r_ne = Ne / neA: from 10^(-4) - 1 (Trigilio_2004)
         r_ne = 0.002
         self.Ne = Ne = r_ne * neA
-        ###
-
-        # Lorentz factor
-        γ = 1.2
 
         # δ~2 in some MCP stars according C.Trigilio el al. (ESO 2004))
         self.δ = δ = 2
 
+        # Lorentz factor
+        γ = 1.2
         # In each point of the middle magnetosphere (Formula 6 - Trigilio_2004)
         # Electrons isotropically distributed
         # TODO: check if N_γ has to be used as in Trigilio04, or if only Ne
         #  shall be used instead
-        self.N_γ = N_γ = Ne * (γ - 1) ** (-δ)
-        print("Ne and N_γ")
-        print(Ne)
-        print(N_γ)
+        self.N_γ = Ne * (γ - 1) ** (-δ)
 
         # Array 2D (image) of specific intensities in the plane perpendicular
         # to the LoS
