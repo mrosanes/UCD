@@ -178,10 +178,17 @@ class InputDialog(QWidget):
         form_group_box_innermag = QGroupBox()
         layout_innermag = QFormLayout()
 
+        # Rotation Period of the (sub)stellar object [days]
+        self.P_rot = QLineEdit()
+        self.P_rot.setText("1")
+        layout_innermag.addRow(QLabel("P_rot [days]"), self.P_rot)
+
+        # Density of electrons of the plasma in the inner magnetosphere
         self.n_p = QLineEdit()
         self.n_p.setText("0")
         layout_innermag.addRow(QLabel("np"), self.n_p)
 
+        # Plasma temperature in the inner magnetosphere [K]
         self.T_p = QLineEdit()
         self.T_p.setText("0")
         layout_innermag.addRow(QLabel("Tp [K]"), self.T_p)
