@@ -110,7 +110,7 @@ def flux_densities_1D(
 
     end_time_flux_densities = time.time()
     print("Time to compute the 1D specific intensities graph along the\n"
-          " rotation of the UCD (or other (sub)stellar object), "
+          " rotation of the (sub)stellar object, "
           "took:\n%d seconds\n" % (
                   end_time_flux_densities - start_time_flux_densities))
 
@@ -130,18 +130,22 @@ class InputDialog(QWidget):
         self.beta = QSpinBox()
         self.beta.setMinimum(-360)
         self.beta.setValue(0)
+        self.beta.setToolTip("Angle of magnetic axis regarding the"
+                             + " rotation axis")
         layout_angles.addRow(QLabel("beta [º]"), self.beta)
 
         # Rotation angle [degrees]
         self.rotation = QSpinBox()
         self.rotation.setMinimum(-360)
         self.rotation.setValue(0)
+        self.rotation.setToolTip("Rotation phase")
         layout_angles.addRow(QLabel("rotation [º]"), self.rotation)
 
         # Inclination of the rotation axis regarding the LoS [degrees]
         self.inclination = QSpinBox()
         self.inclination.setMinimum(-360)
         self.inclination.setValue(90)
+        self.inclination.setToolTip("Angle of rotation axis regarding the LoS")
         layout_angles.addRow(QLabel("inclination [º]"), self.inclination)
 
         form_group_box_angles.setLayout(layout_angles)
@@ -152,24 +156,32 @@ class InputDialog(QWidget):
 
         self.frequency = QLineEdit()
         self.frequency.setText("5")
+        self.frequency.setToolTip("GyroFrequency of electrons")
         layout_middlemag.addRow(QLabel("Frequency [GHz]"), self.frequency)
 
         self.r_alfven = QLineEdit()
         self.r_alfven.setText("16")
-        layout_middlemag.addRow(QLabel("R_alfven [R_obj]"), self.r_alfven)
+        self.r_alfven.setToolTip("Averaged Alfvén Radius in R* units")
+        layout_middlemag.addRow(QLabel("R_alfven [R*]"), self.r_alfven)
 
         self.l_middlemag = QLineEdit()
         self.l_middlemag.setText("4")
-        layout_middlemag.addRow(QLabel("l_middlemag [R_obj]"),
+        self.l_middlemag.setToolTip("Thickness of middle-magnetosphere"
+                                    + " in R* units")
+        layout_middlemag.addRow(QLabel("l_middlemag [R*]"),
                                 self.l_middlemag)
 
         self.acc_eff = QLineEdit()
         self.acc_eff.setText("0.002")
-        layout_middlemag.addRow(QLabel("r_ne (acceleration efficiency)"),
+        self.acc_eff.setToolTip("Acceleration efficiency of electrons in the"
+                                + " middle-magnetosphere")
+        layout_middlemag.addRow(QLabel("Acceleration Efficiency"),
                                 self.acc_eff)
 
         self.delta = QLineEdit()
         self.delta.setText("2")
+        self.delta.setToolTip("Spectral index of non-thermal electron"
+                              + " energy distribution")
         layout_middlemag.addRow(QLabel("δ"), self.delta)
 
         form_group_box_middlemag.setLayout(layout_middlemag)
@@ -181,17 +193,22 @@ class InputDialog(QWidget):
         # Rotation Period of the (sub)stellar object [days]
         self.P_rot = QLineEdit()
         self.P_rot.setText("1")
+        self.P_rot.setToolTip("Rotation period of the (sub)stellar object")
         layout_innermag.addRow(QLabel("P_rot [days]"), self.P_rot)
 
         # Density of electrons of the plasma in the inner magnetosphere
-        self.n_p = QLineEdit()
-        self.n_p.setText("0")
-        layout_innermag.addRow(QLabel("np"), self.n_p)
+        self.n_p0 = QLineEdit()
+        self.n_p0.setText("0")
+        self.n_p0.setToolTip("Plasma electron density, in inner-magnetosphere,"
+                             + " at the stellar surface")
+        layout_innermag.addRow(QLabel("np"), self.n_p0)
 
         # Plasma temperature in the inner magnetosphere [K]
-        self.T_p = QLineEdit()
-        self.T_p.setText("0")
-        layout_innermag.addRow(QLabel("Tp [K]"), self.T_p)
+        self.T_p0 = QLineEdit()
+        self.T_p0.setText("0")
+        self.T_p0.setToolTip("Plasma temperature in inner-magnetosphere,"
+                             + " at the stellar surface")
+        layout_innermag.addRow(QLabel("Tp [K]"), self.T_p0)
 
         form_group_box_innermag.setLayout(layout_innermag)
         #######################################################################
@@ -201,26 +218,39 @@ class InputDialog(QWidget):
         # of the (sub)stellar object)
         v_layout_3d = QFormLayout()
         self.checkbox_3d = QCheckBox("3D Magnetic Field")
+        self.checkbox_3d.setToolTip("3D plot of the magnetic vectorial field")
         v_layout_3d.addRow(self.checkbox_3d)
         self.n_3d = QSpinBox()
         self.n_3d.setValue(7)
+        self.n_3d.setToolTip("number of points per cube side"
+                             + " (3D magnetic field)")
         v_layout_3d.addRow(QLabel("n:"), self.n_3d)
         v_layout_3d.setContentsMargins(0, 0, 20, 0)
 
         v_layout_2d = QFormLayout()
         self.checkbox_2d = QCheckBox("2D Specific Intensities")
         self.checkbox_2d.setChecked(True)
+        self.checkbox_2d.setToolTip("2D image of the specific intensities in"
+                                    + " the plane perpendicular to the LoS\n"
+                                    + " at the specific rotation phase"
+                                    + " indicated by the user")
         v_layout_2d.addRow(self.checkbox_2d)
         self.n_2d = QSpinBox()
         self.n_2d.setValue(25)
+        self.n_2d.setToolTip("Number of points per cube side"
+                             + " (2D specific intensities)")
         v_layout_2d.addRow(QLabel("n:"), self.n_2d)
         v_layout_2d.setContentsMargins(0, 0, 20, 0)
 
         v_layout_1d = QFormLayout()
         self.checkbox_1d = QCheckBox("1D Flux Densities")
+        self.checkbox_1d.setToolTip("1D Flux Densities (Light Curve) along a"
+                                    + " complete rotation of 360º")
         v_layout_1d.addRow(self.checkbox_1d)
         self.n_1d = QSpinBox()
         self.n_1d.setValue(7)
+        self.n_1d.setToolTip("Number of points per cube side"
+                             + " (1D flux densities)")
         v_layout_1d.addRow(QLabel("n:"), self.n_1d)
         v_layout_1d.setContentsMargins(0, 0, 20, 0)
 
@@ -252,8 +282,8 @@ class InputDialog(QWidget):
             l_middlemag = float(self.l_middlemag.text())
             acc_eff = float(self.acc_eff.text())
             delta = float(self.delta.text())
-            n_p = float(self.n_p.text())
-            T_p = float(self.T_p.text())
+            n_p0 = float(self.n_p0.text())
+            T_p0 = float(self.T_p0.text())
         except ValueError:
             raise Exception(
                 "Only Float and Int values are accepted as inputs")
