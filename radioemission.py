@@ -1,5 +1,5 @@
 """
-ucd_main.py
+radioemission.py
 
 2022 - Marc Rosanes Siscart (marcrosanes@gmail.com)
 C/ Carles Collet, 7; Barcelona (08031); Catalonia
