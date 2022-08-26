@@ -26,10 +26,10 @@ import sys
 import time
 import numpy as np
 import pyqtgraph as pg
-from PyQt5.QtWidgets import (QApplication, QDialog, QLineEdit,
-                             QDialogButtonBox, QGroupBox,
-                             QLabel, QSpinBox, QCheckBox,
-                             QFormLayout, QHBoxLayout, QVBoxLayout)
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QLineEdit, QDialogButtonBox, QGroupBox, QLabel,
+    QSpinBox, QCheckBox, QMainWindow, QFormLayout, QHBoxLayout, QVBoxLayout)
+
 from ucd import UCD
 
 
@@ -115,18 +115,17 @@ def flux_densities_1D(
                   end_time_flux_densities - start_time_flux_densities))
 
     # 1D Plot of the flux densities in function of the rotation phase angles
-    # app = pg.mkQApp()
     pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
-    # app.exec_()
 
 
-class Dialog(QDialog):
+class InputDialog(QWidget):
     def __init__(self):
-        super(Dialog, self).__init__()
-
+        super(QWidget, self).__init__()
+        self.setWindowTitle("(Sub)Stellar Object Radio Emission")
         #######################################################################
         form_group_box_angles = QGroupBox()
         layout_angles = QFormLayout()
+
         # Angle between magnetic and rotation axes [degrees]
         self.beta = QSpinBox()
         self.beta.setMinimum(-360)
@@ -238,11 +237,8 @@ class Dialog(QDialog):
         main_layout.addWidget(button_box)
         self.setLayout(main_layout)
 
-        self.setWindowTitle("(Sub)Stellar Radio Emission Inputs")
-
     def accept(self):
-        # self.hide()
-
+        self.setWindowTitle("[PROCESSING...]")
         try:
             frequency = float(self.frequency.text())
             r_alfven = float(self.r_alfven.text())
@@ -253,7 +249,7 @@ class Dialog(QDialog):
             T_p = float(self.T_p.text())
         except ValueError:
             raise Exception(
-                "Only Float (or Int) values are accepted as inputs")
+                "Only Float and Int values are accepted as inputs")
 
         launch_app(
             d3_checkbox=self.checkbox_3d,
@@ -266,6 +262,12 @@ class Dialog(QDialog):
             n_2d=self.n_2d.value(),
             n_1d=self.n_1d.value()
         )
+
+        self.setWindowTitle(
+            "(Sub)Stellar Object Radio Emission")
+
+    def reject(self):
+        self.close()
 
 
 def launch_app(d3_checkbox=False, d2_checkbox=False, d1_checkbox=False,
@@ -288,7 +290,8 @@ def launch_app(d3_checkbox=False, d2_checkbox=False, d1_checkbox=False,
 
 
 if __name__ == '__main__':
-    app = QApplication([])
-    dialog = Dialog()
-    sys.exit(dialog.exec_())
+    app = QApplication(sys.argv)
+    input_dialog = InputDialog()
+    input_dialog.show()
+    sys.exit(app.exec())
 
