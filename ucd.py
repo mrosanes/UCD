@@ -194,7 +194,7 @@ class UCD(object):
         # to the LoS
         self.specific_intensities_array = np.zeros((self.n, self.n))
 
-        # Total Flux Density (Sv) in the plane perpendicular to the LoS
+        # Total Flux Density (Sv [mJy]) in the plane perpendicular to the LoS
         self.total_flux_density_LoS = 0
 
         #######################################################################
