@@ -28,7 +28,8 @@ import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLineEdit, QDialogButtonBox, QGroupBox, QLabel,
-    QSpinBox, QCheckBox, QMainWindow, QFormLayout, QHBoxLayout, QVBoxLayout)
+    QSpinBox, QCheckBox, QFormLayout, QHBoxLayout, QVBoxLayout)
+from PyQt5.QtGui import QIntValidator, QDoubleValidator
 
 from ucd import UCD
 
@@ -155,16 +156,26 @@ class InputDialog(QWidget):
         layout_middlemag = QFormLayout()
 
         self.frequency = QLineEdit()
+        self.frequency.setValidator(QDoubleValidator())
         self.frequency.setText("5")
         self.frequency.setToolTip("GyroFrequency of electrons")
         layout_middlemag.addRow(QLabel("Frequency [GHz]"), self.frequency)
 
+        self.Bp = QLineEdit()
+        self.Bp.setValidator(QIntValidator())
+        self.Bp.setText("3000")
+        self.Bp.setToolTip("Magnetic field strength at the pole of"
+                           + " the (sub)stellar object")
+        layout_middlemag.addRow(QLabel("Bp [Gauss]"), self.Bp)
+
         self.r_alfven = QLineEdit()
+        self.r_alfven.setValidator(QDoubleValidator())
         self.r_alfven.setText("16")
         self.r_alfven.setToolTip("Averaged Alfvén Radius in R* units")
         layout_middlemag.addRow(QLabel("R_alfven [R*]"), self.r_alfven)
 
         self.l_middlemag = QLineEdit()
+        self.l_middlemag.setValidator(QDoubleValidator())
         self.l_middlemag.setText("4")
         self.l_middlemag.setToolTip("Thickness of middle-magnetosphere"
                                     + " in R* units")
@@ -172,6 +183,7 @@ class InputDialog(QWidget):
                                 self.l_middlemag)
 
         self.acc_eff = QLineEdit()
+        self.acc_eff.setValidator(QDoubleValidator())
         self.acc_eff.setText("0.002")
         self.acc_eff.setToolTip("Acceleration efficiency of electrons in the"
                                 + " middle-magnetosphere (r_ne = Ne / neA)")
@@ -179,6 +191,7 @@ class InputDialog(QWidget):
                                 self.acc_eff)
 
         self.delta = QLineEdit()
+        self.delta.setValidator(QDoubleValidator())
         self.delta.setText("2")
         self.delta.setToolTip("Spectral index of non-thermal electron"
                               + " energy distribution")
@@ -276,17 +289,6 @@ class InputDialog(QWidget):
 
     def accept(self):
         self.setWindowTitle("[PROCESSING...]")
-        try:
-            frequency = float(self.frequency.text())
-            r_alfven = float(self.r_alfven.text())
-            l_middlemag = float(self.l_middlemag.text())
-            acc_eff = float(self.acc_eff.text())
-            delta = float(self.delta.text())
-            n_p0 = float(self.n_p0.text())
-            T_p0 = float(self.T_p0.text())
-        except ValueError:
-            raise Exception(
-                "Only Float and Int values are accepted as inputs")
 
         launch_app(
             d3_checkbox=self.checkbox_3d,
