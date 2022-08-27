@@ -35,9 +35,11 @@ from ucd import UCD
 
 
 def plot_3D(n=7, beta=0, rotation_angle=0, inclination=90,
+            Bp=3000,
             plot3d=True):
     ucd = UCD(
         n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
+        Bp=Bp,
         plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = ucd.LoS_cube()
@@ -48,6 +50,7 @@ def plot_3D(n=7, beta=0, rotation_angle=0, inclination=90,
 
 
 def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
+                            Bp=3000,
                             plot3d=True):
     """
     Notes:
@@ -63,6 +66,7 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
     start_time = time.time()
     ucd = UCD(
         n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
+        Bp=Bp,
         plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = ucd.LoS_cube()
@@ -85,6 +89,7 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
 
 def flux_densities_1D(
         n=15, beta=0, inclination=90,
+        Bp=3000,
         plot3d=False):
     """
     Flux densities 1D in function of the rotation phase angles of the UCD (
@@ -101,6 +106,7 @@ def flux_densities_1D(
     for rot_phase in rotation_phases:
         ucd = UCD(n=n,
                   beta=beta, inclination=inclination, rotation_angle=rot_phase,
+                  Bp=Bp,
                   plot3d=plot3d)
         points_LoS, points_LoS_in_B = ucd.LoS_cube()
         ucd.ucd_compute_and_plot(points_LoS_in_B, points_LoS)
@@ -188,7 +194,7 @@ class InputDialog(QWidget):
         self.l_middlemag.setToolTip("Thickness of middle-magnetosphere"
                                     + " in R* units")
         layout_center_1.addRow(QLabel("l_middlemag [R*]"),
-                                self.l_middlemag)
+                               self.l_middlemag)
 
         self.acc_eff = QLineEdit()
         self.acc_eff.setValidator(QDoubleValidator())
@@ -196,7 +202,7 @@ class InputDialog(QWidget):
         self.acc_eff.setToolTip("Acceleration efficiency of electrons in the"
                                 + " middle-magnetosphere (r_ne = Ne / neA)")
         layout_center_1.addRow(QLabel("Acceleration Efficiency"),
-                                self.acc_eff)
+                               self.acc_eff)
 
         self.delta = QLineEdit()
         self.delta.setValidator(QDoubleValidator())
@@ -306,42 +312,50 @@ class InputDialog(QWidget):
     def accept(self):
         self.setWindowTitle("[PROCESSING...]")
 
-        launch_app(
-            d3_checkbox=self.checkbox_3d,
-            d2_checkbox=self.checkbox_2d,
-            d1_checkbox=self.checkbox_1d,
-            beta=self.beta.value(),
-            rotation=self.rotation.value(),
-            inclination=self.inclination.value(),
-            n_3d=self.n_3d.value(),
-            n_2d=self.n_2d.value(),
-            n_1d=self.n_1d.value()
-        )
+        frequency = float(self.frequency.text())
+        Bp = int(self.Bp.text())
+        r_alfven = float(self.r_alfven.text())
+        l_middlemag = float(self.l_middlemag.text())
+        acc_eff = float(self.acc_eff.text())
+        delta = float(self.delta.text())
+        D = float(self.D.text())
+        P_rot = float(self.P_rot.text())
+        n_p0 = float(self.n_p0.text())
+        T_p0 = int(self.T_p0.text())
+
+        # Launching application with inputs entered by the user ###############
+        if self.checkbox_3d.isChecked():
+            plot_3D(
+                n=self.n_3d.value(),
+                beta=self.beta.value(),
+                rotation_angle=self.rotation.value(),
+                inclination=self.inclination.value(),
+                Bp=Bp,
+                plot3d=True)
+
+        if self.checkbox_2d.isChecked():
+            specific_intensities_2D(
+                n=self.n_2d.value(),
+                beta=self.beta.value(),
+                rotation_angle=self.rotation.value(),
+                inclination=self.inclination.value(),
+                Bp=Bp,
+                plot3d=False)
+
+        if self.checkbox_1d.isChecked():
+            flux_densities_1D(
+                n=self.n_1d.value(),
+                beta=self.beta.value(),
+                inclination=self.inclination.value(),
+                Bp=Bp,
+                plot3d=False)
+        # End launching application ###########################################
 
         self.setWindowTitle(
             "(Sub)Stellar Object Radio Emission")
 
     def reject(self):
         self.close()
-
-
-def launch_app(d3_checkbox=False, d2_checkbox=False, d1_checkbox=False,
-               beta=0, rotation=0, inclination=90, n_3d=7, n_2d=25, n_1d=7):
-
-    if d3_checkbox.isChecked():
-        plot_3D(
-            n=n_3d, beta=beta, rotation_angle=rotation, inclination=inclination,
-            plot3d=True)
-
-    if d2_checkbox.isChecked():
-        specific_intensities_2D(
-            n=n_2d,
-            beta=beta, rotation_angle=rotation, inclination=inclination,
-            plot3d=False)
-
-    if d1_checkbox.isChecked():
-        flux_densities_1D(
-            n=n_1d, beta=beta, inclination=inclination, plot3d=False)
 
 
 if __name__ == '__main__':

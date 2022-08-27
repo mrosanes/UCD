@@ -68,19 +68,21 @@ class UCD(object):
     the present 3D model, can be a UCD or another stellar object with similar
     magnetic characteristics (MPC star, etc.).
     """
-    def __init__(self, n=5, L=30, Robj_Rsun_scale=4, Pr=1, Bp=3000,
-                 beta=1, rotation_angle=1, inclination=89, plot3d=False):
+    def __init__(self, L=30, n=5, beta=1, rotation_angle=1, inclination=89,
+                 Robj_Rsun_scale=4, Pr=1,
+                 Bp=3000,
+                 plot3d=False):
         """
         Constructor method
-        :param int n: Number of points per side of the mesh grid
         :param int L: Length of the mesh grid in stellar radius units
+        :param int n: Number of points per side of the mesh grid
+        :param float beta: Angle between Magnetic and Rotation axis [degrees]
+        :param float rotation_angle: Rotation angle [degrees]
+        :param float inclination: Angle between LoS and Rotation axis [degrees]
         :param float Robj_Rsun_scale: Ratio of the UCD or other
           (sub)stellar object radius, regarding the Sun
         :param float Pr: Rotation Period [days]
         :param float Bp: Magnetic Field at the pole of the (sub)stellar object
-        :param float beta: Angle between Magnetic and Rotation axis [degrees]
-        :param float rotation_angle: Rotation angle [degrees]
-        :param float inclination: Angle between LoS and Rotation axis [degrees]
         :param bool plot3d: Plot or not the magnetic field in a 3D plot
         """
 
