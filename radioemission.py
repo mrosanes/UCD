@@ -74,12 +74,13 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
     # ucd.plot_middlemag_in_slices(voxels_middle, marker_size=2)
     ucd.LoS_voxel_rays()
     ucd.compute_flux_density_LoS()
-    print("Total Flux Density in the plane perpendicular to the LoS:")
-    print("{:.4g}".format(ucd.total_flux_density_LoS))
-    ucd.plot_2D_specific_intensity_LoS()
+    print("- Total Flux Density in the plane perpendicular to the LoS:")
+    print("{:.4g}".format(ucd.total_flux_density_LoS) + " mJy")
     end_time = time.time()
-    print("\nUCD computations for %d elements per cube edge, took:\n"
+    print("- Computations for 2D specific intensities image, using"
+          " %d elements per cube edge, took:\n"
           "%d seconds\n" % (ucd.n, end_time - start_time))
+    ucd.plot_2D_specific_intensity_LoS()
 
 
 def flux_densities_1D(
@@ -156,34 +157,37 @@ class InputDialog(QWidget):
         form_group_box_angles.setLayout(layout_angles)
 
         #######################################################################
-        form_group_box_middlemag = QGroupBox()
-        layout_middlemag = QFormLayout()
+        form_group_box_center = QGroupBox()
+        h_layout = QHBoxLayout()
+        layout_center_1 = QFormLayout()
+        layout_center_1.setContentsMargins(0, 0, 30, 0)
+        layout_center_2 = QFormLayout()
 
         self.frequency = QLineEdit()
         self.frequency.setValidator(QDoubleValidator())
         self.frequency.setText("5")
         self.frequency.setToolTip("GyroFrequency of electrons")
-        layout_middlemag.addRow(QLabel("Frequency [GHz]"), self.frequency)
+        layout_center_1.addRow(QLabel("Frequency [GHz]"), self.frequency)
 
         self.Bp = QLineEdit()
         self.Bp.setValidator(QIntValidator())
         self.Bp.setText("3000")
         self.Bp.setToolTip("Magnetic field strength at the pole of"
                            + " the (sub)stellar object")
-        layout_middlemag.addRow(QLabel("Bp [Gauss]"), self.Bp)
+        layout_center_1.addRow(QLabel("Bp [Gauss]"), self.Bp)
 
         self.r_alfven = QLineEdit()
         self.r_alfven.setValidator(QDoubleValidator())
         self.r_alfven.setText("16")
         self.r_alfven.setToolTip("Averaged Alfvén Radius in R* units")
-        layout_middlemag.addRow(QLabel("R_alfven [R*]"), self.r_alfven)
+        layout_center_1.addRow(QLabel("R_alfven [R*]"), self.r_alfven)
 
         self.l_middlemag = QLineEdit()
         self.l_middlemag.setValidator(QDoubleValidator())
         self.l_middlemag.setText("4")
         self.l_middlemag.setToolTip("Thickness of middle-magnetosphere"
                                     + " in R* units")
-        layout_middlemag.addRow(QLabel("l_middlemag [R*]"),
+        layout_center_1.addRow(QLabel("l_middlemag [R*]"),
                                 self.l_middlemag)
 
         self.acc_eff = QLineEdit()
@@ -191,7 +195,7 @@ class InputDialog(QWidget):
         self.acc_eff.setText("0.002")
         self.acc_eff.setToolTip("Acceleration efficiency of electrons in the"
                                 + " middle-magnetosphere (r_ne = Ne / neA)")
-        layout_middlemag.addRow(QLabel("Acceleration Efficiency"),
+        layout_center_1.addRow(QLabel("Acceleration Efficiency"),
                                 self.acc_eff)
 
         self.delta = QLineEdit()
@@ -199,36 +203,43 @@ class InputDialog(QWidget):
         self.delta.setText("2")
         self.delta.setToolTip("Spectral index of non-thermal electron"
                               + " energy distribution")
-        layout_middlemag.addRow(QLabel("δ"), self.delta)
+        layout_center_2.addRow(QLabel("δ"), self.delta)
 
-        form_group_box_middlemag.setLayout(layout_middlemag)
-
-        #######################################################################
-        form_group_box_innermag = QGroupBox()
-        layout_innermag = QFormLayout()
+        # Distance to the (sub)stellar object [cm]
+        self.D = QLineEdit()
+        self.D.setValidator(QDoubleValidator())
+        self.D.setText("3.086e+18")
+        self.D.setToolTip("Distance to the (sub)stellar object [cm]")
+        layout_center_2.addRow(QLabel("Distance [cm]"), self.D)
 
         # Rotation Period of the (sub)stellar object [days]
         self.P_rot = QLineEdit()
+        self.P_rot.setValidator(QDoubleValidator())
         self.P_rot.setText("1")
         self.P_rot.setToolTip("Rotation period of the (sub)stellar object")
-        layout_innermag.addRow(QLabel("P_rot [days]"), self.P_rot)
+        layout_center_2.addRow(QLabel("P_rot [days]"), self.P_rot)
 
         # Density of electrons of the plasma in the inner magnetosphere
         self.n_p0 = QLineEdit()
+        self.n_p0.setValidator(QDoubleValidator())
         self.n_p0.setText("0")
         self.n_p0.setToolTip("Plasma electron density, in inner-magnetosphere,"
                              + " at the stellar surface")
-        layout_innermag.addRow(QLabel("np"), self.n_p0)
+        layout_center_2.addRow(QLabel("np"), self.n_p0)
 
         # Plasma temperature in the inner magnetosphere [K]
         self.T_p0 = QLineEdit()
+        self.T_p0.setValidator(QIntValidator())
         self.T_p0.setText("0")
         self.T_p0.setToolTip("Plasma temperature in inner-magnetosphere,"
                              + " at the stellar surface")
-        layout_innermag.addRow(QLabel("Tp [K]"), self.T_p0)
+        layout_center_2.addRow(QLabel("Tp [K]"), self.T_p0)
 
-        form_group_box_innermag.setLayout(layout_innermag)
-        #######################################################################
+        h_layout.addLayout(layout_center_1)
+        h_layout.addLayout(layout_center_2)
+        form_group_box_center.setLayout(h_layout)
+
+        # Points per cube side ################################################
 
         # n_3d, n_2d and n_1d: Number of voxels per cube side: use
         # odd numbers for n (it allows having one of the voxels in the middle
@@ -269,12 +280,14 @@ class InputDialog(QWidget):
         self.n_1d.setToolTip("Number of points per cube side"
                              + " (1D flux densities)")
         v_layout_1d.addRow(QLabel("n:"), self.n_1d)
-        v_layout_1d.setContentsMargins(0, 0, 20, 0)
+        v_layout_1d.setContentsMargins(0, 0, 0, 0)
 
+        bottom_box = QGroupBox()
         h_layout = QHBoxLayout()
         h_layout.addLayout(v_layout_3d)
         h_layout.addLayout(v_layout_2d)
         h_layout.addLayout(v_layout_1d)
+        bottom_box.setLayout(h_layout)
 
         #######################################################################
 
@@ -285,9 +298,8 @@ class InputDialog(QWidget):
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(form_group_box_angles)
-        main_layout.addWidget(form_group_box_middlemag)
-        main_layout.addWidget(form_group_box_innermag)
-        main_layout.addLayout(h_layout)
+        main_layout.addWidget(form_group_box_center)
+        main_layout.addWidget(bottom_box)
         main_layout.addWidget(button_box)
         self.setLayout(main_layout)
 
