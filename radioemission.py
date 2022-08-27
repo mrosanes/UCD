@@ -129,24 +129,28 @@ class InputDialog(QWidget):
 
         # Angle between magnetic and rotation axes [degrees]
         self.beta = QSpinBox()
-        self.beta.setMinimum(-360)
+        self.beta.setMinimum(-180)
+        self.beta.setMaximum(180)
         self.beta.setValue(0)
         self.beta.setToolTip("Angle of magnetic axis regarding the"
-                             + " rotation axis")
+                             + " rotation axis (Range: [-180º - 180º])")
         layout_angles.addRow(QLabel("beta [º]"), self.beta)
 
         # Rotation angle [degrees]
         self.rotation = QSpinBox()
-        self.rotation.setMinimum(-360)
+        self.rotation.setMinimum(0)
+        self.rotation.setMaximum(360)
         self.rotation.setValue(0)
-        self.rotation.setToolTip("Rotation phase")
+        self.rotation.setToolTip("Rotation phase (Range: [0º - 360º])")
         layout_angles.addRow(QLabel("rotation [º]"), self.rotation)
 
         # Inclination of the rotation axis regarding the LoS [degrees]
         self.inclination = QSpinBox()
-        self.inclination.setMinimum(-360)
+        self.inclination.setMinimum(-90)
+        self.inclination.setMaximum(90)
         self.inclination.setValue(90)
-        self.inclination.setToolTip("Angle of rotation axis regarding the LoS")
+        self.inclination.setToolTip("Angle of rotation axis regarding the LoS"
+                                    " (Range: [-90º - 90º])")
         layout_angles.addRow(QLabel("inclination [º]"), self.inclination)
 
         form_group_box_angles.setLayout(layout_angles)
