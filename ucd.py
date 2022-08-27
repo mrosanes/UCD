@@ -242,12 +242,12 @@ class UCD(object):
         # Angles
 
         # Expressed in degrees:
-        # Angle from rotation to magnetic axis: [~0º - ~180º]
+        # Angle from rotation to magnetic axis: [~-180º - ~180º]
         self.beta = beta
         # UCD star rotation [~0º - ~360º]
         self.phi = self.rotation = rotation_angle
         # Rotation Axis inclination measured from the Line of Sight:
-        # [~0º - ~180º]
+        # [~-90º - ~90º]
         # Information about rotation axis orientations:
         #   . Orbits with the rotation axis in the plane of the sky (~90º)
         #   . Orbits with the rotation axis towards the LoS (~0º)
