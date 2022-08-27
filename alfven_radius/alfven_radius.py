@@ -66,19 +66,3 @@ for zet in zet_array:
 
 print(alfven_radius_array)
 
-
-
-
-"""
-aa = 4*Mlos*w**2*(1-(np.sin(bet))**2*(np.cos(zet))**2)
-bb = 4*Mlos*(vinf**2)
-cc = -8*Mlos*R_obj*(vinf**2)
-dd = 4*Mlos*(R_obj**2)*(vinf**2)
-ee = -(Bp**2)*(R_obj**6)*vinf/mu
-ff = (Bp**2)*(R_obj**7)*vinf/mu
-
-eq2 = Eq(aa * r**7 + bb * r**5 + cc * r**4 + dd * r**3 + ee * r + ff, 0)
-pp.pprint(solve(eq2))
-"""
-
-

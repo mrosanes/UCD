@@ -118,6 +118,23 @@ class UCD(object):
         v_inf = 600e5  # [cm/s]
 
         #######################################################################
+        # Formulas
+        """
+        Equation of field line in magnetic dipole:
+        r = L.cos²(lambda)
+        with:
+        . lambda: angle between magnetic equatorial plane and radius vector 'r'
+
+        m = 1/2 (Bp.RStar)
+           with: Bp: Strength of B at the star pole
+
+        Dipole Magnetic Field components in the magnetic field frame:
+         Bx = 3m xz/r^5
+         By = 3m yz/r^5
+         Bz = m(3z^2/r^5 - 1/r^3)
+        """
+
+        #######################################################################
         # Parameters of the model
         # n: Num points per edge in meshgrid cube (use odd number in order to
         # get one point in the origin of coordinates [center of the grid and
@@ -126,7 +143,7 @@ class UCD(object):
 
         # Distance from the Earth (point of observation) to the source (UCD)
         # or other (sub)stellar object
-        D_pc = 352 #  [pc]
+        D_pc = 352  # [pc]
         # Conversion factor from Parsecs to cm
         pc2cm = 3.086e+18
         self.D = D_pc * pc2cm  # in [cm]
@@ -294,44 +311,6 @@ class UCD(object):
         self.R_inv = self.R1_inv.dot(self.R2_inv).dot(self.R3_inv)
 
         #######################################################################
-        # Formulas
-        """
-        Ram pressure:
-        p{ram} = ρ.v^2
-        
-        p{ram} = B^2 / (8*PI) ~ np Tp K{B}
-        
-        v(r) = v(inf).(1 - R_obj/r)
-          with r: [Rstar, +inf]
-        
-        Delta = Smin / Smax 
-          -> if Smin == Smax -> Delta = 1 
-        
-        L = (Bp^2/(16.PI.np.Tp.K{B}))^(1/6)
-          L ~ [18.Rstar, 23.Rstar] for 
-          Bp ~ [5000 Gauss, 10000 Gauss]
-        
-        Gas density in outer region:
-        ro = dM / (4.PI.r².v(r)) 
-          with dM: loss of mass of the star in solar masses per year
-        
-        Equation of field line in magnetic dipole:
-        r = L.cos²(lambda)
-        with: 
-        . lambda: angle between magnetic equatorial plane and radius vector 'r'
-        
-        m = 1/2 (Bp.RStar)
-           with: Bp: Strength of B at the star pole   
-        
-        Magnetic energy density in the equatorial plane of the “inner” 
-        magnetosphere; strength of a dipolar magnetic field:
-        B = 1/2 (Bp/RStar)³
-        
-        Dipole Magnetic Field components in the magnetic field frame:
-         Bx = 3m xz/r^5
-         By = 3m yz/r^5
-         Bz = m(3z^2/r^5 - 1/r^3)
-        """
 
         # x, y, z different positions in the LoS coordinates
         self.x = np.linspace(-self.L / 2, self.L / 2, self.n)

@@ -174,7 +174,7 @@ class InputDialog(QWidget):
         self.acc_eff = QLineEdit()
         self.acc_eff.setText("0.002")
         self.acc_eff.setToolTip("Acceleration efficiency of electrons in the"
-                                + " middle-magnetosphere")
+                                + " middle-magnetosphere (r_ne = Ne / neA)")
         layout_middlemag.addRow(QLabel("Acceleration Efficiency"),
                                 self.acc_eff)
 
