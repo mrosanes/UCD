@@ -131,7 +131,6 @@ class InitialGUI(QDialog):
     def __init__(self):
         super(QWidget, self).__init__()
         self.setWindowTitle("(Sub)Stellar Object Radio Emission")
-        self.setGeometry(300, 200, 400, 300)
 
         group_box = QGroupBox()
         layout = QVBoxLayout()
@@ -140,32 +139,142 @@ class InitialGUI(QDialog):
         button_compute_Ra.setToolTip("Alfvén Radius is not known:"
                                      " compute Alfvén Radius (Ra)")
 
-        button_known_Ra = QPushButton(
-            "Compute specific intensities and flux densities\n"
-            "(Ra already known)", self)
-        button_known_Ra.setToolTip(
+        button_specific_intensities = QPushButton(
+            "Compute Specific Intensities and Flux Densities", self)
+        button_specific_intensities.setToolTip(
             "Compute specific intensities & flux density\n"
             "(Alfvén Radius already known)")
+        button_specific_intensities.setDefault(True)
 
         layout.addWidget(button_compute_Ra)
-        layout.addWidget(button_known_Ra)
+        layout.addWidget(button_specific_intensities)
         group_box.setLayout(layout)
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(group_box)
         self.setLayout(main_layout)
 
-        button_compute_Ra.clicked.connect(self.lauch_alfven_radius_gui)
-        button_known_Ra.clicked.connect(self.launch_radio_emission_gui)
+        button_compute_Ra.clicked.connect(
+            self.launch_alfven_radius_gui)
+        button_specific_intensities.clicked.connect(
+            self.launch_radio_emission_gui)
 
-    def lauch_alfven_radius_gui(self):
-        print("hiho")
+    def launch_alfven_radius_gui(self):
+        alfven_radius_input_dialog = AlfvenRadiusGUI(self)
+        alfven_radius_input_dialog.setModal(True)
+        alfven_radius_input_dialog.show()
 
     def launch_radio_emission_gui(self):
-        input_dialog = RadioEmissionGUI(self)
-        input_dialog.setModal(True)
-        input_dialog.show()
+        radio_emission_input_dialog = RadioEmissionGUI(self)
+        radio_emission_input_dialog.setModal(True)
+        radio_emission_input_dialog.show()
 
+
+class AlfvenRadiusGUI(QDialog):
+    def __init__(self, parent=InitialGUI):
+        super(QWidget, self).__init__(parent)
+        self.setWindowTitle("Alfven Radius GUI")
+
+        form_group_box_center = QGroupBox()
+        layout_center_1 = QFormLayout()
+
+        # Angle between magnetic and rotation axes [degrees]
+        self.beta = QSpinBox()
+        self.beta.setMinimum(-180)
+        self.beta.setMaximum(180)
+        self.beta.setValue(0)
+        self.beta.setToolTip("Angle of magnetic axis regarding the"
+                             + " rotation axis (Range: [-180º - 180º])")
+        layout_center_1.addRow(QLabel("beta [º]"), self.beta)
+
+        self.Bp = QLineEdit()
+        self.Bp.setValidator(QIntValidator())
+        self.Bp.setText("3000")
+        self.Bp.setToolTip("Magnetic field strength at the pole of"
+                           + " the (sub)stellar object")
+        layout_center_1.addRow(QLabel("Bp [Gauss]"), self.Bp)
+
+        # Rotation Period of the (sub)stellar object [days]
+        self.P_rot = QLineEdit()
+        self.P_rot.setValidator(QDoubleValidator())
+        self.P_rot.setText("1")
+        self.P_rot.setToolTip("Rotation period of the (sub)stellar object")
+        layout_center_1.addRow(QLabel("P_rot [days]"), self.P_rot)
+
+        form_group_box_center.setLayout(layout_center_1)
+
+        # Checkboxes for choosing computation #################################
+        # - Approximate Ra: faster computation, but not precise; Alfvén Radius
+        #     computation done at the magnetic longitude zeta=0
+        # - Averaged Ra + 1D Ra plot: more precise, but slower computation;
+        #     Ra averaged over the range of magnetic longitudes [0º-360º],
+        #     with one single value of Ra its 5º (computation can take
+        #     several hours).
+        v_layout = QFormLayout()
+        self.checkbox_approximate_Ra = QCheckBox("Approximate Ra")
+        self.checkbox_approximate_Ra.setToolTip(
+            "Approximate Ra: faster computation, but not precise;\n"
+            "Alfvén Radius computation done at the magnetic longitude zeta=0")
+        self.checkbox_approximate_Ra.setChecked(True)
+        self.checkbox_approximate_Ra.toggled.connect(self.unset_averaged_Ra)
+        v_layout.addRow(self.checkbox_approximate_Ra)
+
+        self.checkbox_averaged_Ra = QCheckBox("Averaged Ra")
+        self.checkbox_averaged_Ra.setToolTip(
+            "Computes the averaged Ra, thanks to the 1D Ra plot and:\n "
+            "more precise, but slower computation;\n"
+            "Ra averaged over the range of magnetic longitudes [0º-360º],\n"
+            "with one single value of Ra each 5º (this computation can take"
+            " several hours).")
+        self.checkbox_averaged_Ra.toggled.connect(self.unset_approximate_Ra)
+        v_layout.addRow(self.checkbox_averaged_Ra)
+
+        bottom_box = QGroupBox()
+        bottom_box.setLayout(v_layout)
+
+        #######################################################################
+
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.close)
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(form_group_box_center)
+        main_layout.addWidget(bottom_box)
+        main_layout.addWidget(button_box)
+        self.setLayout(main_layout)
+
+    def unset_approximate_Ra(self):
+        self.checkbox_approximate_Ra.setChecked(False)
+
+    def unset_averaged_Ra(self):
+        self.checkbox_averaged_Ra.setChecked(False)
+
+    def accept(self):
+        self.setWindowTitle("[PROCESSING...]")
+        """        
+        beta = self.beta.value()
+        Bp = int(self.Bp.text())
+        P_rot = float(self.P_rot.text())
+        Robj2Rsun = 4
+        vinf =
+        Mlos_ = 1e-9 # Mass Loss [Solar Masses / year]
+
+        # Launching application with inputs entered by the user ###############
+        if self.checkbox_approximate_Ra.isChecked():
+            compute_approximate_Ra(
+                beta=beta,
+                Bp=Bp)
+
+        if self.checkbox_Ra_1D_plot.isChecked():
+            Ra_1D_plot_and_avg_Ra(
+                beta=beta,
+                Bp=Bp)
+        # End launching application ###########################################
+
+        self.setWindowTitle("Alfven Radius Computation")
+        """
 
 class RadioEmissionGUI(QDialog):
     def __init__(self, parent=InitialGUI):
