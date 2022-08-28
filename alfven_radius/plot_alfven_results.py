@@ -22,7 +22,6 @@ The objective(s) of this file are:
     a function of the Magnetic Longitude
 """
 
-import time
 import numpy as np
 import pyqtgraph as pg
 
@@ -52,7 +51,7 @@ rotation_phase = [
  6.10865238, 6.19591884, 6.28318531]
 
 # Rotation phase: [0-1] ([0-1] -> [0º-360º])
-rotation_phase_degrees = np.array(rotation_phase) / (2*np.pi)
+magnetic_longitude_angles = np.array(rotation_phase) / (2*np.pi)
 
 # Alfvén Radius as a function of the magnetic longitude:
 alfven_radius_array = [
@@ -76,16 +75,24 @@ alfven_radius_array = [
  61887738216.4647, 63082171929.7342, 64076451850.8515, 64743646556.1279,
  64979666585.0315]
 
-
 alfven_radius_array = np.array(alfven_radius_array)
-time.sleep(1)
-alfven_radius_array_norm = np.round(alfven_radius_array / R_obj, 3)
 
 # Normalized Alfvén Radius, in R* units
+alfven_radius_array_norm = np.round(alfven_radius_array / R_obj, 3)
 Ra = np.average(alfven_radius_array_norm)
-print("\nAveraged Alfvén Radius:\n" + str(Ra) + "\n")
+
+print(magnetic_longitude_angles)
+print()
+# Alfvén Radius in R_obj (R*) units
+print(alfven_radius_array_norm)
+print()
+print("Average Alfvén Radius:")
+print(Ra)
+print()
+
 
 app = pg.mkQApp()
-pg.plot(rotation_phase_degrees, alfven_radius_array_norm, pen="b", symbol='o')
+pg.plot(magnetic_longitude_angles, alfven_radius_array_norm,
+        pen="b", symbol='o')
 app.exec_()
 
