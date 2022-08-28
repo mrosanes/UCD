@@ -182,32 +182,63 @@ class AlfvenRadiusGUI(QMainWindow):
         self.setWindowModality(Qt.WindowModal)
 
         form_group_box_center = QGroupBox()
-        layout_center_1 = QFormLayout()
+        layout_center = QFormLayout()
 
         # Angle between magnetic and rotation axes [degrees]
         self.beta = QSpinBox()
         self.beta.setMinimum(-180)
         self.beta.setMaximum(180)
-        self.beta.setValue(0)
+        self.beta.setValue(60)
         self.beta.setToolTip("Angle of magnetic axis regarding the"
                              + " rotation axis (Range: [-180º - 180º])")
-        layout_center_1.addRow(QLabel("beta [º]"), self.beta)
+        layout_center.addRow(QLabel("beta [º]"), self.beta)
 
-        self.Bp = QLineEdit()
-        self.Bp.setValidator(QIntValidator())
-        self.Bp.setText("3000")
-        self.Bp.setToolTip("Magnetic field strength at the pole of"
-                           + " the (sub)stellar object")
-        layout_center_1.addRow(QLabel("Bp [Gauss]"), self.Bp)
+        # Angle of magnetic longitude for the computation of Ra [degrees]
+        self.zeta = QSpinBox()
+        self.zeta.setMinimum(0)
+        self.zeta.setMaximum(360)
+        self.zeta.setValue(0)
+        self.zeta.setToolTip("Magnetic longitude angle"
+                             + " (Range: [0º - 360º])")
+        layout_center.addRow(QLabel("zeta [º]"), self.zeta)
+
+        # Rotation Period of the (sub)stellar object [days]
+        self.Robj2Rsun = QLineEdit()
+        self.Robj2Rsun.setValidator(QDoubleValidator())
+        self.Robj2Rsun.setText("4")
+        self.Robj2Rsun.setToolTip("Robj compared to Rsun radius size factor")
+        layout_center.addRow(QLabel("Robj2Rsun [-]"), self.Robj2Rsun)
 
         # Rotation Period of the (sub)stellar object [days]
         self.P_rot = QLineEdit()
         self.P_rot.setValidator(QDoubleValidator())
         self.P_rot.setText("1")
-        self.P_rot.setToolTip("Rotation period of the (sub)stellar object")
-        layout_center_1.addRow(QLabel("P_rot [days]"), self.P_rot)
+        self.P_rot.setToolTip("Rotation period of the (sub)stellar object;"
+                              + " [days]")
+        layout_center.addRow(QLabel("P_rot [days]"), self.P_rot)
 
-        form_group_box_center.setLayout(layout_center_1)
+        self.Bp = QLineEdit()
+        self.Bp.setValidator(QIntValidator())
+        self.Bp.setText("1e4")
+        self.Bp.setToolTip("Magnetic field strength at the pole of"
+                           + " the (sub)stellar object; [Gauss]")
+        layout_center.addRow(QLabel("Bp [Gauss]"), self.Bp)
+
+        self.vinf = QLineEdit()
+        self.vinf.setValidator(QIntValidator())
+        self.vinf.setText("600e3")
+        self.vinf.setToolTip("(sub)stellar object wind velocity"
+                             + " close to 'infinity'; [m/s]")
+        layout_center.addRow(QLabel("vinf [m/s]"), self.vinf)
+
+        self.M_los = QLineEdit()
+        self.M_los.setValidator(QDoubleValidator())
+        self.M_los.setText("1e-9")
+        self.M_los.setToolTip("Mass loss rate from the (sub)stellar object;"
+                              + " [Solar Masses / year]")
+        layout_center.addRow(QLabel("M_los [Msun / year]"), self.M_los)
+
+        form_group_box_center.setLayout(layout_center)
 
         # Checkboxes for choosing computation #################################
         # - Approximate Ra: faster computation, but not precise; Alfvén Radius
@@ -221,17 +252,17 @@ class AlfvenRadiusGUI(QMainWindow):
         self.checkbox_approximate_Ra.setToolTip(
             "Approximate Ra: faster computation, but not precise;\n"
             "Alfvén Radius computation done at the magnetic longitude"
-            " zeta=0; NOTE: This computation can take some minutes (< 5min).")
+            " zeta=0; NOTE: This computation can take a few minutes (< 5min).")
         self.checkbox_approximate_Ra.setChecked(True)
         self.checkbox_approximate_Ra.toggled.connect(self.unset_averaged_Ra)
         v_layout.addRow(self.checkbox_approximate_Ra)
 
         self.checkbox_averaged_Ra = QCheckBox("Averaged Ra")
         self.checkbox_averaged_Ra.setToolTip(
-            "Computes the averaged Ra, thanks to the 1D Ra plot and:\n "
+            "Computes the averaged Ra, thanks to the 1D Ra plot:\n "
             "more precise, but slower computation;\n"
             "Ra averaged over the range of magnetic longitudes [0º-360º],\n"
-            "with one single value of Ra each 5º;\n "
+            "(one single value of Ra taken each 5º);\n "
             "NOTE: This computation can take several hours.")
         self.checkbox_averaged_Ra.toggled.connect(self.unset_approximate_Ra)
         v_layout.addRow(self.checkbox_averaged_Ra)
@@ -254,7 +285,6 @@ class AlfvenRadiusGUI(QMainWindow):
         widget = QWidget(self)
         widget.setLayout(main_layout)
         self.setCentralWidget(widget)
-        #self.setLayout(main_layout)
 
     def unset_approximate_Ra(self):
         self.checkbox_approximate_Ra.setChecked(False)
@@ -265,22 +295,27 @@ class AlfvenRadiusGUI(QMainWindow):
     def accept(self):
         self.setWindowTitle("[PROCESSING...]")
 
+        # Prepare inputs for functions which computes the Alfvén Radius
         beta = self.beta.value()
-        Bp = int(self.Bp.text())
+        zeta = self.zeta.value()
+        Robj2Rsun = float(self.Robj2Rsun.text())
         P_rot = float(self.P_rot.text())
-        Robj2Rsun = 4
-        vinf = 600
-        Mlos_ = 1e-9 # Mass Loss [Solar Masses / year]
+        Bp = float(self.Bp.text())
+        vinf = float(self.vinf.text())
+        M_los = float(self.M_los.text())
 
-        # Launching application with inputs entered by the user ###############
+        # Launching application to compute approximate Alfvén Radius
         if self.checkbox_approximate_Ra.isChecked():
-            approximate_alfven_radius()
-            """approximate_alfven_radius(
-                beta=beta,
-                Bp=Bp)"""
+            approximate_alfven_radius(
+                beta=beta, zeta=zeta, Robj2Rsun=Robj2Rsun, P_rot=P_rot,
+                Bp=Bp, vinf=vinf, M_los=M_los)
 
+        # Launching application to compute average Alfvén Radius and 1D plot
+        # of the Alfvén Radius values along the magnetic longitude angle
         if self.checkbox_averaged_Ra.isChecked():
-            averaged_alfven_radius()
+            averaged_alfven_radius(
+                beta=beta, Robj2Rsun=Robj2Rsun, P_rot=P_rot,
+                Bp=Bp, vinf=vinf, M_los=M_los)
         # End launching application ###########################################
 
         self.setWindowTitle("Alfven Radius Computation")
