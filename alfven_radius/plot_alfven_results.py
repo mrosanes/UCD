@@ -18,22 +18,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 The objective(s) of this file are:
-  - Present the results of the Alfvén Radius of a (sub)stellar object, as
-    a function of the Magnetic Longitude
+  - Example presenting the results of the Alfvén Radius of a (sub)stellar
+  object, as a function of the Magnetic Longitude, for an object of radius
+  R_obj = 4*Rsun
 """
 
 import numpy as np
 import pyqtgraph as pg
 
-# Note: B units [Gauss]
+# Used radius of the (sub)stellar object (R_obj = R*) for the given example:
+# R_obj = 4*Rsun
+# with: Rsun = 6.96e8 m
 
-Rsun = 6.96e8  # [m]
-
-# Set radius of the (sub)stellar object:
-R_obj = 4*Rsun
-
-# rotation in radians
-rotation_phase = [
+# Magnetic longitude angles in radians [0 - 2PI]
+magnetic_longitude_angles = [
  0.0, 0.08726646, 0.17453293, 0.26179939, 0.34906585,
  0.43633231, 0.52359878, 0.61086524, 0.6981317, 0.78539816,
  0.87266463, 0.95993109, 1.04719755, 1.13446401, 1.22173048,
@@ -50,49 +48,31 @@ rotation_phase = [
  5.67232007, 5.75958653, 5.84685299, 5.93411946, 6.02138592,
  6.10865238, 6.19591884, 6.28318531]
 
-# Rotation phase: [0-1] ([0-1] -> [0º-360º])
-magnetic_longitude_angles = np.array(rotation_phase) / (2*np.pi)
+# Rotation phase: [0-1]  ([0-1] -> [0º-360º])
+magnetic_longitude_phase = np.array(magnetic_longitude_angles) / (2*np.pi)
 
-# Alfvén Radius as a function of the magnetic longitude:
+# Alfvén Radius, in R_obj (R*) units, as a function of the magnetic longitude:
 alfven_radius_array = [
- 64979666585.0315, 64743646556.1279, 64076451850.8515, 63082171929.7342,
- 61887738216.4647, 60607930655.9848, 59329021933.3496, 58107801477.1043,
- 56977667599.4493, 55955911725.9531, 55049717632.9937, 54260396606.3796,
- 53586142112.7451, 53023735257.0119, 52569565718.0500, 52220226645.6084,
- 51972852383.2495, 51825304428.6803, 51776269227.4744, 51825304428.6803,
- 51972852383.2495, 52220226645.6084, 52569565718.0500, 53023735257.0119,
- 53586142112.7451, 54260396606.3796, 55049717632.9937, 55955911725.9531,
- 56977667599.4493, 58107801477.1043, 59329021933.3496, 60607930655.9848,
- 61887738216.4647, 63082171929.7342, 64076451850.8515, 64743646556.1279,
- 64979666585.0315, 64743646556.1279, 64076451850.8515, 63082171929.7342,
- 61887738216.4647, 60607930655.9848, 59329021933.3496, 58107801477.1043,
- 56977667599.4493, 55955911725.9531, 55049717632.9937, 54260396606.3796,
- 53586142112.7451, 53023735257.0119, 52569565718.0500, 52220226645.6084,
- 51972852383.2495, 51825304428.6803, 51776269227.4744, 51825304428.6803,
- 51972852383.2495, 52220226645.6084, 52569565718.0500, 53023735257.0119,
- 53586142112.7451, 54260396606.3796, 55049717632.9937, 55955911725.9531,
- 56977667599.4493, 58107801477.1043, 59329021933.3496, 60607930655.9848,
- 61887738216.4647, 63082171929.7342, 64076451850.8515, 64743646556.1279,
- 64979666585.0315]
+ 23.34,  23.256, 23.016, 22.659, 22.23,  21.77,  21.311, 20.872, 20.466,
+ 20.099, 19.774, 19.49,  19.248, 19.046, 18.883, 18.757, 18.668, 18.615,
+ 18.598, 18.615, 18.668, 18.757, 18.883, 19.046, 19.248, 19.49,  19.774,
+ 20.099, 20.466, 20.872, 21.311, 21.77,  22.23,  22.659, 23.016, 23.256,
+ 23.34,  23.256, 23.016, 22.659, 22.23,  21.77,  21.311, 20.872, 20.466,
+ 20.099, 19.774, 19.49,  19.248, 19.046, 18.883, 18.757, 18.668, 18.615,
+ 18.598, 18.615, 18.668, 18.757, 18.883, 19.046, 19.248, 19.49,  19.774,
+ 20.099, 20.466, 20.872, 21.311, 21.77,  22.23,  22.659, 23.016, 23.256,
+ 23.34]
 
-alfven_radius_array = np.array(alfven_radius_array)
-
-# Normalized Alfvén Radius, in R* units
-alfven_radius_array_norm = np.round(alfven_radius_array / R_obj, 3)
-Ra = np.average(alfven_radius_array_norm)
-
-print(magnetic_longitude_angles)
-print()
-# Alfvén Radius in R_obj (R*) units
-print(alfven_radius_array_norm)
+# Average Alfvén Radius in R_obj (R*) units
+Ra = np.average(alfven_radius_array)
 print()
 print("Average Alfvén Radius:")
-print(Ra)
+print(" {:.4g}".format(Ra))
 print()
 
 
 app = pg.mkQApp()
-pg.plot(magnetic_longitude_angles, alfven_radius_array_norm,
+pg.plot(magnetic_longitude_angles, alfven_radius_array,
         pen="b", symbol='o')
 app.exec_()
 
