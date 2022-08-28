@@ -26,9 +26,18 @@ The objective(s) of this file are:
 import numpy as np
 import pyqtgraph as pg
 
-# Used radius of the (sub)stellar object (R_obj = R*) for the given example:
-# R_obj = 4*Rsun
-# with: Rsun = 6.96e8 m
+"""
+Used parameters for the results presented in this example:
+- Radius of the (sub)stellar object (R_obj = R*):
+    R_obj = 4 * Rsun
+    (with Rsun = 6.96e8 m)
+- beta = 60 
+- Robj2Rsun = 4
+- P_rot = 1 
+- Bp = 1e4                   
+- vinf=600e3
+- M_los = 1e-9
+"""
 
 # Magnetic longitude angles in radians [0 - 2PI]
 magnetic_longitude_angles = [
