@@ -32,7 +32,7 @@ Rsun = 6.96e8  # [m]
 R_obj = 4*Rsun  # [m]
 vinf = 600e3  # [m/s]
 # Bp = 1  # 1 Tesla = 1e4 Gauss
-Bp = 1e4  # Gauss
+Bp = 1e4  # [Gauss]
 bet_degrees = 60
 bet = np.deg2rad(bet_degrees)  # Angle beta (magnetic vs rotation axis))
 zet_degrees = 0
@@ -65,4 +65,7 @@ for zet in zet_array:
                 alfven_radius_array.append(solution)
 
 print(alfven_radius_array)
+
+Ra = np.average(alfven_radius_array)
+print(Ra)
 

@@ -26,9 +26,14 @@ import time
 import numpy as np
 import pyqtgraph as pg
 
+# Note: B units [Gauss]
+
 Rsun = 6.96e8  # [m]
+
+# Set radius of the (sub)stellar object:
 R_obj = 4*Rsun
 
+# rotation in radians
 rotation_phase = [
  0.0, 0.08726646, 0.17453293, 0.26179939, 0.34906585,
  0.43633231, 0.52359878, 0.61086524, 0.6981317, 0.78539816,
@@ -46,7 +51,8 @@ rotation_phase = [
  5.67232007, 5.75958653, 5.84685299, 5.93411946, 6.02138592,
  6.10865238, 6.19591884, 6.28318531]
 
-# Note: B in Gauss
+# Rotation phase: [0-1] ([0-1] -> [0º-360º])
+rotation_phase_degrees = np.array(rotation_phase) / (2*np.pi)
 
 # Alfvén Radius as a function of the magnetic longitude:
 alfven_radius_array = [
@@ -75,7 +81,11 @@ alfven_radius_array = np.array(alfven_radius_array)
 time.sleep(1)
 alfven_radius_array_norm = np.round(alfven_radius_array / R_obj, 3)
 
+# Normalized Alfvén Radius, in R* units
+Ra = np.average(alfven_radius_array_norm)
+print("\nAveraged Alfvén Radius:\n" + str(Ra) + "\n")
+
 app = pg.mkQApp()
-pg.plot(rotation_phase, alfven_radius_array_norm, pen="b", symbol='o')
+pg.plot(rotation_phase_degrees, alfven_radius_array_norm, pen="b", symbol='o')
 app.exec_()
 
