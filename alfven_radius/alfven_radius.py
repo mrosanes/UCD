@@ -150,10 +150,11 @@ def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
     print("\nAlfvén Radius computation took"
           + " {:.4g}".format(duration) + " minutes\n")
 
-    app = pg.mkQApp()
+    # Commented if the QCoreApplication::exec event loop is already running
+    # app = pg.mkQApp()
     pg.plot(magnetic_longitude_angles, alfven_radius_array_norm,
             pen="b", symbol='o')
-    app.exec_()
+    # app.exec_()
     return Ra
 
 
