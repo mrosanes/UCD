@@ -27,8 +27,9 @@ import time
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLineEdit, QDialogButtonBox, QGroupBox, QLabel,
-    QSpinBox, QCheckBox, QFormLayout, QHBoxLayout, QVBoxLayout)
+    QApplication, QWidget, QPushButton, QLineEdit, QDialogButtonBox, QGroupBox,
+    QLabel, QSpinBox, QCheckBox, QFormLayout, QHBoxLayout, QVBoxLayout,
+    QDialog)
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 
 from ucd import UCD
@@ -126,9 +127,49 @@ def flux_densities_1D(
     pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
 
 
-class InputDialog(QWidget):
+class InitialGUI(QDialog):
     def __init__(self):
         super(QWidget, self).__init__()
+        self.setWindowTitle("(Sub)Stellar Object Radio Emission")
+        self.setGeometry(300, 200, 400, 300)
+
+        group_box = QGroupBox()
+        layout = QVBoxLayout()
+
+        button_compute_Ra = QPushButton("Compute Alfvén Radius (Ra)", self)
+        button_compute_Ra.setToolTip("Alfvén Radius is not known:"
+                                     " compute Alfvén Radius (Ra)")
+
+        button_known_Ra = QPushButton(
+            "Compute specific intensities and flux densities\n"
+            "(Ra already known)", self)
+        button_known_Ra.setToolTip(
+            "Compute specific intensities & flux density\n"
+            "(Alfvén Radius already known)")
+
+        layout.addWidget(button_compute_Ra)
+        layout.addWidget(button_known_Ra)
+        group_box.setLayout(layout)
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(group_box)
+        self.setLayout(main_layout)
+
+        button_compute_Ra.clicked.connect(self.lauch_alfven_radius_gui)
+        button_known_Ra.clicked.connect(self.launch_radio_emission_gui)
+
+    def lauch_alfven_radius_gui(self):
+        print("hiho")
+
+    def launch_radio_emission_gui(self):
+        input_dialog = RadioEmissionGUI(self)
+        input_dialog.setModal(True)
+        input_dialog.show()
+
+
+class RadioEmissionGUI(QDialog):
+    def __init__(self, parent=InitialGUI):
+        super(QWidget, self).__init__(parent)
         self.setWindowTitle("(Sub)Stellar Object Radio Emission")
         #######################################################################
         form_group_box_angles = QGroupBox()
@@ -270,7 +311,7 @@ class InputDialog(QWidget):
                                     + " indicated by the user")
         v_layout_2d.addRow(self.checkbox_2d)
         self.n_2d = QSpinBox()
-        self.n_2d.setValue(25)
+        self.n_2d.setValue(13)
         self.n_2d.setToolTip("Number of points per cube side"
                              + " (2D specific intensities)")
         v_layout_2d.addRow(QLabel("n:"), self.n_2d)
@@ -300,7 +341,7 @@ class InputDialog(QWidget):
         button_box = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
+        button_box.rejected.connect(self.close)
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(form_group_box_angles)
@@ -354,13 +395,10 @@ class InputDialog(QWidget):
         self.setWindowTitle(
             "(Sub)Stellar Object Radio Emission")
 
-    def reject(self):
-        self.close()
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    input_dialog = InputDialog()
-    input_dialog.show()
+    initial_gui = InitialGUI()
+    initial_gui.show()
     sys.exit(app.exec())
 
