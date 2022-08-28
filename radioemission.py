@@ -82,12 +82,12 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
     # ucd.plot_middlemag_in_slices(voxels_middle, marker_size=2)
     ucd.LoS_voxel_rays()
     ucd.compute_flux_density_LoS()
-    print("- Total Flux Density in the plane perpendicular to the LoS:")
+    print("\n- Total Flux Density in the plane perpendicular to the LoS:")
     print("{:.4g}".format(ucd.total_flux_density_LoS) + " mJy")
     end_time = time.time()
-    print("- Computations for 2D specific intensities image, using"
-          " %d elements per cube edge, took:\n"
-          "%d seconds\n" % (ucd.n, end_time - start_time))
+    print("- Time to compute the 2D specific intensities image,\n"
+          " using %d elements per cube edge:"
+          " %d seconds" % (ucd.n, end_time - start_time))
     ucd.plot_2D_specific_intensity_LoS()
 
 
@@ -121,10 +121,9 @@ def flux_densities_1D(
         flux_densities.append(np.round(ucd.total_flux_density_LoS, 3))
 
     end_time_flux_densities = time.time()
-    print("Time to compute the 1D specific intensities graph along the\n"
-          " rotation of the (sub)stellar object, "
-          "took:\n%d seconds\n" % (
-                  end_time_flux_densities - start_time_flux_densities))
+    print("- Time to compute the 1D specific intensities graph along the\n"
+          " rotation of the (sub)stellar object: %d seconds\n" % (
+            end_time_flux_densities - start_time_flux_densities))
 
     # 1D Plot of the flux densities in function of the rotation phase angles
     pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
