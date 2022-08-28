@@ -17,8 +17,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-The objective(s) of this file are:
-  - Compute the Alfvén Radius of a UCD (or other (sub)stellar/stellar) object
+The objectives of this file are:
+  - Compute the Alfvén Radius of a (Sub)Stellar object
 """
 
 import time

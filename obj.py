@@ -1,5 +1,5 @@
 """
-ucd.py
+obj.py
 
 2022 - Marc Rosanes Siscart (marcrosanes@gmail.com)
 C/ Carles Collet, 7; Barcelona (08031); Catalonia
@@ -18,12 +18,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 The objectives of this file are:
-    - Create the 3D model of the UCD (or other (sub)stellar) object
-    - Compute the magnetic vector field 'B' of a dipole of a
-      (sub)stellar object at different points of a meshgrid, for an object
-      with not aligned magnetic, rotation, and line of sight [LoS] axes.
+    - Create the 3D model of a (sub)stellar object
+    - Compute the magnetic vector field 'B' of a dipolar (sub)stellar object
+      at different points of a meshgrid, for an object with not aligned
+      magnetic, rotation, and line of sight [LoS] axes
     - Find all points of the grid inside the middle magnetosphere
-    - Apply the Pipeline of C.Trigilio el al. (ESO 2004) [Appendix A]
+    - Compute a 2D image with the specific intensities in the LoS
+    - Compute the Flux Density at a certain rotation point of the (sub)stellar
+      object
+    The followed Pipeline is described on C.Trigilio el al. (ESO 2004)
+      [Appendix A]
       A&A 418, 593–605 (2004)
       DOI: 10.1051/0004-6361:20040060
 """
@@ -62,10 +66,10 @@ toward the Earth
 ###############################################################################
 
 
-class UCD(object):
+class OBJ(object):
     """
-    Class UCD dedicated to the object under study. The object studied with
-    the present 3D model, can be a UCD or another stellar object with similar
+    Class OBJ dedicated to the object under study. The object studied with
+    the present 3D model, can be a OBJ or another stellar object with similar
     magnetic characteristics (MPC star, etc.).
     """
     def __init__(self, L=30, n=5, beta=1, rotation_angle=1, inclination=89,
@@ -79,7 +83,7 @@ class UCD(object):
         :param float beta: Angle between Magnetic and Rotation axis [degrees]
         :param float rotation_angle: Rotation angle [degrees]
         :param float inclination: Angle between LoS and Rotation axis [degrees]
-        :param float Robj_Rsun_scale: Ratio of the UCD or other
+        :param float Robj_Rsun_scale: Ratio of the OBJ or other
           (sub)stellar object radius, regarding the Sun
         :param float Pr: Rotation Period [days]
         :param float Bp: Magnetic Field at the pole of the (sub)stellar object
@@ -101,10 +105,10 @@ class UCD(object):
         # Radius of sun
         self.Rsun = 6.96e10  # [cm]
 
-        # Robj_Rsun_scale: Ratio of the UCD or other (sub)stellar object
+        # Robj_Rsun_scale: Ratio of the OBJ or other (sub)stellar object
         # radius, regarding the Sun radius.
         # R_obj: radius of the object; being the object a (sub)stellar object
-        # like a UCD, or a bigger stellar object, like an MCP star or
+        # like a OBJ, or a bigger stellar object, like an MCP star or
         # other with similar magnetic properties
         self.R_obj = Robj_Rsun_scale * self.Rsun  # in [cm]
 
@@ -140,11 +144,11 @@ class UCD(object):
         # Parameters of the model
         # n: Num points per edge in meshgrid cube (use odd number in order to
         # get one point in the origin of coordinates [center of the grid and
-        # of the UCD]):
+        # of the OBJ]):
         self.n = n
 
-        # Distance from the Earth (point of observation) to the source (UCD)
-        # or other (sub)stellar object
+        # Distance from the Earth (point of observation) to the (sub)stellar
+        # object (source)
         D_pc = 352  # [pc]
         # Conversion factor from Parsecs to cm
         pc2cm = 3.086e+18
@@ -246,7 +250,7 @@ class UCD(object):
         # Expressed in degrees:
         # Angle from rotation to magnetic axis: [~-180º - ~180º]
         self.beta = beta
-        # UCD star rotation [~0º - ~360º]
+        # OBJ star rotation [~0º - ~360º]
         self.phi = self.rotation = rotation_angle
         # Rotation Axis inclination measured from the Line of Sight:
         # [~-90º - ~90º]
@@ -373,7 +377,7 @@ class UCD(object):
             rotation_matrix = self.R
         elif coordinate_system_id == "rotation_axis":
             rotation_matrix = self.R3.dot(self.R2)
-        elif coordinate_system_id == "ucd_rotated":
+        elif coordinate_system_id == "obj_rotated":
             rotation_matrix = self.R3
         elif coordinate_system_id == "LoS":
             rotation_matrix = np.identity(3)
@@ -586,9 +590,9 @@ class UCD(object):
             [axis_point2_LoS[2], axis_point1_LoS[2]])
         self.ax.plot(line_x, line_y, line_z, color=color)
 
-    def ucd_compute_and_plot(self, points_LoS_in_B, points_LoS):
+    def obj_compute_and_plot(self, points_LoS_in_B, points_LoS):
         """
-        UCD compute and plot
+        OBJ compute and plot
         :param points_LoS_in_B:
         :param points_LoS:
         :param plot:
@@ -607,7 +611,7 @@ class UCD(object):
 
             # (Sub)Stellar object rotated coordinate system
             coord_system = self.coordinate_system_computation(
-                coordinate_system_id="ucd_rotated")
+                coordinate_system_id="obj_rotated")
             self.display_coordinate_system(
                 plot=self.ax2, origin_point=[-10, 10, 0],
                 coordinate_system=coord_system, scale=scale_axis,
@@ -645,13 +649,13 @@ class UCD(object):
         magnetosphere. GyroSynchrotron Emission created in the
         middle-magnetosphere points
         - Points in the middle magnetosphere (between the inner and the outer
-          magnetosphere): the ones with a clear contribution to the UCD radio
+          magnetosphere): the ones with a clear contribution to the OBJ radio
           emission arriving to the earth. The radio emission occurs in this
           zone, which contains the open magnetic field lines generating the
           current sheets: (Ra < r < Ra + l_mid)
           with l_mid: width of the middle magnetosphere
         - The radio emission in the inner magnetosphere is supposed to be
-          self-absorbed by the UCD
+          self-absorbed by the OBJ
         - In the outer magnetosphere the density of electrons decreases with
           the distance, which also lowers its contribution to the radio
           emission
@@ -739,7 +743,7 @@ class UCD(object):
 
     def LoS_voxel_rays(self):
         """
-        Define the LoS_Voxels_Ray objects, thanks to the voxels of the UCD.
+        Define the LoS_Voxels_Ray objects, thanks to the voxels of the OBJ.
         Each LoS_Voxels_Ray object contains the voxels in a given "ray"
         parallel to the LoS. All voxels of the same ray share the same
         coordinates Y'Z' of the plane perpendicular to the LoS (x')
@@ -775,8 +779,7 @@ class UCD(object):
     def plot_2D_specific_intensity_LoS(self):
         """
         Plot (2D) specific intensity in the plane perpendicular to the LoS
-        at the specific rotation phase of the UCD (or other (sub)stellar)
-        object
+        at the specific rotation phase of the (sub)stellar object
         """
         plt.figure(figsize=(3, 3))
         plt.imshow(self.specific_intensities_array, cmap='gray_r',
