@@ -27,12 +27,15 @@ import time
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QPushButton, QLineEdit, QDialogButtonBox, QGroupBox,
-    QLabel, QSpinBox, QCheckBox, QFormLayout, QHBoxLayout, QVBoxLayout,
-    QDialog)
+    QApplication, QMainWindow, QWidget, QPushButton, QLineEdit,
+    QDialogButtonBox, QGroupBox, QLabel, QSpinBox, QCheckBox, QFormLayout,
+    QHBoxLayout, QVBoxLayout)
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtCore import Qt
 
 from ucd import UCD
+from alfven_radius.alfven_radius import (
+    approximate_alfven_radius, averaged_alfven_radius)
 
 
 def plot_3D(n=7, beta=0, rotation_angle=0, inclination=90,
@@ -127,10 +130,11 @@ def flux_densities_1D(
     pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
 
 
-class InitialGUI(QDialog):
+class InitialGUI(QMainWindow):
     def __init__(self):
-        super(QWidget, self).__init__()
+        super().__init__()
         self.setWindowTitle("(Sub)Stellar Object Radio Emission")
+        self.move(400, 250)
 
         group_box = QGroupBox()
         layout = QVBoxLayout()
@@ -138,6 +142,7 @@ class InitialGUI(QDialog):
         button_compute_Ra = QPushButton("Compute Alfvén Radius (Ra)", self)
         button_compute_Ra.setToolTip("Alfvén Radius is not known:"
                                      " compute Alfvén Radius (Ra)")
+        button_compute_Ra.setDefault(True)
 
         button_specific_intensities = QPushButton(
             "Compute Specific Intensities and Flux Densities", self)
@@ -152,7 +157,10 @@ class InitialGUI(QDialog):
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(group_box)
-        self.setLayout(main_layout)
+
+        widget = QWidget(self)
+        widget.setLayout(main_layout)
+        self.setCentralWidget(widget)
 
         button_compute_Ra.clicked.connect(
             self.launch_alfven_radius_gui)
@@ -161,19 +169,18 @@ class InitialGUI(QDialog):
 
     def launch_alfven_radius_gui(self):
         alfven_radius_input_dialog = AlfvenRadiusGUI(self)
-        alfven_radius_input_dialog.setModal(True)
         alfven_radius_input_dialog.show()
 
     def launch_radio_emission_gui(self):
         radio_emission_input_dialog = RadioEmissionGUI(self)
-        radio_emission_input_dialog.setModal(True)
         radio_emission_input_dialog.show()
 
 
-class AlfvenRadiusGUI(QDialog):
+class AlfvenRadiusGUI(QMainWindow):
     def __init__(self, parent=InitialGUI):
         super(QWidget, self).__init__(parent)
         self.setWindowTitle("Alfven Radius GUI")
+        self.setWindowModality(Qt.WindowModal)
 
         form_group_box_center = QGroupBox()
         layout_center_1 = QFormLayout()
@@ -214,7 +221,8 @@ class AlfvenRadiusGUI(QDialog):
         self.checkbox_approximate_Ra = QCheckBox("Approximate Ra")
         self.checkbox_approximate_Ra.setToolTip(
             "Approximate Ra: faster computation, but not precise;\n"
-            "Alfvén Radius computation done at the magnetic longitude zeta=0")
+            "Alfvén Radius computation done at the magnetic longitude"
+            " zeta=0; NOTE: This computation can take some minutes (< 5min).")
         self.checkbox_approximate_Ra.setChecked(True)
         self.checkbox_approximate_Ra.toggled.connect(self.unset_averaged_Ra)
         v_layout.addRow(self.checkbox_approximate_Ra)
@@ -224,8 +232,8 @@ class AlfvenRadiusGUI(QDialog):
             "Computes the averaged Ra, thanks to the 1D Ra plot and:\n "
             "more precise, but slower computation;\n"
             "Ra averaged over the range of magnetic longitudes [0º-360º],\n"
-            "with one single value of Ra each 5º (this computation can take"
-            " several hours).")
+            "with one single value of Ra each 5º;\n "
+            "NOTE: This computation can take several hours.")
         self.checkbox_averaged_Ra.toggled.connect(self.unset_approximate_Ra)
         v_layout.addRow(self.checkbox_averaged_Ra)
 
@@ -243,7 +251,11 @@ class AlfvenRadiusGUI(QDialog):
         main_layout.addWidget(form_group_box_center)
         main_layout.addWidget(bottom_box)
         main_layout.addWidget(button_box)
-        self.setLayout(main_layout)
+
+        widget = QWidget(self)
+        widget.setLayout(main_layout)
+        self.setCentralWidget(widget)
+        #self.setLayout(main_layout)
 
     def unset_approximate_Ra(self):
         self.checkbox_approximate_Ra.setChecked(False)
@@ -253,33 +265,34 @@ class AlfvenRadiusGUI(QDialog):
 
     def accept(self):
         self.setWindowTitle("[PROCESSING...]")
-        """        
+
         beta = self.beta.value()
         Bp = int(self.Bp.text())
         P_rot = float(self.P_rot.text())
         Robj2Rsun = 4
-        vinf =
+        vinf = 600
         Mlos_ = 1e-9 # Mass Loss [Solar Masses / year]
 
         # Launching application with inputs entered by the user ###############
         if self.checkbox_approximate_Ra.isChecked():
-            compute_approximate_Ra(
+            approximate_alfven_radius()
+            """approximate_alfven_radius(
                 beta=beta,
-                Bp=Bp)
+                Bp=Bp)"""
 
-        if self.checkbox_Ra_1D_plot.isChecked():
-            Ra_1D_plot_and_avg_Ra(
-                beta=beta,
-                Bp=Bp)
+        if self.checkbox_averaged_Ra.isChecked():
+            averaged_alfven_radius()
         # End launching application ###########################################
 
         self.setWindowTitle("Alfven Radius Computation")
-        """
 
-class RadioEmissionGUI(QDialog):
+
+class RadioEmissionGUI(QMainWindow):
     def __init__(self, parent=InitialGUI):
         super(QWidget, self).__init__(parent)
         self.setWindowTitle("(Sub)Stellar Object Radio Emission")
+        self.setWindowModality(Qt.WindowModal)
+
         #######################################################################
         form_group_box_angles = QGroupBox()
         layout_angles = QFormLayout()
@@ -457,7 +470,10 @@ class RadioEmissionGUI(QDialog):
         main_layout.addWidget(form_group_box_center)
         main_layout.addWidget(bottom_box)
         main_layout.addWidget(button_box)
-        self.setLayout(main_layout)
+
+        widget = QWidget(self)
+        widget.setLayout(main_layout)
+        self.setCentralWidget(widget)
 
     def accept(self):
         self.setWindowTitle("[PROCESSING...]")
