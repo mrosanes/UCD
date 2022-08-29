@@ -28,11 +28,11 @@ import numpy as np
 class Voxel(object):
     def __init__(self, B_LoS, voxel_len,
                  position_LoS=[0,0,0], position_in_B=[0,0,0],
-                 δ=1.2, Ne=0):
+                 f=5, δ=1.2, Ne=0):
         """
         :param B_LoS: B field of the voxel
         :param voxel_len: Voxel length
-        :param f: Frequency of Radio radiation
+        :param f: Frequency of Radio radiation [Hz]
         :param Ne: Electron Density Number
         :param position_LoS: Position of the center of the voxel in Line of
         Sight (LoS) coordinates.
@@ -49,7 +49,7 @@ class Voxel(object):
         self.voxel_len = voxel_len
 
         # Gyrofrequency of electrons; Frequency of radiation
-        self.v = 5e9  # [GHz]
+        self.f = 5e9  # [Hz]
 
         # Free parameters:  l, Ne , δ, Tp , np
         # Hard energetic population of non-thermal-emitting electrons, and an
@@ -112,9 +112,9 @@ class Voxel(object):
         # Gudel, Manuel; 2002 (pag.6);
         # Annual Review of Astronomy & Astrophysics 40:217-261
         self.em = 10 ** (-31.32 + 5.24 * self.δ) * self.Ne * self.B ** (
-                -0.22 + 0.9 * self.δ) * self.v ** (1.22 - 0.9 * self.δ)
+                -0.22 + 0.9 * self.δ) * self.f ** (1.22 - 0.9 * self.δ)
         self.ab = 10 ** (-0.47 + 6.06 * self.δ) * self.Ne * self.B ** (
-                0.3 + 0.98 * self.δ) * self.v ** (- 1.3 - 0.98 * self.δ)
+                0.3 + 0.98 * self.δ) * self.f ** (- 1.3 - 0.98 * self.δ)
         # Specific intensity inside the voxel object
         self.spec_intensity = (self.em / self.ab) * (
                 1 - np.e ** (-self.ab * self.voxel_len))

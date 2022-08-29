@@ -75,7 +75,8 @@ class OBJ(object):
     magnetic characteristics (MPC star, etc.).
     """
     def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
-                 Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc = 1, plot3d=False):
+                 Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9,
+                 plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
@@ -153,6 +154,9 @@ class OBJ(object):
         # Conversion factor from Parsecs to cm
         pc2cm = 3.086e+18
         self.D = D_pc * pc2cm  # in [cm]
+
+        # Frequency of radiation studied
+        self.f = f
 
         # Total length of the meshgrid cube in number of (sub)stellar radius:
         self.L = L
@@ -500,7 +504,7 @@ class OBJ(object):
                 voxel = Voxel(B_LoS, self.voxel_len,
                               position_LoS=point_LoS,
                               position_in_B=point_LoS_in_B,
-                              δ=self.δ, Ne=self.Ne)
+                              f=self.f, δ=self.δ, Ne=self.Ne)
                 self.voxels.append(voxel)
         return Bs_LoS
 
