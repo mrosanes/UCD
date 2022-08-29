@@ -27,15 +27,13 @@ import numpy as np
 import pyqtgraph as pg
 from sympy import symbols, Eq, solve
 
-pp = pprint.PrettyPrinter(indent=4)
+from constants import Rsun, Msun
 
-# Constants and known data
-Rsun = 6.96e8  # [m]
-Msun = 2e30  # SolarMass in Kg
+pp = pprint.PrettyPrinter(indent=4)
 
 
 def approximate_alfven_radius(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
-                              vinf=600e3, M_los = 1e-9):
+                              v_inf=600, M_los = 1e-9):
     """
     Compute approximate Alfvén Radius -> Ra computed at a single
     Magnetic Longitude zeta
@@ -44,8 +42,8 @@ def approximate_alfven_radius(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
     :param Robj2Rsun: scale factor of Robj compared to Rsun
     :param P_rot: [days]
     :param Bp: Magnetic Field Strength at the Poles [Gauss]
-    :param vinf: wind velocity at "infinity" [m/s]
-    :param M_los: Mass Loss [Solar Masses / year]
+    :param v_inf: wind velocity at "infinity" [km/s]
+    :param M_los: Mass Loss [Solar_Masses/year]
     :return:
     """
     start_time = time.time()
@@ -54,15 +52,16 @@ def approximate_alfven_radius(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
     r = symbols('r')
 
     # Initial Data and Conversions
-    R_obj = Robj2Rsun * Rsun  # [m]
+    R_obj = Robj2Rsun * Rsun  # [cm]
     beta = np.deg2rad(beta)
     zeta = np.deg2rad(zeta)
     P_rot_sec = P_rot * 24 * 3600  # Period [s]
     w = 2 * np.pi / P_rot_sec
-    Mlos = M_los * Msun / (365 * 24 * 3600)  # [Kg / s]
+    Mlos = M_los * Msun / (365 * 24 * 3600)  # [g/s]
+    v_inf = v_inf * 1e5  # [cm/s]
 
     # Formulas
-    vw = vinf * (1 - R_obj / r)
+    vw = v_inf * (1 - R_obj / r)
     B = 1/2 * Bp * (R_obj / r)**3
     ro = Mlos / (4 * np.pi * r**2 * vw)
 
@@ -87,7 +86,7 @@ def approximate_alfven_radius(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
 
 
 def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
-                           vinf=600e3, M_los = 1e-9):
+                           v_inf=600e3, M_los = 1e-9):
     """
     Plot 1D of Alfvén Radius as a function of the magnetic longitude zeta and
     compute the average Alfvén Radius
@@ -96,8 +95,8 @@ def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
     :param Robj2Rsun: scale factor of Robj compared to Rsun
     :param P_rot: [days]
     :param Bp: Magnetic Field Strength at the Poles [Gauss]
-    :param vinf: wind velocity at "infinity" [m/s]
-    :param M_los: Mass Loss [Solar Masses / year]
+    :param v_inf: wind velocity at "infinity" [km/s]
+    :param M_los: Mass Loss [Solar_Masses/year]
     :return:
     """
     start_time = time.time()
@@ -106,14 +105,15 @@ def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
     r = symbols('r')
 
     # Initial Data and Conversions
-    R_obj = Robj2Rsun * Rsun  # [m]
+    R_obj = Robj2Rsun * Rsun  # [cm]
     beta = np.deg2rad(beta)
     P_rot_sec = P_rot * 24 * 3600  # Period [s]
     w = 2 * np.pi / P_rot_sec
-    Mlos = M_los * Msun / (365 * 24 * 3600)  # [Kg / s]
+    Mlos = M_los * Msun / (365 * 24 * 3600)  # [g/s]
+    v_inf = v_inf * 1e5  # [cm/s]
 
     # Formulas
-    vw = vinf * (1 - R_obj / r)
+    vw = v_inf * (1 - R_obj / r)
     B = 1 / 2 * Bp * (R_obj / r) ** 3
     ro = Mlos / (4 * np.pi * r ** 2 * vw)
 
