@@ -26,9 +26,8 @@ import numpy as np
 
 
 class Voxel(object):
-    def __init__(self, B_LoS, voxel_len,
-                 position_LoS=[0,0,0], position_in_B=[0,0,0],
-                 f=1e9, δ=2, Ne=0):
+    def __init__(self, B_LoS, voxel_len, position_LoS=[0,0,0],
+                 position_in_B=[0,0,0], f=1e9, δ=2, Ne=0):
         """
         :param B_LoS: B field of the voxel
         :param voxel_len: Voxel length
