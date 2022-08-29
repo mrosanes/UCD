@@ -73,9 +73,7 @@ class OBJ(object):
     magnetic characteristics (MPC star, etc.).
     """
     def __init__(self, L=30, n=5, beta=1, rotation_angle=1, inclination=89,
-                 Robj_Rsun_scale=4, Pr=1,
-                 Bp=3000,
-                 plot3d=False):
+                 Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc = 1, plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
@@ -149,7 +147,7 @@ class OBJ(object):
 
         # Distance from the Earth (point of observation) to the (sub)stellar
         # object (source)
-        D_pc = 352  # [pc]
+        # D_pc = 352  # [pc]
         # Conversion factor from Parsecs to cm
         pc2cm = 3.086e+18
         self.D = D_pc * pc2cm  # in [cm]

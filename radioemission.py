@@ -39,13 +39,11 @@ from alfven_radius.alfven_radius import (
     approximate_alfven_radius, averaged_alfven_radius)
 
 
-def plot_3D(n=7, beta=0, rotation_angle=0, inclination=90,
-            Bp=3000,
-            plot3d=True):
-    obj = OBJ(
-        n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
-        Bp=Bp,
-        plot3d=plot3d)
+def plot_3D(L=30, n=7, beta=0, rotation_angle=0, inclination=90,
+            Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, plot3d=True):
+    obj = OBJ(L=L, n=n, beta=beta, rotation_angle=rotation_angle,
+              inclination=inclination, Robj_Rsun_scale=Robj_Rsun_scale, Pr=Pr,
+              Bp=Bp, D_pc=D_pc, plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = obj.LoS_cube()
     # Compute and Plot the (sub)stellar object dipole magnetic vector field
@@ -54,9 +52,9 @@ def plot_3D(n=7, beta=0, rotation_angle=0, inclination=90,
     obj.obj_compute_and_plot(points_LoS_in_B, points_LoS)
 
 
-def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
-                            Bp=3000,
-                            plot3d=True):
+def specific_intensities_2D(
+        L=30, n=25, beta=0, rotation_angle=0, inclination=90,
+        Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, plot3d=True):
     """
     Notes:
       - Create a OBJ with a low grid sampling "n" per edge (eg: <13),
@@ -93,9 +91,8 @@ def specific_intensities_2D(n=25, beta=0, rotation_angle=0, inclination=90,
 
 
 def flux_densities_1D(
-        n=15, beta=0, inclination=90,
-        Bp=3000,
-        plot3d=False):
+        L=30, n=7, beta=0, inclination=90, Robj_Rsun_scale=4, Bp=3000,
+        Pr=1, D_pc=1, plot3d=False):
     """
     Flux densities 1D in function of the rotation phase angles of the
     (sub)stellar object
@@ -373,6 +370,14 @@ class RadioEmissionGUI(QMainWindow):
         self.frequency.setToolTip("GyroFrequency of electrons")
         layout_center_1.addRow(QLabel("Frequency [GHz]"), self.frequency)
 
+        self.Robj2Rsun = QLineEdit()
+        self.Robj2Rsun.setValidator(QDoubleValidator())
+        self.Robj2Rsun.setText("4")
+        self.Robj2Rsun.setToolTip(
+            "Radius of the (sub)stellar object compared to the radius "
+            "of the Sun;\n(Dimensionless)")
+        layout_center_1.addRow(QLabel("Robj2Rsun"), self.Robj2Rsun)
+
         self.Bp = QLineEdit()
         self.Bp.setValidator(QIntValidator())
         self.Bp.setText("3000")
@@ -386,21 +391,26 @@ class RadioEmissionGUI(QMainWindow):
         self.r_alfven.setToolTip("Averaged Alfvén Radius in R* units")
         layout_center_1.addRow(QLabel("R_alfven [R*]"), self.r_alfven)
 
+        self.L = QLineEdit()
+        self.L.setValidator(QIntValidator())
+        self.L.setText("30")
+        self.L.setToolTip("Length of the cubic grid sides in R* units")
+        layout_center_1.addRow(QLabel("L [R*]"), self.L)
+
         self.l_middlemag = QLineEdit()
         self.l_middlemag.setValidator(QDoubleValidator())
         self.l_middlemag.setText("4")
         self.l_middlemag.setToolTip("Thickness of middle-magnetosphere"
                                     + " in R* units")
-        layout_center_1.addRow(QLabel("l_middlemag [R*]"),
-                               self.l_middlemag)
+        layout_center_1.addRow(QLabel("l_middlemag [R*]"), self.l_middlemag)
 
         self.acc_eff = QLineEdit()
         self.acc_eff.setValidator(QDoubleValidator())
         self.acc_eff.setText("0.002")
         self.acc_eff.setToolTip("Acceleration efficiency of electrons in the"
-                                + " middle-magnetosphere (r_ne = Ne / neA)")
-        layout_center_1.addRow(QLabel("Acceleration Efficiency"),
-                               self.acc_eff)
+                                + " middle-magnetosphere: r_ne = Ne / neA);\n"
+                                + "(Dimensionless)")
+        layout_center_2.addRow(QLabel("Acceleration Efficiency"), self.acc_eff)
 
         self.delta = QLineEdit()
         self.delta.setValidator(QDoubleValidator())
@@ -412,9 +422,9 @@ class RadioEmissionGUI(QMainWindow):
         # Distance to the (sub)stellar object [cm]
         self.D = QLineEdit()
         self.D.setValidator(QDoubleValidator())
-        self.D.setText("3.086e+18")
-        self.D.setToolTip("Distance to the (sub)stellar object [cm]")
-        layout_center_2.addRow(QLabel("Distance [cm]"), self.D)
+        self.D.setText("352")
+        self.D.setToolTip("Distance to the (sub)stellar object [Pc]")
+        layout_center_2.addRow(QLabel("Distance [Pc]"), self.D)
 
         # Rotation Period of the (sub)stellar object [days]
         self.P_rot = QLineEdit()
@@ -429,7 +439,7 @@ class RadioEmissionGUI(QMainWindow):
         self.n_p0.setText("0")
         self.n_p0.setToolTip("Plasma electron density, in inner-magnetosphere,"
                              + " at the stellar surface")
-        layout_center_2.addRow(QLabel("np"), self.n_p0)
+        layout_center_2.addRow(QLabel("np [cm^(−3)]"), self.n_p0)
 
         # Plasma temperature in the inner magnetosphere [K]
         self.T_p0 = QLineEdit()
@@ -514,41 +524,40 @@ class RadioEmissionGUI(QMainWindow):
         self.setWindowTitle("[PROCESSING...]")
 
         frequency = float(self.frequency.text())
-        Bp = int(self.Bp.text())
+        Robj2Rsun = float(self.Robj2Rsun.text())
         r_alfven = float(self.r_alfven.text())
+        L = int(self.L.text())
+        Bp = int(self.Bp.text())
         l_middlemag = float(self.l_middlemag.text())
         acc_eff = float(self.acc_eff.text())
         delta = float(self.delta.text())
         D = float(self.D.text())
         P_rot = float(self.P_rot.text())
-        n_p0 = float(self.n_p0.text())
-        T_p0 = int(self.T_p0.text())
+        # n_p0 = float(self.n_p0.text())
+        # T_p0 = int(self.T_p0.text())
 
         # Launching application with inputs entered by the user ###############
         if self.checkbox_3d.isChecked():
             plot_3D(
-                n=self.n_3d.value(),
-                beta=self.beta.value(),
+                L=L, n=self.n_3d.value(), beta=self.beta.value(),
                 rotation_angle=self.rotation.value(),
                 inclination=self.inclination.value(),
-                Bp=Bp,
+                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 plot3d=True)
 
         if self.checkbox_2d.isChecked():
             specific_intensities_2D(
-                n=self.n_2d.value(),
-                beta=self.beta.value(),
+                L=L, n=self.n_2d.value(), beta=self.beta.value(),
                 rotation_angle=self.rotation.value(),
                 inclination=self.inclination.value(),
-                Bp=Bp,
+                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 plot3d=False)
 
         if self.checkbox_1d.isChecked():
             flux_densities_1D(
-                n=self.n_1d.value(),
-                beta=self.beta.value(),
+                L=L, n=self.n_1d.value(), beta=self.beta.value(),
                 inclination=self.inclination.value(),
-                Bp=Bp,
+                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 plot3d=False)
         # End launching application ###########################################
 
