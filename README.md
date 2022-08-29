@@ -6,7 +6,11 @@ research is especially focused in the gyrosynchrotron emission caused by charged
 magnetic field lines of the (sub)stellar object. The objects studied in this project are objects with strong magnetic 
 fields (eg: Bp > 1000 Gauss).
 
-
+This project is based on the pipeline described in:  
+C.Trigilio el al. (ESO 2004) [Appendix A]  
+  A&A 418, 593–605 (2004)  
+  DOI: 10.1051/0004-6361:20040060  
+  
 ----------------------------------------
 
 LICENCE NOTICE
