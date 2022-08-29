@@ -3,6 +3,9 @@
 # Radius of Sun
 Rsun = 6.96e10  # [cm]
 
+# Mass of the Sun
+Msun = 1.989e33  # [g]
+
 # Speed of Light in cm/s
 c = 3e10  # [cm/s]
 
