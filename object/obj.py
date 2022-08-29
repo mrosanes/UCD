@@ -72,7 +72,7 @@ class OBJ(object):
     """
     def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
                  Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
-                 l_middlemag=4, plot3d=False):
+                 l_middlemag=4, δ=2, plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
@@ -89,6 +89,8 @@ class OBJ(object):
         :param float Ra: Alfvén Radius [R*]
         :param float l_middlemag: Width of the middle magnetosphere at the
           object magnetic equator [R*]
+        :param float δ: Spectral Index of non-thermal electron energy
+          distribution
         :param bool plot3d: Plot or not the magnetic field in a 3D plot
         """
 
@@ -132,6 +134,9 @@ class OBJ(object):
         r = L.cos²(lambda)
         with:
         . lambda: angle between magnetic equatorial plane and radius vector 'r'
+        . r: Radius vector:
+            Distance from the (sub)stellar object center till a concrete point
+            outside of the object (at the surface of the object: r = R_obj)
 
         m = 1/2 (Bp.RStar)
            with: Bp: Strength of B at the star pole
@@ -156,7 +161,7 @@ class OBJ(object):
         pc2cm = 3.086e+18
         self.D = D_pc * pc2cm  # in [cm]
 
-        # Frequency of radiation studied
+        # Frequency of radiation studied [Hz]
         self.f = f
 
         # Total length of the meshgrid cube in number of (sub)stellar radius:
@@ -191,7 +196,7 @@ class OBJ(object):
         self.Ne = Ne = r_ne * neA
 
         # δ~2 in some MCP stars according C.Trigilio el al. (ESO 2004))
-        self.δ = δ = 2
+        self.δ = δ
 
         # Lorentz factor
         γ = 1.2
@@ -220,34 +225,6 @@ class OBJ(object):
         # in Alfvén Radius units
         # l/rA: [0.025, 1];
         self.eq_thick = self.l_mid / self.Ra
-
-        """
-        – Ne: number density of the non-thermal electrons:
-            Ne: [10^2 - 10^6 cm^(−3)], with Ne < n{e,A}
-            [Ne/n{e,A} in the range 10^(−4) to 1]
-            with:
-              n{e,A}: number density of thermal plasma at the Alfvén point
-        – δ: spectral index of the non-thermal electron energy distribution
-            δ: [2, 4]
-        – Tp:  temperature of the inner magnetosphere
-            Tp: [10^5 K, 10^7 K]
-        - np: number plasma density at the base of the inner magnetosphere 
-        (r = R∗)
-            np: [10^7 –10^10 cm(−3)]
-            with: 
-              Tp.np.k{B} = p{ram} -> Tp.np = p{ram}/k{B}: 
-              [10^14 cgs – 10^15 cgs]
-          (Tp and np, related with the plasma in the Star post-shock region: 
-          inside the region protected by the Star closed magnetic field lines)       
-        – Rotation: if the star does not rotate, the thermal plasma density is 
-            considered constant within the inner magnetosphere; if the star 
-            rotates, the thermal plasma density decreases linearly outward, 
-            while the temperature increases. Tp and np are considered as the 
-            values at r = R∗ (base of the inner magnetosphere)
-        - r: Radius vector:
-            Distance from the (sub)stellar object center till a concrete point
-            outside of the star (at the surface of the star: r = R_obj)
-        """
 
         #######################################################################
         # Angles
@@ -476,8 +453,7 @@ class OBJ(object):
 
         :param points_LoS:
         :param points_LoS_in_B:
-        :returns:
-            - Bs_LoS
+        :returns: Bs_LoS
         """
 
         # B = [Bx, By, Bz], in the LoS coordinates system frame:

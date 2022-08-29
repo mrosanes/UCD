@@ -440,7 +440,7 @@ class RadioEmissionGUI(QMainWindow):
     def accept(self):
         self.setWindowTitle("[PROCESSING...]")
 
-        frequency = float(self.frequency.text())
+        frequency = float(self.frequency.text()) * 1e9  # [Hz]
         Robj2Rsun = float(self.Robj2Rsun.text())
         r_alfven = float(self.r_alfven.text())
         L = int(self.L.text())
@@ -460,7 +460,7 @@ class RadioEmissionGUI(QMainWindow):
                 rotation_angle=self.rotation.value(),
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
-                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag,
+                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 plot3d=True)
 
         if self.checkbox_2d.isChecked():
@@ -469,7 +469,7 @@ class RadioEmissionGUI(QMainWindow):
                 rotation_angle=self.rotation.value(),
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
-                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag,
+                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 plot3d=False)
 
         if self.checkbox_1d.isChecked():
@@ -477,7 +477,7 @@ class RadioEmissionGUI(QMainWindow):
                 L=L, n=self.n_1d.value(), beta=self.beta.value(),
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
-                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag,
+                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 plot3d=False)
         # End launching application ###########################################
 
