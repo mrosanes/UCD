@@ -34,10 +34,11 @@ from object.obj import OBJ
 
 
 def plot_3D(L=30, n=7, beta=0, rotation_angle=0, inclination=90,
-            Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, plot3d=True):
+            Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
+            plot3d=True):
     obj = OBJ(L=L, n=n, beta=beta, rotation_angle=rotation_angle,
               inclination=inclination, Robj_Rsun_scale=Robj_Rsun_scale, Pr=Pr,
-              Bp=Bp, D_pc=D_pc, f=f, plot3d=plot3d)
+              Bp=Bp, D_pc=D_pc, f=f, Ra=Ra, plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = obj.LoS_cube()
     # Compute and Plot the (sub)stellar object dipole magnetic vector field
@@ -48,7 +49,7 @@ def plot_3D(L=30, n=7, beta=0, rotation_angle=0, inclination=90,
 
 def specific_intensities_2D(
         L=30, n=25, beta=0, rotation_angle=0, inclination=90,
-        Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, plot3d=True):
+        Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16, plot3d=True):
     """
     Notes:
       - Create a OBJ with a low grid sampling "n" per edge (eg: <13),
@@ -64,7 +65,7 @@ def specific_intensities_2D(
     obj = OBJ(L=L, n=n, Robj_Rsun_scale=Robj_Rsun_scale,
               beta=beta, rotation_angle=rotation_angle,
               inclination=inclination, Bp=Bp, Pr=Pr, D_pc=D_pc, f=f,
-              plot3d=plot3d)
+              Ra=Ra, plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = obj.LoS_cube()
     # Compute and Plot the (sub)stellar object dipole magnetic vector field
@@ -86,7 +87,7 @@ def specific_intensities_2D(
 
 def flux_densities_1D(
         L=30, n=7, beta=0, inclination=90, Robj_Rsun_scale=4, Bp=3000,
-        Pr=1, D_pc=1, f=1e9, plot3d=False):
+        Pr=1, D_pc=1, f=1e9, Ra=16, plot3d=False):
     """
     Flux densities 1D in function of the rotation phase angles of the
     (sub)stellar object
@@ -102,7 +103,7 @@ def flux_densities_1D(
     for rot_phase in rotation_phases:
         obj = OBJ(L=L, n=n, Robj_Rsun_scale=Robj_Rsun_scale,
                   beta=beta, rotation_angle=rot_phase, inclination=inclination,
-                  Bp=Bp, Pr=Pr, D_pc=D_pc, f=f, plot3d=plot3d)
+                  Bp=Bp, Pr=Pr, D_pc=D_pc, f=f, Ra=Ra, plot3d=plot3d)
         points_LoS, points_LoS_in_B = obj.LoS_cube()
         obj.obj_compute_and_plot(points_LoS_in_B, points_LoS)
         obj.find_magnetosphere_regions()

@@ -39,25 +39,7 @@ import matplotlib.pyplot as plt
 from object.voxel import Voxel
 from object.LoS_voxels_ray import LoS_Voxels_Ray
 
-###############################################################################
-# PIPELINE
-
-"""
-– Magnetosphere 3D sampling and magnetic field vectors B calculation (DONE)
-– Definition of the Alfvén radius and of inner, middle and outer 
-  magnetosphere (DONE)
-
-– Calculation of the number density ne of the non-thermal electrons in each 
-point of the grid (middle-magnetosphere)
-– Calculation of emission and absorption coefficients
-
-– Integration of the transfer equation along paths parallel to the 
-line of sight
-– Brightness distribution in the plane of the sky, total flux emitted 
-toward the Earth
-"""
-###############################################################################
-# Acronyms and Glossary
+# Acronyms and Glossary #######################################################
 # - LoS: Line of Sight
 # - in_B (suffix): Magnetic Field coordinates system
 # - Innermag / inner_mag: Middle-magnetosphere
@@ -65,6 +47,20 @@ toward the Earth
 # - Outermag / outer_mag: Outer-magnetosphere
 # - Rotax: Rotation axis coordinates system
 # - Roted: Rotated (sub)stellar object coordinates system
+# - Robj / R_obj / R*: Radius of the studied object
+# - Ra: Alfvén Radius
+###############################################################################
+
+# PIPELINE ####################################################################
+# – Magnetosphere 3D sampling and magnetic field vectors B calculation
+# – Definition of the Alfvén radius and of inner, middle and outer
+#   magnetosphere
+# – Calculation of the number density Ne of the non-thermal electrons in each
+#   point of the grid (middle-magnetosphere)
+# – Calculation of emission and absorption coefficients
+# – Integration of the transfer equation along paths parallel to the LoS
+# – Brightness distribution in the plane of the sky, total flux emitted
+#   toward the Earth
 ###############################################################################
 
 
@@ -75,7 +71,7 @@ class OBJ(object):
     magnetic characteristics (MPC star, etc.).
     """
     def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
-                 Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9,
+                 Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
                  plot3d=False):
         """
         Constructor method
@@ -86,8 +82,11 @@ class OBJ(object):
         :param float inclination: Angle between LoS and Rotation axis [degrees]
         :param float Robj_Rsun_scale: Ratio of the OBJ or other
           (sub)stellar object radius, regarding the Sun
-        :param float Pr: Rotation Period [days]
         :param float Bp: Magnetic Field at the pole of the (sub)stellar object
+        :param float Pr: Rotation Period [days]
+        :param float D_pc: Distance to the (sub)stellar object (source) [Pc]
+        :param float f: Frequency of radiation at which the object is studied
+        :param float Ra: Alfvén Radius [R*]
         :param bool plot3d: Plot or not the magnetic field in a 3D plot
         """
 
@@ -114,7 +113,7 @@ class OBJ(object):
         self.R_obj = Robj_Rsun_scale * self.Rsun  # in [cm]
 
         # Alfvén radius can be computed with: alfven_radius.py
-        self.Ra = 16  # In units of [R_obj] ([Rs] on Trigilio 2004)
+        self.Ra = Ra  # In units of [R_obj] ([Rs] on Trigilio 2004)
 
         # Masa del protón:
         # Mp = 1.6726e-27  # [kg]
