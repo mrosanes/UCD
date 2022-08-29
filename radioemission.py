@@ -460,7 +460,8 @@ class RadioEmissionGUI(QMainWindow):
                 rotation_angle=self.rotation.value(),
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
-                f=frequency, Ra=r_alfven, plot3d=True)
+                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag,
+                plot3d=True)
 
         if self.checkbox_2d.isChecked():
             specific_intensities_2D(
@@ -468,14 +469,16 @@ class RadioEmissionGUI(QMainWindow):
                 rotation_angle=self.rotation.value(),
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
-                f=frequency, Ra=r_alfven, plot3d=False)
+                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag,
+                plot3d=False)
 
         if self.checkbox_1d.isChecked():
             flux_densities_1D(
                 L=L, n=self.n_1d.value(), beta=self.beta.value(),
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
-                f=frequency, Ra=r_alfven, plot3d=False)
+                f=frequency, Ra=r_alfven, l_middlemag=l_middlemag,
+                plot3d=False)
         # End launching application ###########################################
 
         self.setWindowTitle(

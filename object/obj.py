@@ -43,11 +43,11 @@ from object.LoS_voxels_ray import LoS_Voxels_Ray
 # - LoS: Line of Sight
 # - in_B (suffix): Magnetic Field coordinates system
 # - Innermag / inner_mag: Middle-magnetosphere
-# - Middlemag / middle_mag: Middle-magnetosphere
+# - Middlemag / middle_mag / mid: Middle-magnetosphere
 # - Outermag / outer_mag: Outer-magnetosphere
 # - Rotax: Rotation axis coordinates system
 # - Roted: Rotated (sub)stellar object coordinates system
-# - Robj / R_obj / R*: Radius of the studied object
+# - R* / Robj / R_obj: Radius of the studied (sub)stellar object
 # - Ra: Alfvén Radius
 ###############################################################################
 
@@ -72,7 +72,7 @@ class OBJ(object):
     """
     def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
                  Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
-                 plot3d=False):
+                 l_middlemag=4, plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
@@ -87,6 +87,8 @@ class OBJ(object):
         :param float D_pc: Distance to the (sub)stellar object (source) [Pc]
         :param float f: Frequency of radiation at which the object is studied
         :param float Ra: Alfvén Radius [R*]
+        :param float l_middlemag: Width of the middle magnetosphere at the
+          object magnetic equator [R*]
         :param bool plot3d: Plot or not the magnetic field in a 3D plot
         """
 
@@ -212,7 +214,7 @@ class OBJ(object):
 
         # l_mid (or 'l'): equatorial thickness of the magnetic shell for the
         # middle magnetosphere (which is added to Ra)
-        self.l_mid = 4  # [R_obj]
+        self.l_mid = l_middlemag  # [R_obj]
 
         # l/rA: equatorial thickness of the magnetic shell
         # in Alfvén Radius units
