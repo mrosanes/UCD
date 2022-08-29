@@ -49,7 +49,7 @@ class Voxel(object):
         self.voxel_len = voxel_len
 
         # Gyrofrequency of electrons; Frequency of radiation
-        self.f = 5e9  # [Hz]
+        self.f = f  # [Hz]
 
         # Free parameters:  l, Ne , δ, Tp , np
         # Hard energetic population of non-thermal-emitting electrons, and an
@@ -78,16 +78,6 @@ class Voxel(object):
         self.position_in_B = position_in_B
         # Tp: from ~10e5 to ~10e6 caused by the rotating magnetosphere
 
-        """
-        As frequencies for the radio emission we can use, for instance, 
-        frequencies like: 5, 8.4 and 15 GHz. 
-        The model is not computed at 1.4 and 22 GHz because:
-        1) at low frequency the emitting region extends far from the
-        star and close to the Alfvén surface, where the geometry of
-        the magnetosphere is not yet well known
-        2) at high frequency the magnetosphere must be so closely
-        sampled that computational times are prohibitive
-        """
         # Initialize column matter optical depth between each grid element
         # and the Earth
         self.optical_depth = 0
@@ -102,7 +92,7 @@ class Voxel(object):
         Teff = 1
         # TODO: self.ab = ...
         # self.em = self.ab * (2 * k * Teff * f**2) / c**2 ->
-        self.em = self.ab * 3.1e-37 * Teff * v**2
+        self.em = self.ab * 3.1e-37 * Teff * f**2
         """
 
     def set_middle_mag(self):
