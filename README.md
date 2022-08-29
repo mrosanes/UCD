@@ -6,14 +6,15 @@ research is especially focused in the gyrosynchrotron emission caused by charged
 magnetic field lines of the (sub)stellar object. The objects studied in this project are objects with strong magnetic 
 fields (eg: Bp > 1000 Gauss).
 
-This project is based on the pipeline described in:  
+The model developed in this project is based on the pipeline described in:  
 C.Trigilio el al. (ESO 2004) [Appendix A]  
   A&A 418, 593–605 (2004)  
   DOI: 10.1051/0004-6361:20040060  
   
-----------------------------------------
+________________________________________________
 
 LICENCE NOTICE
+--------------
 
 2022 - Marc Rosanes Siscart (marcrosanes@gmail.com)  
 C/ Carles Collet, 7; Barcelona (08031); Catalonia
@@ -30,3 +31,12 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+________________________________________________
+
+Information on project aspects:
+-------------------------------
+
+Approximate frequency range of application of the present model:
+[1.5 - 18 GHz]
+
