@@ -17,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-The objectives of this file is:
+The objective of this file is:
     - Define the class Voxel which will be later used for each of the voxels
     of the grid with specific parameters each one of them.
 """

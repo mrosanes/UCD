@@ -17,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-The objectives of this file is:
+The objective of this file is:
     - Define the class LoS_Voxels to group de Voxels. A single group of Voxels
     in each of the points of the plane Y'Z' perpendicular to the LoS
     direction (x')
