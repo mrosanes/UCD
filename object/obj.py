@@ -60,7 +60,9 @@ toward the Earth
 # Acronyms and Glossary
 # - LoS: Line of Sight
 # - in_B (suffix): Magnetic Field coordinates system
-# - Middlemag: Middle-magnetosphere
+# - Innermag / inner_mag: Middle-magnetosphere
+# - Middlemag / middle_mag: Middle-magnetosphere
+# - Outermag / outer_mag: Outer-magnetosphere
 # - Rotax: Rotation axis coordinates system
 # - Roted: Rotated (sub)stellar object coordinates system
 ###############################################################################
@@ -72,7 +74,7 @@ class OBJ(object):
     the present 3D model, can be a OBJ or another stellar object with similar
     magnetic characteristics (MPC star, etc.).
     """
-    def __init__(self, L=30, n=5, beta=1, rotation_angle=1, inclination=89,
+    def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
                  Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc = 1, plot3d=False):
         """
         Constructor method
