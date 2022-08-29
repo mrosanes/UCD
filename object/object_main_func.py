@@ -61,10 +61,9 @@ def specific_intensities_2D(
         middle-magnetosphere)
     """
     start_time = time.time()
-    obj = OBJ(
-        n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
-        Bp=Bp,
-        plot3d=plot3d)
+    obj = OBJ(L=L, n=n, Robj_Rsun_scale=Robj_Rsun_scale,
+              beta=beta, rotation_angle=rotation_angle,
+              inclination=inclination, Bp=Bp, Pr=Pr, D_pc=D_pc, plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = obj.LoS_cube()
     # Compute and Plot the (sub)stellar object dipole magnetic vector field
@@ -100,10 +99,9 @@ def flux_densities_1D(
     # Flux densities in function of the rotation phase angles
     flux_densities = []
     for rot_phase in rotation_phases:
-        obj = OBJ(n=n,
-                  beta=beta, inclination=inclination, rotation_angle=rot_phase,
-                  Bp=Bp,
-                  plot3d=plot3d)
+        obj = OBJ(L=L, n=n, Robj_Rsun_scale=Robj_Rsun_scale,
+                  beta=beta, rotation_angle=rot_phase, inclination=inclination,
+                  Bp=Bp, Pr=Pr, D_pc=D_pc, plot3d=plot3d)
         points_LoS, points_LoS_in_B = obj.LoS_cube()
         obj.obj_compute_and_plot(points_LoS_in_B, points_LoS)
         obj.find_magnetosphere_regions()
