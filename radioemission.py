@@ -24,9 +24,6 @@ contains the function "main".
 # Note: in what follows, OBJ and "(sub)stellar object" are used indistinctly
 
 import sys
-import time
-import numpy as np
-import pyqtgraph as pg
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QLineEdit,
     QDialogButtonBox, QGroupBox, QLabel, QSpinBox, QCheckBox, QFormLayout,
@@ -34,99 +31,13 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtCore import Qt
 
-from obj import OBJ
 from alfven_radius.alfven_radius import (
     approximate_alfven_radius, averaged_alfven_radius)
+from object.object_main_func import (
+    plot_3D, specific_intensities_2D, flux_densities_1D)
 
 
-def plot_3D(L=30, n=7, beta=0, rotation_angle=0, inclination=90,
-            Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, plot3d=True):
-    obj = OBJ(L=L, n=n, beta=beta, rotation_angle=rotation_angle,
-              inclination=inclination, Robj_Rsun_scale=Robj_Rsun_scale, Pr=Pr,
-              Bp=Bp, D_pc=D_pc, plot3d=plot3d)
-    # LoS grid points in different systems of coordinates
-    points_LoS, points_LoS_in_B = obj.LoS_cube()
-    # Compute and Plot the (sub)stellar object dipole magnetic vector field
-    # and plot it together with the rotation and the magnetic axes, and the
-    # different coordinate systems
-    obj.obj_compute_and_plot(points_LoS_in_B, points_LoS)
-
-
-def specific_intensities_2D(
-        L=30, n=25, beta=0, rotation_angle=0, inclination=90,
-        Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, plot3d=True):
-    """
-    Notes:
-      - Create a OBJ with a low grid sampling "n" per edge (eg: <13),
-        to be able to plot the vectors without losing a relatively good
-        visibility of the vectors
-      - Create a OBJ with a higher grid sampling "n" per edge (eg: >31 <101)
-        in order to have a middle-magnetosphere with a better sampling
-        resolution, but without going to too long computation times (for
-        101 points per cube edge, ~2min for finding the points of the
-        middle-magnetosphere)
-    """
-    start_time = time.time()
-    obj = OBJ(
-        n=n, beta=beta, rotation_angle=rotation_angle, inclination=inclination,
-        Bp=Bp,
-        plot3d=plot3d)
-    # LoS grid points in different systems of coordinates
-    points_LoS, points_LoS_in_B = obj.LoS_cube()
-    # Compute and Plot the (sub)stellar object dipole magnetic vector field
-    # and plot it together with the rotation and the magnetic axes, and the
-    # different coordinate systems
-    obj.obj_compute_and_plot(points_LoS_in_B, points_LoS)
-    voxels_inner, voxels_middle = obj.find_magnetosphere_regions()
-    # obj.plot_middlemag_in_slices(voxels_middle, marker_size=2)
-    obj.LoS_voxel_rays()
-    obj.compute_flux_density_LoS()
-    print("\n- Total Flux Density in the plane perpendicular to the LoS:")
-    print("{:.4g}".format(obj.total_flux_density_LoS) + " mJy")
-    end_time = time.time()
-    print("- Time to compute the 2D specific intensities image,\n"
-          " using %d elements per cube edge:"
-          " %d seconds" % (obj.n, end_time - start_time))
-    obj.plot_2D_specific_intensity_LoS()
-
-
-def flux_densities_1D(
-        L=30, n=7, beta=0, inclination=90, Robj_Rsun_scale=4, Bp=3000,
-        Pr=1, D_pc=1, plot3d=False):
-    """
-    Flux densities 1D in function of the rotation phase angles of the
-    (sub)stellar object
-    """
-    start_time_flux_densities = time.time()
-    # Rotation phase angles from 0º to 360º (each 10º)
-    rotation_phases = []
-    for i in range(36):
-        rotation_phases.append(i * 10)
-
-    # Flux densities in function of the rotation phase angles
-    flux_densities = []
-    for rot_phase in rotation_phases:
-        obj = OBJ(n=n,
-                  beta=beta, inclination=inclination, rotation_angle=rot_phase,
-                  Bp=Bp,
-                  plot3d=plot3d)
-        points_LoS, points_LoS_in_B = obj.LoS_cube()
-        obj.obj_compute_and_plot(points_LoS_in_B, points_LoS)
-        obj.find_magnetosphere_regions()
-        obj.LoS_voxel_rays()
-        obj.compute_flux_density_LoS()
-        # obj.plot_2D_specific_intensity_LoS()
-        flux_densities.append(np.round(obj.total_flux_density_LoS, 3))
-
-    end_time_flux_densities = time.time()
-    print("- Time to compute the 1D specific intensities graph along the\n"
-          " rotation of the (sub)stellar object: %d seconds\n" % (
-            end_time_flux_densities - start_time_flux_densities))
-
-    # 1D Plot of the flux densities in function of the rotation phase angles
-    pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
-
-
+# InitialGUI ##################################################################
 class InitialGUI(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -173,7 +84,10 @@ class InitialGUI(QMainWindow):
         radio_emission_input_dialog.show()
 
 
+# AlfvenRadiusGUI #############################################################
 class AlfvenRadiusGUI(QMainWindow):
+    """This GUI is accessed from the InitialGUI by clicking on the
+    corresponding PushButton"""
     def __init__(self, parent=InitialGUI):
         super(QWidget, self).__init__(parent)
         self.setWindowTitle("Alfven Radius GUI")
@@ -319,7 +233,10 @@ class AlfvenRadiusGUI(QMainWindow):
         self.setWindowTitle("Alfven Radius Computation")
 
 
+# RadioEmissionGUI ############################################################
 class RadioEmissionGUI(QMainWindow):
+    """This GUI is accessed from the InitialGUI by clicking on the
+    corresponding PushButton"""
     def __init__(self, parent=InitialGUI):
         super(QWidget, self).__init__(parent)
         self.setWindowTitle("(Sub)Stellar Object Radio Emission")

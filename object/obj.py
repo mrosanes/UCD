@@ -36,8 +36,8 @@ import pprint
 import numpy as np
 import matplotlib.pyplot as plt
 
-from voxel import Voxel
-from LoS_voxels_ray import LoS_Voxels_Ray
+from object.voxel import Voxel
+from object.LoS_voxels_ray import LoS_Voxels_Ray
 
 ###############################################################################
 # PIPELINE
