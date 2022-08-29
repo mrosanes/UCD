@@ -35,7 +35,7 @@ Used parameters for the results presented in this example:
 - Robj2Rsun = 4
 - P_rot = 1 
 - Bp = 1e4                   
-- vinf=600e3
+- v_inf=600e3
 - M_los = 1e-9
 """
 
