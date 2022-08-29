@@ -136,12 +136,12 @@ class AlfvenRadiusGUI(QMainWindow):
                            + " the (sub)stellar object; [Gauss]")
         layout_center.addRow(QLabel("Bp [Gauss]"), self.Bp)
 
-        self.vinf = QLineEdit()
-        self.vinf.setValidator(QIntValidator())
-        self.vinf.setText("600e3")
-        self.vinf.setToolTip("(sub)stellar object wind velocity"
-                             + " close to 'infinity'; [m/s]")
-        layout_center.addRow(QLabel("vinf [m/s]"), self.vinf)
+        self.v_inf = QLineEdit()
+        self.v_inf.setValidator(QIntValidator())
+        self.v_inf.setText("600")
+        self.v_inf.setToolTip("(sub)stellar object wind velocity"
+                              + " close to 'infinity'; [km/s]")
+        layout_center.addRow(QLabel("v_inf [km/s]"), self.v_inf)
 
         self.M_los = QLineEdit()
         self.M_los.setValidator(QDoubleValidator())
@@ -213,21 +213,21 @@ class AlfvenRadiusGUI(QMainWindow):
         Robj2Rsun = float(self.Robj2Rsun.text())
         P_rot = float(self.P_rot.text())
         Bp = float(self.Bp.text())
-        vinf = float(self.vinf.text())
+        v_inf = float(self.v_inf.text())
         M_los = float(self.M_los.text())
 
         # Launching application to compute approximate Alfvén Radius
         if self.checkbox_approximate_Ra.isChecked():
             approximate_alfven_radius(
                 beta=beta, zeta=zeta, Robj2Rsun=Robj2Rsun, P_rot=P_rot,
-                Bp=Bp, vinf=vinf, M_los=M_los)
+                Bp=Bp, v_inf=v_inf, M_los=M_los)
 
         # Launching application to compute average Alfvén Radius and 1D plot
         # of the Alfvén Radius values along the magnetic longitude angle
         if self.checkbox_averaged_Ra.isChecked():
             averaged_alfven_radius(
                 beta=beta, Robj2Rsun=Robj2Rsun, P_rot=P_rot,
-                Bp=Bp, vinf=vinf, M_los=M_los)
+                Bp=Bp, v_inf=v_inf, M_los=M_los)
         # End launching application ###########################################
 
         self.setWindowTitle("Alfven Radius Computation")
@@ -327,7 +327,7 @@ class RadioEmissionGUI(QMainWindow):
         self.acc_eff.setToolTip("Acceleration efficiency of electrons in the"
                                 + " middle-magnetosphere: r_ne = Ne / neA);\n"
                                 + "(Dimensionless)")
-        layout_center_2.addRow(QLabel("Acceleration Efficiency"), self.acc_eff)
+        layout_center_1.addRow(QLabel("Acceleration Efficiency"), self.acc_eff)
 
         self.delta = QLineEdit()
         self.delta.setValidator(QDoubleValidator())
@@ -349,6 +349,13 @@ class RadioEmissionGUI(QMainWindow):
         self.P_rot.setText("1")
         self.P_rot.setToolTip("Rotation period of the (sub)stellar object")
         layout_center_2.addRow(QLabel("P_rot [days]"), self.P_rot)
+
+        self.v_inf = QLineEdit()
+        self.v_inf.setValidator(QIntValidator())
+        self.v_inf.setText("600")
+        self.v_inf.setToolTip("(sub)stellar object wind velocity"
+                              + " close to 'infinity'; [km/s]")
+        layout_center_2.addRow(QLabel("v_inf [km/s]"), self.v_inf)
 
         # Density of electrons of the plasma in the inner magnetosphere
         self.n_p0 = QLineEdit()
@@ -450,6 +457,7 @@ class RadioEmissionGUI(QMainWindow):
         delta = float(self.delta.text())
         D = float(self.D.text())
         P_rot = float(self.P_rot.text())
+        v_inf = int(self.v_inf.text())
         # n_p0 = float(self.n_p0.text())
         # T_p0 = int(self.T_p0.text())
 
@@ -461,7 +469,7 @@ class RadioEmissionGUI(QMainWindow):
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, plot3d=True)
+                r_ne=acc_eff, v_inf=v_inf, plot3d=True)
 
         if self.checkbox_2d.isChecked():
             specific_intensities_2D(
@@ -470,7 +478,7 @@ class RadioEmissionGUI(QMainWindow):
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, plot3d=False)
+                r_ne=acc_eff, v_inf=v_inf, plot3d=False)
 
         if self.checkbox_1d.isChecked():
             flux_densities_1D(
@@ -478,7 +486,7 @@ class RadioEmissionGUI(QMainWindow):
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, plot3d=False)
+                r_ne=acc_eff, v_inf=v_inf, plot3d=False)
         # End launching application ###########################################
 
         self.setWindowTitle(

@@ -73,7 +73,7 @@ class OBJ(object):
     """
     def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
                  Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
-                 l_middlemag=4, δ=2, r_ne=0.002, plot3d=False):
+                 l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
@@ -96,6 +96,7 @@ class OBJ(object):
           Acceleration efficiency: r_ne = Ne / neA
           . Range of r_ne: [10^(-4) - 1] (Trigilio2004))
           . With neA: number density of thermal plasma at the Alfvén point
+        :param int v_inf: (sub)stellar object wind velocity at 'infinity'
         :param bool plot3d: Plot or not the magnetic field in a 3D plot
         """
 
@@ -122,8 +123,7 @@ class OBJ(object):
         self.Ra = Ra  # In units of [R_obj] ([Rs] on Trigilio 2004)
 
         # Velocity of the wind:
-        # v_inf = 600e3  # [m/s]
-        v_inf = 600e5  # [cm/s]
+        v_inf = v_inf * 1e5  # [cm/s]
 
         #######################################################################
         # Formulas
