@@ -36,6 +36,7 @@ import pprint
 import numpy as np
 import matplotlib.pyplot as plt
 
+from constants import Rsun, Mp, pc2cm
 from object.voxel import Voxel
 from object.LoS_voxels_ray import LoS_Voxels_Ray
 
@@ -108,24 +109,17 @@ class OBJ(object):
         #######################################################################
         # Constants:
         # Length magnetic and rotation axes
-        self.len_axes = 40
-
-        # Radius of sun
-        self.Rsun = 6.96e10  # [cm]
+        self.len_coord_axes = 40
 
         # Robj_Rsun_scale: Ratio of the OBJ or other (sub)stellar object
         # radius, regarding the Sun radius.
         # R_obj: radius of the object; being the object a (sub)stellar object
         # like a OBJ, or a bigger stellar object, like an MCP star or
         # other with similar magnetic properties
-        self.R_obj = Robj_Rsun_scale * self.Rsun  # in [cm]
+        self.R_obj = Robj_Rsun_scale * Rsun  # in [cm]
 
         # Alfvén radius can be computed with: alfven_radius.py
         self.Ra = Ra  # In units of [R_obj] ([Rs] on Trigilio 2004)
-
-        # Masa del protón:
-        # Mp = 1.6726e-27  # [kg]
-        Mp = 1.6726e-24  # [g]
 
         # Velocity of the wind:
         # v_inf = 600e3  # [m/s]
@@ -160,8 +154,6 @@ class OBJ(object):
 
         # Distance from the Earth (point of observation) to the (sub)stellar
         # object (source)
-        # Conversion factor from Parsecs to cm
-        pc2cm = 3.086e+18
         self.D = D_pc * pc2cm  # in [cm]
 
         # Frequency of radiation studied [Hz]
@@ -338,11 +330,11 @@ class OBJ(object):
 
             # Plot (sub)stellar object rotation axis
             self.plot_axis(rotation_matrix=self.R3, color="darkorange",
-                           len_axis=self.len_axes)
+                           len_axis=self.len_coord_axes)
 
             # Plot the (sub)stellar dipole magnetic axis
             self.plot_axis(rotation_matrix=self.R, color="darkblue",
-                           len_axis=self.len_axes)
+                           len_axis=self.len_coord_axes)
 
     def coordinate_system_computation(self, coordinate_system_id="LoS"):
         """
@@ -555,7 +547,7 @@ class OBJ(object):
             return
         self.fig.canvas.draw_idle()
 
-    def plot_axis(self, rotation_matrix, color="blue", len_axis=20):
+    def plot_axis(self, rotation_matrix, color="blue", len_axis=40):
         """
         Plot (sub)stellar object axes
         :param rotation_matrix:

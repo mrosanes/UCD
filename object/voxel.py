@@ -39,12 +39,6 @@ class Voxel(object):
         (Dipole Magnetic Field) coordinates.
         """
 
-        # Speed of Light in cm/s
-        self.c = 3e10  # [cm/s]
-        # Boltzmann constant
-        # Note on Units: 1 erg = 1e-7 J
-        self.k = 1.38e-16  # [erg / K]
-
         self.voxel_len = voxel_len
 
         # Gyrofrequency of electrons; Frequency of radiation
