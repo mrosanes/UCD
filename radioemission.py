@@ -264,26 +264,35 @@ class RadioEmissionGUI(QMainWindow):
         self.beta.setMinimum(-180)
         self.beta.setMaximum(180)
         self.beta.setValue(0)
-        self.beta.setToolTip("Angle of magnetic axis regarding the"
-                             + " rotation axis (Range: [-180º - 180º])")
-        layout_angles.addRow(QLabel("beta [º]"), self.beta)
+        info = ("Angle of magnetic axis regarding the"
+                + " rotation axis (Range: [-180º - 180º])")
+        self.beta.setToolTip(info)
+        beta_label = QLabel("beta [º]")
+        beta_label.setToolTip(info)
+        layout_angles.addRow(beta_label, self.beta)
 
         # Rotation angle [degrees]
         self.rotation = QSpinBox()
         self.rotation.setMinimum(0)
         self.rotation.setMaximum(360)
         self.rotation.setValue(0)
-        self.rotation.setToolTip("Rotation phase (Range: [0º - 360º])")
-        layout_angles.addRow(QLabel("rotation [º]"), self.rotation)
+        info = "Rotation phase (Range: [0º - 360º])"
+        self.rotation.setToolTip(info)
+        rotation_label = QLabel("rotation [º]")
+        rotation_label.setToolTip(info)
+        layout_angles.addRow(rotation_label, self.rotation)
 
         # Inclination of the rotation axis regarding the LoS [degrees]
         self.inclination = QSpinBox()
         self.inclination.setMinimum(-90)
         self.inclination.setMaximum(90)
         self.inclination.setValue(90)
-        self.inclination.setToolTip("Angle of rotation axis regarding the LoS"
-                                    " (Range: [-90º - 90º])")
-        layout_angles.addRow(QLabel("inclination [º]"), self.inclination)
+        info = ("Angle between (sub)stellar object rotation axis and the LoS"
+                + " (Range: [-90º - 90º])")
+        self.inclination.setToolTip(info)
+        inclination_label = QLabel("inclination [º]")
+        inclination_label.setToolTip(info)
+        layout_angles.addRow(inclination_label, self.inclination)
 
         form_group_box_angles.setLayout(layout_angles)
 
@@ -297,94 +306,128 @@ class RadioEmissionGUI(QMainWindow):
         self.frequency = QLineEdit()
         self.frequency.setValidator(QDoubleValidator())
         self.frequency.setText("5")
-        self.frequency.setToolTip("GyroFrequency of electrons")
-        layout_center_1.addRow(QLabel("Frequency [GHz]"), self.frequency)
+        info = "GyroFrequency of electrons [GHz]"
+        self.frequency.setToolTip(info)
+        frequency_label = QLabel("Frequency [GHz]")
+        frequency_label.setToolTip(info)
+        layout_center_1.addRow(frequency_label, self.frequency)
 
         self.Robj2Rsun = QLineEdit()
         self.Robj2Rsun.setValidator(QDoubleValidator())
         self.Robj2Rsun.setText("4")
-        self.Robj2Rsun.setToolTip(
-            "Radius of the (sub)stellar object compared to the radius "
-            "of the Sun;\n(Dimensionless)")
-        layout_center_1.addRow(QLabel("Robj2Rsun"), self.Robj2Rsun)
+        info = ("Radius of the (sub)stellar object compared to the radius"
+                + " of the Sun;\n(Dimensionless)")
+        self.Robj2Rsun.setToolTip(info)
+        Robj2Rsun_label = QLabel("Robj2Rsun")
+        Robj2Rsun_label.setToolTip(info)
+        layout_center_1.addRow(Robj2Rsun_label, self.Robj2Rsun)
 
         self.Bp = QLineEdit()
         self.Bp.setValidator(QIntValidator())
         self.Bp.setText("3000")
-        self.Bp.setToolTip("Magnetic field strength at the pole of"
-                           + " the (sub)stellar object")
-        layout_center_1.addRow(QLabel("Bp [Gauss]"), self.Bp)
+        info = ("Magnetic field strength at the pole of"
+                + " the (sub)stellar object [Gauss]")
+        self.Bp.setToolTip(info)
+        Bp_label = QLabel("Bp [Gauss]")
+        Bp_label.setToolTip(info)
+        layout_center_1.addRow(Bp_label, self.Bp)
 
         self.r_alfven = QLineEdit()
         self.r_alfven.setValidator(QDoubleValidator())
         self.r_alfven.setText("16")
-        self.r_alfven.setToolTip("Averaged Alfvén Radius in R* units")
-        layout_center_1.addRow(QLabel("R_alfven [R*]"), self.r_alfven)
+        info = "Averaged Alfvén Radius. Units: [R*]"
+        self.r_alfven.setToolTip(info)
+        r_alfven_label = QLabel("R_alfven [R*]")
+        r_alfven_label.setToolTip(info)
+        layout_center_1.addRow(r_alfven_label, self.r_alfven)
 
         self.L = QLineEdit()
         self.L.setValidator(QIntValidator())
         self.L.setText("30")
-        self.L.setToolTip("Length of the cubic grid sides in R* units")
-        layout_center_1.addRow(QLabel("L [R*]"), self.L)
+        info = "Length of the cubic grid sides. Units: [R*]"
+        self.L.setToolTip(info)
+        L_label = QLabel("L [R*]")
+        L_label.setToolTip(info)
+        layout_center_1.addRow(L_label, self.L)
 
         self.l_middlemag = QLineEdit()
         self.l_middlemag.setValidator(QDoubleValidator())
         self.l_middlemag.setText("4")
-        self.l_middlemag.setToolTip("Thickness of middle-magnetosphere"
-                                    + " in R* units")
-        layout_center_1.addRow(QLabel("l_middlemag [R*]"), self.l_middlemag)
+        info = "Thickness of middle-magnetosphere. Units: [R*]"
+        self.l_middlemag.setToolTip(info)
+        l_middlemag_label = QLabel("l_middlemag [R*]")
+        l_middlemag_label.setToolTip(info)
+        layout_center_1.addRow(l_middlemag_label, self.l_middlemag)
 
         self.acc_eff = QLineEdit()
         self.acc_eff.setValidator(QDoubleValidator())
         self.acc_eff.setText("0.002")
-        self.acc_eff.setToolTip("Acceleration efficiency of electrons in the"
-                                + " middle-magnetosphere: r_ne = Ne / neA);\n"
-                                + "(Dimensionless)")
-        layout_center_1.addRow(QLabel("Acceleration Efficiency"), self.acc_eff)
+        info = ("Acceleration efficiency of electrons in the"
+                + " middle-magnetosphere: r_ne = Ne / neA);\n(Dimensionless)")
+        self.acc_eff.setToolTip(info)
+        acc_eff_label = QLabel("Acceleration Efficiency")
+        acc_eff_label.setToolTip(info)
+        layout_center_1.addRow(acc_eff_label, self.acc_eff)
 
         self.delta = QLineEdit()
         self.delta.setValidator(QDoubleValidator())
         self.delta.setText("2")
-        self.delta.setToolTip("Spectral index of non-thermal electron"
-                              + " energy distribution")
-        layout_center_2.addRow(QLabel("δ"), self.delta)
+        info = "Spectral index of non-thermal electron energy distribution"
+        self.delta.setToolTip(info)
+        delta_label = QLabel("δ")
+        delta_label.setToolTip(info)
+        layout_center_2.addRow(delta_label, self.delta)
 
         # Distance to the (sub)stellar object [cm]
         self.D = QLineEdit()
         self.D.setValidator(QDoubleValidator())
         self.D.setText("352")
-        self.D.setToolTip("Distance to the (sub)stellar object [Pc]")
-        layout_center_2.addRow(QLabel("Distance [Pc]"), self.D)
+        info = "Distance from Earth to the studied (sub)stellar object [Pc]"
+        self.D.setToolTip(info)
+        D_label = QLabel("Distance [Pc]")
+        D_label.setToolTip(info)
+        layout_center_2.addRow(D_label, self.D)
 
         # Rotation Period of the (sub)stellar object [days]
         self.P_rot = QLineEdit()
         self.P_rot.setValidator(QDoubleValidator())
         self.P_rot.setText("1")
-        self.P_rot.setToolTip("Rotation period of the (sub)stellar object")
-        layout_center_2.addRow(QLabel("P_rot [days]"), self.P_rot)
+        info = "Rotation period of the (sub)stellar object [days]"
+        self.P_rot.setToolTip(info)
+        Prot_label = QLabel("P_rot [days]")
+        Prot_label.setToolTip(info)
+        layout_center_2.addRow(Prot_label, self.P_rot)
 
         self.v_inf = QLineEdit()
         self.v_inf.setValidator(QIntValidator())
         self.v_inf.setText("600")
-        self.v_inf.setToolTip("(sub)stellar object wind velocity"
-                              + " close to 'infinity'; [km/s]")
-        layout_center_2.addRow(QLabel("v_inf [km/s]"), self.v_inf)
+        info = "(sub)stellar object wind velocity close to 'infinity' [km/s]"
+        self.v_inf.setToolTip(info)
+        vinf_label = QLabel("v_inf [km/s]")
+        vinf_label.setToolTip(info)
+        layout_center_2.addRow(vinf_label, self.v_inf)
 
         # Density of electrons of the plasma in the inner magnetosphere
         self.n_p0 = QLineEdit()
         self.n_p0.setValidator(QDoubleValidator())
         self.n_p0.setText("0")
-        self.n_p0.setToolTip("Plasma electron density, in inner-magnetosphere,"
-                             + " at the stellar surface")
-        layout_center_2.addRow(QLabel("np [cm^(−3)]"), self.n_p0)
+        info = ("Plasma electron density, in inner-magnetosphere,"
+                + " at the (sub)stellar object surface [cm^(−3)]")
+        self.n_p0.setToolTip(info)
+        np_label = QLabel("np [cm^(−3)]")
+        np_label.setToolTip(info)
+        layout_center_2.addRow(np_label, self.n_p0)
 
         # Plasma temperature in the inner magnetosphere [K]
         self.T_p0 = QLineEdit()
         self.T_p0.setValidator(QIntValidator())
         self.T_p0.setText("0")
-        self.T_p0.setToolTip("Plasma temperature in inner-magnetosphere,"
-                             + " at the stellar surface")
-        layout_center_2.addRow(QLabel("Tp [K]"), self.T_p0)
+        info = ("Plasma temperature in inner-magnetosphere,"
+                + " at the (sub)stellar object surface [K]")
+        self.T_p0.setToolTip(info)
+        Tp_label = QLabel("Tp [K]")
+        Tp_label.setToolTip(info)
+        layout_center_2.addRow(Tp_label, self.T_p0)
 
         h_layout.addLayout(layout_center_1)
         h_layout.addLayout(layout_center_2)
@@ -403,9 +446,11 @@ class RadioEmissionGUI(QMainWindow):
         v_layout_3d.addRow(self.checkbox_3d)
         self.n_3d = QSpinBox()
         self.n_3d.setValue(7)
-        self.n_3d.setToolTip("Number of points per cube side"
-                             + " (3D magnetic field computation)")
-        v_layout_3d.addRow(QLabel("n:"), self.n_3d)
+        info = "Number of points per cube side (3D magnetic field computation)"
+        self.n_3d.setToolTip(info)
+        label_3d = QLabel("n:")
+        label_3d.setToolTip(info)
+        v_layout_3d.addRow(label_3d, self.n_3d)
         box_3d.setLayout(v_layout_3d)
 
         box_2d = QGroupBox()
@@ -419,9 +464,12 @@ class RadioEmissionGUI(QMainWindow):
         v_layout_2d.addRow(self.checkbox_2d)
         self.n_2d = QSpinBox()
         self.n_2d.setValue(13)
-        self.n_2d.setToolTip("Number of points per cube side"
-                             + " (2D specific intensities computation)")
-        v_layout_2d.addRow(QLabel("n:"), self.n_2d)
+        info = ("Number of points per cube side"
+                + " (2D specific intensities computation)")
+        self.n_2d.setToolTip(info)
+        label_2d = QLabel("n:")
+        label_2d.setToolTip(info)
+        v_layout_2d.addRow(label_2d, self.n_2d)
         box_2d.setLayout(v_layout_2d)
 
         box_1d = QGroupBox()
@@ -432,9 +480,11 @@ class RadioEmissionGUI(QMainWindow):
         v_layout_1d.addRow(self.checkbox_1d)
         self.n_1d = QSpinBox()
         self.n_1d.setValue(7)
-        self.n_1d.setToolTip("Number of points per cube side"
-                             + " (1D flux densities computation)")
-        v_layout_1d.addRow(QLabel("n:"), self.n_1d)
+        info = "Number of points per cube side (1D flux densities computation)"
+        self.n_1d.setToolTip(info)
+        label_1d = QLabel("n:")
+        label_1d.setToolTip(info)
+        v_layout_1d.addRow(label_1d, self.n_1d)
         box_1d.setLayout(v_layout_1d)
 
         h_layout = QHBoxLayout()
