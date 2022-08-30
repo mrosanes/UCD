@@ -435,9 +435,10 @@ class RadioEmissionGUI(QMainWindow):
 
         # Points per cube side ################################################
 
-        # n_3d, n_2d and n_1d: Number of voxels per cube side: use
-        # odd numbers for n (it allows having one of the voxels in the middle
-        # of the (sub)stellar object)
+        # n_3d, n_2d and n_1d: Number of voxels per cube side: n shall be odd
+        # (n_3d, n_2d, n_1d) allowing having one of the voxels in the
+        # middle of the (sub)stellar object (which is removed for the
+        # computations)
 
         box_3d = QGroupBox()
         v_layout_3d = QFormLayout()
@@ -445,8 +446,13 @@ class RadioEmissionGUI(QMainWindow):
         self.checkbox_3d.setToolTip("3D plot of the magnetic vectorial field")
         v_layout_3d.addRow(self.checkbox_3d)
         self.n_3d = QSpinBox()
+        self.n_3d.setMinimum(3)
         self.n_3d.setValue(7)
-        info = "Number of points per cube side (3D magnetic field computation)"
+        self.n_3d.setSingleStep(2)
+        self.n_3d.editingFinished.connect(
+            lambda: self.on_value_changed(self.n_3d))
+        info = ("Number of points per cube side (3D magnetic field"
+                " computation)\nOnly odd values accepted")
         self.n_3d.setToolTip(info)
         label_3d = QLabel("n:")
         label_3d.setToolTip(info)
@@ -463,10 +469,14 @@ class RadioEmissionGUI(QMainWindow):
                                     + " indicated by the user")
         v_layout_2d.addRow(self.checkbox_2d)
         self.n_2d = QSpinBox()
+        self.n_2d.setMinimum(3)
         self.n_2d.setMaximum(1000)
         self.n_2d.setValue(21)
-        info = ("Number of points per cube side"
-                + " (2D specific intensities computation)")
+        self.n_2d.setSingleStep(2)
+        self.n_2d.editingFinished.connect(
+            lambda: self.on_value_changed(self.n_2d))
+        info = ("Number of points per cube side (2D specific intensities"
+                + " computation)\nOnly odd values accepted")
         self.n_2d.setToolTip(info)
         label_2d = QLabel("n:")
         label_2d.setToolTip(info)
@@ -480,9 +490,14 @@ class RadioEmissionGUI(QMainWindow):
                                     + " complete rotation of 360º")
         v_layout_1d.addRow(self.checkbox_1d)
         self.n_1d = QSpinBox()
-        self.n_2d.setMaximum(1000)
+        self.n_1d.setMinimum(3)
+        self.n_1d.setMaximum(1000)
         self.n_1d.setValue(7)
-        info = "Number of points per cube side (1D flux densities computation)"
+        self.n_1d.setSingleStep(2)
+        self.n_1d.editingFinished.connect(
+            lambda: self.on_value_changed(self.n_1d))
+        info = ("Number of points per cube side (1D flux densities"
+                + " computation)\nOnly odd values accepted")
         self.n_1d.setToolTip(info)
         label_1d = QLabel("n:")
         label_1d.setToolTip(info)
@@ -510,6 +525,21 @@ class RadioEmissionGUI(QMainWindow):
         widget = QWidget(self)
         widget.setLayout(main_layout)
         self.setCentralWidget(widget)
+
+    def on_value_changed(self, n):
+        val = n.value()
+        if val % 2 == 0:
+            if n == self.n_1d:
+                n_label = "'n' (for flux densities computation)"
+                self.n_1d.setValue(val - 1)
+            elif n == self.n_2d:
+                n_label = "'n' (for 2D specific intensities computation)"
+                self.n_2d.setValue(val - 1)
+            elif n == self.n_3d:
+                n_label = "'n' (for 3D magnetic vector field computation)"
+                self.n_3d.setValue(val - 1)
+            print("\nOnly odd values allowed:\n"
+                  + n_label + " has been set to: " + str(val-1) + "\n")
 
     def accept(self):
         self.setWindowTitle("[PROCESSING...]")
