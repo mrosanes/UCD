@@ -463,7 +463,8 @@ class RadioEmissionGUI(QMainWindow):
                                     + " indicated by the user")
         v_layout_2d.addRow(self.checkbox_2d)
         self.n_2d = QSpinBox()
-        self.n_2d.setValue(13)
+        self.n_2d.setMaximum(1000)
+        self.n_2d.setValue(21)
         info = ("Number of points per cube side"
                 + " (2D specific intensities computation)")
         self.n_2d.setToolTip(info)
@@ -479,6 +480,7 @@ class RadioEmissionGUI(QMainWindow):
                                     + " complete rotation of 360º")
         v_layout_1d.addRow(self.checkbox_1d)
         self.n_1d = QSpinBox()
+        self.n_2d.setMaximum(1000)
         self.n_1d.setValue(7)
         info = "Number of points per cube side (1D flux densities computation)"
         self.n_1d.setToolTip(info)
