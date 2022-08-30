@@ -32,19 +32,19 @@ from constants import Rsun, Msun
 pp = pprint.PrettyPrinter(indent=4)
 
 
-def approximate_alfven_radius(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
-                              v_inf=600, M_los = 1e-9):
+def alfven_radius_at_given_zeta(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
+                                v_inf=600, M_los = 1e-9):
     """
-    Compute approximate Alfvén Radius -> Ra computed at a single
-    Magnetic Longitude zeta
+    Compute Alfvén Radius (Ra) at a given magnetic longitude zeta (ζ)
 
-    :param beta: angle beta (angle between magnetic and rotation axes)
+    :param beta: angle β between magnetic and rotation axes of the object
+    :param zeta: angle ζ indicating the magnetic longitude
     :param Robj2Rsun: scale factor of Robj compared to Rsun
     :param P_rot: [days]
     :param Bp: Magnetic Field Strength at the Poles [Gauss]
     :param v_inf: wind velocity at "infinity" [km/s]
     :param M_los: Mass Loss [Solar_Masses/year]
-    :return:
+    :return: Ra_at_given_zeta in [R*]
     """
     start_time = time.time()
 
@@ -73,16 +73,16 @@ def approximate_alfven_radius(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
     for solution in solutions:
         if solution.is_real:
             if solution >= 0 and solution > 2*R_obj:
-                alfven_radius_approx = solution
+                Ra_at_given_zeta = solution
 
-    alfven_radius_approx_norm = alfven_radius_approx / R_obj
+    Ra_at_given_zeta_norm = Ra_at_given_zeta / R_obj
     print("\nApproximate Alfvén Radius:")
-    print("{:.4g}".format(alfven_radius_approx_norm))
+    print("{:.4g}".format(Ra_at_given_zeta_norm))
 
     duration = (time.time() - start_time) / 60.0
     print("\nApproximate Alfvén Radius computation took"
           + " {:.4g}".format(duration) + " minutes\n")
-    return alfven_radius_approx
+    return Ra_at_given_zeta_norm
 
 
 def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
@@ -91,7 +91,7 @@ def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
     Plot 1D of Alfvén Radius as a function of the magnetic longitude zeta and
     compute the average Alfvén Radius
 
-    :param beta: angle beta (angle between magnetic and rotation axes)
+    :param beta: angle β between magnetic and rotation axes of the object
     :param Robj2Rsun: scale factor of Robj compared to Rsun
     :param P_rot: [days]
     :param Bp: Magnetic Field Strength at the Poles [Gauss]
@@ -118,7 +118,7 @@ def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
     ro = Mlos / (4 * np.pi * r ** 2 * vw)
 
     # Magnetic Longitude [rad]
-    magnetic_longitude_angles = np.array(range(0, 361, 5))
+    magnetic_longitude_angles = np.array(range(0, 361, 10))
     magnetic_longitude_angles = np.deg2rad(magnetic_longitude_angles)  # [rad]
     alfven_radius_array = []
     for zeta in magnetic_longitude_angles:
@@ -159,6 +159,6 @@ def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
 
 
 if __name__ == "__main__":
-    approximate_alfven_radius()
+    alfven_radius_at_given_zeta()
     # averaged_alfven_radius()
 

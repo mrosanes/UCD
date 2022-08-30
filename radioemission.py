@@ -32,7 +32,7 @@ from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtCore import Qt
 
 from alfven_radius.alfven_radius import (
-    approximate_alfven_radius, averaged_alfven_radius)
+    alfven_radius_at_given_zeta, averaged_alfven_radius)
 from object.object_main_func import (
     plot_3D, specific_intensities_2D, flux_densities_1D)
 
@@ -101,82 +101,94 @@ class AlfvenRadiusGUI(QMainWindow):
         self.beta.setMinimum(-180)
         self.beta.setMaximum(180)
         self.beta.setValue(60)
-        self.beta.setToolTip("Angle of magnetic axis regarding the"
-                             + " rotation axis (Range: [-180º - 180º])")
-        layout_center.addRow(QLabel("beta [º]"), self.beta)
+        info = ("Angle of magnetic axis regarding the"
+                + " rotation axis (Range: [-180º - 180º])")
+        self.beta.setToolTip(info)
+        beta_label = QLabel("β [º]")
+        beta_label.setToolTip(info)
+        layout_center.addRow(beta_label, self.beta)
 
         # Angle of magnetic longitude for the computation of Ra [degrees]
         self.zeta = QSpinBox()
         self.zeta.setMinimum(0)
         self.zeta.setMaximum(360)
         self.zeta.setValue(0)
-        self.zeta.setToolTip("Magnetic longitude angle"
-                             + " (Range: [0º - 360º])")
-        layout_center.addRow(QLabel("zeta [º]"), self.zeta)
+        info = "Magnetic longitude angle (Range: [0º - 360º])"
+        self.zeta.setToolTip(info)
+        zeta_label = QLabel("ζ [º]")
+        zeta_label.setToolTip(info)
+        layout_center.addRow(zeta_label, self.zeta)
 
         # Rotation Period of the (sub)stellar object [days]
         self.Robj2Rsun = QLineEdit()
         self.Robj2Rsun.setValidator(QDoubleValidator())
         self.Robj2Rsun.setText("4")
-        self.Robj2Rsun.setToolTip("Robj compared to Rsun radius size factor")
-        layout_center.addRow(QLabel("Robj2Rsun [-]"), self.Robj2Rsun)
+        info = "Robj compared to Rsun radius size factor (dimensionless)"
+        self.Robj2Rsun.setToolTip(info)
+        Robj2Rsun_label = QLabel("Robj2Rsun [-]")
+        Robj2Rsun_label.setToolTip(info)
+        layout_center.addRow(Robj2Rsun_label, self.Robj2Rsun)
 
         # Rotation Period of the (sub)stellar object [days]
         self.P_rot = QLineEdit()
         self.P_rot.setValidator(QDoubleValidator())
         self.P_rot.setText("1")
-        self.P_rot.setToolTip("Rotation period of the (sub)stellar object;"
-                              + " [days]")
-        layout_center.addRow(QLabel("P_rot [days]"), self.P_rot)
+        info = "Rotation period of the (sub)stellar object [days]"
+        self.P_rot.setToolTip(info)
+        P_rot_label = QLabel("P_rot [days]")
+        P_rot_label.setToolTip(info)
+        layout_center.addRow(P_rot_label, self.P_rot)
 
         self.Bp = QLineEdit()
         self.Bp.setValidator(QIntValidator())
         self.Bp.setText("1e4")
-        self.Bp.setToolTip("Magnetic field strength at the pole of"
-                           + " the (sub)stellar object; [Gauss]")
-        layout_center.addRow(QLabel("Bp [Gauss]"), self.Bp)
+        info = ("Magnetic field strength at the pole of"
+                + " the (sub)stellar object [Gauss]")
+        self.Bp.setToolTip(info)
+        Bp_label = QLabel("Bp [Gauss]")
+        Bp_label.setToolTip(info)
+        layout_center.addRow(Bp_label, self.Bp)
 
         self.v_inf = QLineEdit()
         self.v_inf.setValidator(QIntValidator())
         self.v_inf.setText("600")
-        self.v_inf.setToolTip("(sub)stellar object wind velocity"
-                              + " close to 'infinity'; [km/s]")
-        layout_center.addRow(QLabel("v_inf [km/s]"), self.v_inf)
+        info = "(sub)stellar object wind velocity close to 'infinity' [km/s]"
+        self.v_inf.setToolTip(info)
+        v_inf_label = QLabel("v_inf [km/s]")
+        v_inf_label.setToolTip(info)
+        layout_center.addRow(v_inf_label, self.v_inf)
 
         self.M_los = QLineEdit()
         self.M_los.setValidator(QDoubleValidator())
         self.M_los.setText("1e-9")
-        self.M_los.setToolTip("Mass loss rate from the (sub)stellar object;"
-                              + " [Solar Masses / year]")
-        layout_center.addRow(QLabel("M_los [Msun / year]"), self.M_los)
+        info = ("Mass loss rate from the (sub)stellar object;"
+                + " [Solar Masses / year]")
+        self.M_los.setToolTip(info)
+        M_los_label = QLabel("M_los [Msun / year]")
+        M_los_label.setToolTip(info)
+        layout_center.addRow(M_los_label, self.M_los)
 
         form_group_box_center.setLayout(layout_center)
 
         # Checkboxes for choosing computation #################################
-        # - Approximate Ra: faster computation, but not precise; Alfvén Radius
-        #     computation done at the magnetic longitude zeta=0
-        # - Averaged Ra + 1D Ra plot: more precise, but slower computation;
-        #     Ra averaged over the range of magnetic longitudes [0º-360º],
-        #     with one single value of Ra its 5º (computation can take
-        #     several hours).
         v_layout = QFormLayout()
-        self.checkbox_approximate_Ra = QCheckBox("Approximate Ra")
-        self.checkbox_approximate_Ra.setToolTip(
-            "Approximate Ra: faster computation, but not precise;\n"
-            "Alfvén Radius computation done at the magnetic longitude"
-            " zeta=0; NOTE: This computation can take a few minutes (< 5min).")
-        self.checkbox_approximate_Ra.setChecked(True)
-        self.checkbox_approximate_Ra.toggled.connect(self.unset_averaged_Ra)
-        v_layout.addRow(self.checkbox_approximate_Ra)
+        self.checkbox_Ra_at_zeta = QCheckBox("Ra at a given ζ")
+        self.checkbox_Ra_at_zeta.setToolTip(
+            "Ra at a given ζ (zeta);\n"
+            "Alfvén Radius computation done at the specific magnetic longitude"
+            " (ζ);\nNOTE: This computation can take a few minutes (< 5min).")
+        self.checkbox_Ra_at_zeta.setChecked(True)
+        self.checkbox_Ra_at_zeta.toggled.connect(self.unset_averaged_Ra)
+        v_layout.addRow(self.checkbox_Ra_at_zeta)
 
         self.checkbox_averaged_Ra = QCheckBox("Averaged Ra")
         self.checkbox_averaged_Ra.setToolTip(
-            "Computes the averaged Ra, thanks to the 1D Ra plot:\n "
+            "Computes the averaged Ra, thanks to a 1D Ra plot:\n"
             "more precise, but slower computation;\n"
             "Ra averaged over the range of magnetic longitudes [0º-360º],\n"
-            "(one single value of Ra taken each 5º);\n "
-            "NOTE: This computation can take several hours.")
-        self.checkbox_averaged_Ra.toggled.connect(self.unset_approximate_Ra)
+            "(one single value of Ra taken each 10º);\n "
+            "NOTE: This computation can take from 15min to some hours.")
+        self.checkbox_averaged_Ra.toggled.connect(self.unset_Ra_at_zeta)
         v_layout.addRow(self.checkbox_averaged_Ra)
 
         bottom_box = QGroupBox()
@@ -198,8 +210,8 @@ class AlfvenRadiusGUI(QMainWindow):
         widget.setLayout(main_layout)
         self.setCentralWidget(widget)
 
-    def unset_approximate_Ra(self):
-        self.checkbox_approximate_Ra.setChecked(False)
+    def unset_Ra_at_zeta(self):
+        self.checkbox_Ra_at_zeta.setChecked(False)
 
     def unset_averaged_Ra(self):
         self.checkbox_averaged_Ra.setChecked(False)
@@ -216,9 +228,10 @@ class AlfvenRadiusGUI(QMainWindow):
         v_inf = float(self.v_inf.text())
         M_los = float(self.M_los.text())
 
-        # Launching application to compute approximate Alfvén Radius
-        if self.checkbox_approximate_Ra.isChecked():
-            approximate_alfven_radius(
+        # Launching application to compute Alfvén Radius at a given magnetic
+        # longitude zeta (ζ)
+        if self.checkbox_Ra_at_zeta.isChecked():
+            alfven_radius_at_given_zeta(
                 beta=beta, zeta=zeta, Robj2Rsun=Robj2Rsun, P_rot=P_rot,
                 Bp=Bp, v_inf=v_inf, M_los=M_los)
 
@@ -382,17 +395,20 @@ class RadioEmissionGUI(QMainWindow):
         # n_3d, n_2d and n_1d: Number of voxels per cube side: use
         # odd numbers for n (it allows having one of the voxels in the middle
         # of the (sub)stellar object)
+
+        box_3d = QGroupBox()
         v_layout_3d = QFormLayout()
         self.checkbox_3d = QCheckBox("3D Magnetic Field")
         self.checkbox_3d.setToolTip("3D plot of the magnetic vectorial field")
         v_layout_3d.addRow(self.checkbox_3d)
         self.n_3d = QSpinBox()
         self.n_3d.setValue(7)
-        self.n_3d.setToolTip("number of points per cube side"
-                             + " (3D magnetic field)")
+        self.n_3d.setToolTip("Number of points per cube side"
+                             + " (3D magnetic field computation)")
         v_layout_3d.addRow(QLabel("n:"), self.n_3d)
-        v_layout_3d.setContentsMargins(0, 0, 20, 0)
+        box_3d.setLayout(v_layout_3d)
 
+        box_2d = QGroupBox()
         v_layout_2d = QFormLayout()
         self.checkbox_2d = QCheckBox("2D Specific Intensities")
         self.checkbox_2d.setChecked(True)
@@ -404,10 +420,11 @@ class RadioEmissionGUI(QMainWindow):
         self.n_2d = QSpinBox()
         self.n_2d.setValue(13)
         self.n_2d.setToolTip("Number of points per cube side"
-                             + " (2D specific intensities)")
+                             + " (2D specific intensities computation)")
         v_layout_2d.addRow(QLabel("n:"), self.n_2d)
-        v_layout_2d.setContentsMargins(0, 0, 20, 0)
+        box_2d.setLayout(v_layout_2d)
 
+        box_1d = QGroupBox()
         v_layout_1d = QFormLayout()
         self.checkbox_1d = QCheckBox("1D Flux Densities")
         self.checkbox_1d.setToolTip("1D Flux Densities (Light Curve) along a"
@@ -416,16 +433,14 @@ class RadioEmissionGUI(QMainWindow):
         self.n_1d = QSpinBox()
         self.n_1d.setValue(7)
         self.n_1d.setToolTip("Number of points per cube side"
-                             + " (1D flux densities)")
+                             + " (1D flux densities computation)")
         v_layout_1d.addRow(QLabel("n:"), self.n_1d)
-        v_layout_1d.setContentsMargins(0, 0, 0, 0)
+        box_1d.setLayout(v_layout_1d)
 
-        bottom_box = QGroupBox()
         h_layout = QHBoxLayout()
-        h_layout.addLayout(v_layout_3d)
-        h_layout.addLayout(v_layout_2d)
-        h_layout.addLayout(v_layout_1d)
-        bottom_box.setLayout(h_layout)
+        h_layout.addWidget(box_3d)
+        h_layout.addWidget(box_2d)
+        h_layout.addWidget(box_1d)
 
         #######################################################################
 
@@ -437,7 +452,7 @@ class RadioEmissionGUI(QMainWindow):
         main_layout = QVBoxLayout()
         main_layout.addWidget(form_group_box_angles)
         main_layout.addWidget(form_group_box_center)
-        main_layout.addWidget(bottom_box)
+        main_layout.addLayout(h_layout)
         main_layout.addWidget(button_box)
 
         widget = QWidget(self)
