@@ -17,20 +17,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-The objective(s) of this file are:
-  - Example presenting the results of the Alfvén Radius of a (sub)stellar
-  object, as a function of the Magnetic Longitude, for an object of radius
-  R_obj = 4*Rsun
+The objective of this file is:
+  - Presenting an example with the results of the Alfvén Radius of a
+  (sub)stellar object, as a function of the Magnetic Longitude, for an object
+  of radius: R_obj = 4*Rsun
 """
 
 import numpy as np
 import pyqtgraph as pg
 
 """
-Used parameters for the results presented in this example:
+Units used: cgs
+---------------
+
+Parameters used for the results presented in this example:
+----------------------------------------------------------
 - Radius of the (sub)stellar object (R_obj = R*):
     R_obj = 4 * Rsun
-    (with Rsun = 6.96e8 m)
 - beta = 60 
 - Robj2Rsun = 4
 - P_rot = 1 
@@ -62,15 +65,15 @@ magnetic_longitude_phase = np.array(magnetic_longitude_angles) / (2*np.pi)
 
 # Alfvén Radius, in R_obj (R*) units, as a function of the magnetic longitude:
 alfven_radius_array = [
- 23.34,  23.256, 23.016, 22.659, 22.23,  21.77,  21.311, 20.872, 20.466,
- 20.099, 19.774, 19.49,  19.248, 19.046, 18.883, 18.757, 18.668, 18.615,
- 18.598, 18.615, 18.668, 18.757, 18.883, 19.046, 19.248, 19.49,  19.774,
- 20.099, 20.466, 20.872, 21.311, 21.77,  22.23,  22.659, 23.016, 23.256,
- 23.34,  23.256, 23.016, 22.659, 22.23,  21.77,  21.311, 20.872, 20.466,
- 20.099, 19.774, 19.49,  19.248, 19.046, 18.883, 18.757, 18.668, 18.615,
- 18.598, 18.615, 18.668, 18.757, 18.883, 19.046, 19.248, 19.49,  19.774,
- 20.099, 20.466, 20.872, 21.311, 21.77,  22.23,  22.659, 23.016, 23.256,
- 23.34]
+ 15.699, 15.644, 15.489, 15.257, 14.977, 14.676, 14.375, 14.086, 13.817,
+ 13.574, 13.358, 13.17,  13.008, 12.874, 12.765, 12.681, 12.622, 12.586,
+ 12.575, 12.586, 12.622, 12.681, 12.765, 12.874, 13.008, 13.17,  13.358,
+ 13.574, 13.817, 14.086, 14.375, 14.676, 14.977, 15.257, 15.489, 15.644,
+ 15.699, 15.644, 15.489, 15.257, 14.977, 14.676, 14.375, 14.086, 13.817,
+ 13.574, 13.358, 13.17,  13.008, 12.874, 12.765, 12.681, 12.622, 12.586,
+ 12.575, 12.586, 12.622, 12.681, 12.765, 12.874, 13.008, 13.17,  13.358,
+ 13.574, 13.817, 14.086, 14.375, 14.676, 14.977, 15.257, 15.489, 15.644,
+ 15.699]
 
 # Average Alfvén Radius in R_obj (R*) units
 Ra = np.average(alfven_radius_array)
@@ -78,7 +81,6 @@ print()
 print("Average Alfvén Radius:")
 print(" {:.4g}".format(Ra))
 print()
-
 
 app = pg.mkQApp()
 pg.plot(magnetic_longitude_angles, alfven_radius_array,
