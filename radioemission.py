@@ -267,7 +267,7 @@ class RadioEmissionGUI(QMainWindow):
         info = ("Angle of magnetic axis regarding the"
                 + " rotation axis (Range: [-180º - 180º])")
         self.beta.setToolTip(info)
-        beta_label = QLabel("beta [º]")
+        beta_label = QLabel("β [º]")
         beta_label.setToolTip(info)
         layout_angles.addRow(beta_label, self.beta)
 
