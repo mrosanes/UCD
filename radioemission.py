@@ -303,6 +303,15 @@ class RadioEmissionGUI(QMainWindow):
         layout_center_1.setContentsMargins(0, 0, 30, 0)
         layout_center_2 = QFormLayout()
 
+        self.L = QLineEdit()
+        self.L.setValidator(QIntValidator())
+        self.L.setText("30")
+        info = "Length of the cubic grid sides. Units: [R*]"
+        self.L.setToolTip(info)
+        L_label = QLabel("L [R*]")
+        L_label.setToolTip(info)
+        layout_center_1.addRow(L_label, self.L)
+
         self.frequency = QLineEdit()
         self.frequency.setValidator(QDoubleValidator())
         self.frequency.setText("5")
@@ -340,15 +349,6 @@ class RadioEmissionGUI(QMainWindow):
         r_alfven_label = QLabel("R_alfven [R*]")
         r_alfven_label.setToolTip(info)
         layout_center_1.addRow(r_alfven_label, self.r_alfven)
-
-        self.L = QLineEdit()
-        self.L.setValidator(QIntValidator())
-        self.L.setText("30")
-        info = "Length of the cubic grid sides. Units: [R*]"
-        self.L.setToolTip(info)
-        L_label = QLabel("L [R*]")
-        L_label.setToolTip(info)
-        layout_center_1.addRow(L_label, self.L)
 
         self.l_middlemag = QLineEdit()
         self.l_middlemag.setValidator(QDoubleValidator())
@@ -544,10 +544,10 @@ class RadioEmissionGUI(QMainWindow):
     def accept(self):
         self.setWindowTitle("[PROCESSING...]")
 
+        L = int(self.L.text())
         frequency = float(self.frequency.text()) * 1e9  # [Hz]
         Robj2Rsun = float(self.Robj2Rsun.text())
         r_alfven = float(self.r_alfven.text())
-        L = int(self.L.text())
         Bp = int(self.Bp.text())
         l_middlemag = float(self.l_middlemag.text())
         acc_eff = float(self.acc_eff.text())

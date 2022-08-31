@@ -756,10 +756,12 @@ class OBJ(object):
         Plot (2D) specific intensity in the plane perpendicular to the LoS
         at the specific rotation phase of the (sub)stellar object
         """
-        plt.figure(figsize=(3, 3))
+        plt.figure(figsize=(4, 4))
+        extent = [-self.L, self.L, -self.L, self.L]
         plt.imshow(self.specific_intensities_array, cmap='gray_r',
                    vmin=np.amin(self.specific_intensities_array),
-                   vmax=np.amax(self.specific_intensities_array))
+                   vmax=np.amax(self.specific_intensities_array),
+                   extent=extent)
                    # vmin=0, vmax=255)
         plt.show()
 
