@@ -187,18 +187,12 @@ class OBJ(object):
         # Efficiency of the acceleration process
 
         # And using the acceleration efficiency r_ne:
-        self.Ne = Ne = r_ne * neA
+        # In each point of the middle magnetosphere electrons are
+        # isotropically distributed in pitch angle (Trigilio04)
+        self.Ne = r_ne * neA
 
         # δ~2 in some MCP stars according C.Trigilio el al. (ESO 2004))
         self.δ = δ
-
-        # Lorentz factor
-        γ = 1.2
-        # In each point of the middle magnetosphere (Formula 6 - Trigilio_2004)
-        # Electrons isotropically distributed
-        # TODO: check if N_γ has to be used as in Trigilio04, or if only Ne
-        #  shall be used instead
-        self.N_γ = Ne * (γ - 1) ** (-δ)
 
         # Array 2D (image) of specific intensities in the plane perpendicular
         # to the LoS
@@ -254,10 +248,10 @@ class OBJ(object):
         #######################################################################
         # Rotation Matrices
 
-        # Beta (b): angle from magnetic axis to rotation axis (b = beta)s
-        # (Note: from my calculation, I think R1 should be
+        # Beta (b): angle from magnetic axis to rotation axis (b = beta)
+        # (Note: from my calculation, R1 should be
         # [[cos_b, 0, sin_b], [0, 1, 0], [-sin_b, 1, cos_b]] instead of the
-        # indicated in the paper:
+        # indicated in Trigilio04 Appendix A2:
         # [[cos_b, 0, -sin_b], [ 0, 1, 0],[sin_b, 1, cos_b]])
         self.R1 = np.array([[ cos_b,  0,  - sin_b],
                             [ 0,      1,  0      ],
@@ -475,7 +469,7 @@ class OBJ(object):
                 voxel = Voxel(B_LoS, self.voxel_len,
                               position_LoS=point_LoS,
                               position_in_B=point_LoS_in_B,
-                              f=self.f, δ=self.δ, Ne=self.Ne)
+                              f=self.f, δ=self.δ)
                 self.voxels.append(voxel)
         return Bs_LoS
 
@@ -669,7 +663,7 @@ class OBJ(object):
                     voxel.set_inner_mag()
                     voxels_inner.append(voxel)
                 elif r_min <= L_xyz <= r_max:
-                    voxel.set_Ne(self.N_γ)
+                    voxel.set_Ne(self.Ne)
                     voxel.set_middle_mag()
                     voxels_middle.append(voxel)
         return voxels_inner, voxels_middle
