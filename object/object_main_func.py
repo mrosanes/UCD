@@ -90,7 +90,7 @@ def specific_intensities_2D(
 def flux_densities_1D(
         L=30, n=7, beta=0, inclination=90, Robj_Rsun_scale=4, Bp=3000,
         Pr=1, D_pc=1, f=1e9, Ra=16, l_middlemag=4, δ=2, r_ne=0.002, v_inf=600,
-        plot3d=False, mk_new_qapp=False):
+        rotation_angle_step=10, plot3d=False, mk_new_qapp=False):
     """
     Flux densities 1D in function of the rotation phase angles of the
     (sub)stellar object
@@ -99,7 +99,6 @@ def flux_densities_1D(
     # Rotation phase angles from 0º to 360º (every "rotation_angle_step"
     #  degrees)
     rotation_phases = []
-    rotation_angle_step = 10
     for i in range(0, 361, rotation_angle_step):
         rotation_phases.append(i)
 

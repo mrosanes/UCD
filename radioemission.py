@@ -489,6 +489,18 @@ class RadioEmissionGUI(QMainWindow):
         label_1d = QLabel("n:")
         label_1d.setToolTip(info)
         v_layout_1d.addRow(label_1d, self.n_1d)
+
+        # Rotation angle step [º] for flux densitiy 1D plot
+        self.step_angle_1D = QLineEdit()
+        self.step_angle_1D.setValidator(QIntValidator())
+        self.step_angle_1D.setText("10")
+        info = ("Rotation angle step [º]: abscissa axis step for the flux"
+                + " densities 1D plot")
+        self.step_angle_1D.setToolTip(info)
+        step_angle_label = QLabel("Step [º]")
+        step_angle_label.setToolTip(info)
+        v_layout_1d.addRow(step_angle_label, self.step_angle_1D)
+
         box_1d.setLayout(v_layout_1d)
 
         h_layout = QHBoxLayout()
@@ -527,6 +539,7 @@ class RadioEmissionGUI(QMainWindow):
         D = float(self.D.text())
         P_rot = float(self.P_rot.text())
         v_inf = int(self.v_inf.text())
+        step_angle = int(self.step_angle_1D.text())
         # n_p0 = float(self.n_p0.text())
         # T_p0 = int(self.T_p0.text())
 
@@ -555,7 +568,8 @@ class RadioEmissionGUI(QMainWindow):
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, v_inf=v_inf, plot3d=False)
+                r_ne=acc_eff, v_inf=v_inf, rotation_angle_step=step_angle,
+                plot3d=False)
         # End launching application ###########################################
 
         self.setWindowTitle(
