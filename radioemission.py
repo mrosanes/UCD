@@ -381,7 +381,7 @@ class RadioEmissionGUI(QMainWindow):
         # Distance to the (sub)stellar object [cm]
         self.D = QLineEdit()
         self.D.setValidator(QDoubleValidator())
-        self.D.setText("352")
+        self.D.setText("10")
         info = "Distance from Earth to the studied (sub)stellar object [Pc]"
         self.D.setToolTip(info)
         D_label = QLabel("Distance [Pc]")
