@@ -49,11 +49,13 @@ class LoS_Voxels_Ray(object):
         # element and the Earth
         for i in range(self.n):
             voxel = self.LoS_voxels_in_ray[i]
-            voxel.optical_depth = 0
             for j in range(i+1, self.n):
-                voxel.optical_depth += voxel.ab * voxel.voxel_len
+                voxel_next_in_ray = self.LoS_voxels_in_ray[j]
+                voxel.optical_depth += (
+                        voxel_next_in_ray.ab * voxel_next_in_ray.voxel_len)
 
     def compute_specific_intensity_ray(self):
+
         for voxel in self.LoS_voxels_in_ray:
             self.ray_specific_intensity += (
                     voxel.spec_intensity * np.e**(-voxel.optical_depth))
