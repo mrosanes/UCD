@@ -437,8 +437,7 @@ class RadioEmissionGUI(QMainWindow):
 
         # n_3d, n_2d and n_1d: Number of voxels per cube side: n shall be odd
         # (n_3d, n_2d, n_1d) allowing having one of the voxels in the
-        # middle of the (sub)stellar object (which is removed for the
-        # computations)
+        # middle of the (sub)stellar object
 
         box_3d = QGroupBox()
         v_layout_3d = QFormLayout()
