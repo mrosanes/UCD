@@ -54,14 +54,13 @@ def specific_intensities_2D(
         l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, plot3d=True):
     """
     Notes:
-      - Create a OBJ with a low grid sampling "n" per edge (eg: <13),
-        to be able to plot the vectors without losing a relatively good
-        visibility of the vectors
-      - Create a OBJ with a higher grid sampling "n" per edge (eg: >31 <101)
-        in order to have a middle-magnetosphere with a better sampling
-        resolution, but without going to too long computation times (for
-        101 points per cube edge, ~2min for finding the points of the
-        middle-magnetosphere)
+      - Create a OBJ with a low grid sampling "n" per edge for
+        "3D magnetic field" plotting (eg: ~7), to be able to plot the
+        Magnetic Field vectors without losing a good visibility of the vectors
+      - Create a OBJ with higher grid sampling "n" per edge (eg: >30 <101)
+        in order to have a better resolution, but without going to too
+        long computation times for "2D specific intensity images" and for
+        "1D flux density plots"
     """
     start_time = time.time()
     obj = OBJ(L=L, n=n, Robj_Rsun_scale=Robj_Rsun_scale,
