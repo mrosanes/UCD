@@ -184,6 +184,7 @@ class OBJ(object):
         # B**2 / (8*PI) = 1/2 * pw * v_inf**2
         # With: ρw = Mp * nw
         nw = neA = self.B_Ra**2 / (4 * np.pi * Mp * v_inf**2)
+        # neA = 3e6
         # Efficiency of the acceleration process
 
         # And using the acceleration efficiency r_ne:
@@ -454,7 +455,9 @@ class OBJ(object):
             x = point_LoS_in_B[0]
             y = point_LoS_in_B[1]
             z = point_LoS_in_B[2]
-            if x != 0 or y != 0 or z != 0:
+            if x == 0 and y == 0 and z == 0:
+                B = np.array([0, 0, 0])
+            else:
                 r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
                 # Compute Bx, By, Bz in the points of the grid of the LoS cube
                 #   expressed in magnetic coordinates x, y, z
@@ -463,14 +466,14 @@ class OBJ(object):
                 Bz = self.m * (3 * z ** 2 / r ** 5 - 1 / r ** 3)
                 # Magnetic Field Vector B in Magnetic Coordinates (x, y, z)
                 B = np.array([Bx, By, Bz])
-                # Magnetic Field Vector B in LoS Coordinates (x', y', z')
-                B_LoS = self.R.dot(B)
-                Bs_LoS.append(B_LoS)
-                voxel = Voxel(B_LoS, self.voxel_len,
-                              position_LoS=point_LoS,
-                              position_in_B=point_LoS_in_B,
-                              f=self.f, δ=self.δ)
-                self.voxels.append(voxel)
+            # Magnetic Field Vector B in LoS Coordinates (x', y', z')
+            B_LoS = self.R.dot(B)
+            Bs_LoS.append(B_LoS)
+            voxel = Voxel(B_LoS, self.voxel_len,
+                          position_LoS=point_LoS,
+                          position_in_B=point_LoS_in_B,
+                          f=self.f, δ=self.δ)
+            self.voxels.append(voxel)
         return Bs_LoS
 
     def plot_B_LoS_unit_vectors(self, Bs_LoS, points_LoS):
@@ -478,8 +481,8 @@ class OBJ(object):
         Plot magnetic unit vectors in LoS coordinates:
         - Compute unit vectors from magnetic field vectors B in the LoS
           coordinates system
-        - Take all points except the origin of coordinates, which is the
-          center of the (sub)stellar object
+        - Singularity at origin of coordinate system (center of the
+          [sub]stellar object): B at origin of coordinates is set to [0, 0, 0]
         - Plot magnetic (Bs) unit vectors
 
         :param Bs_LoS:
@@ -488,7 +491,10 @@ class OBJ(object):
         """
         Bs_LoS_unit = []
         for B_LoS in Bs_LoS:
-            B_LoS_unit = B_LoS / abs(np.linalg.norm(B_LoS))
+            if np.any(B_LoS):
+                B_LoS_unit = B_LoS / abs(np.linalg.norm(B_LoS))
+            else:
+                B_LoS_unit = np.array([0, 0, 0])
             for i in [0, 1, 2]:
                 if abs(B_LoS_unit[i]) < 0.01:
                     B_LoS_unit[i] = 0
@@ -496,15 +502,9 @@ class OBJ(object):
                                 round(B_LoS_unit[1], 3),
                                 round(B_LoS_unit[2], 3)])
 
-        # Remove origin point
-        points_LoS_no_origin = []
-        for point_LoS in points_LoS:
-            if point_LoS.any():
-                points_LoS_no_origin.append(point_LoS)
-
         # Plot scaled unit vectors
-        for i in range(len(points_LoS_no_origin)):
-            point_LoS = points_LoS_no_origin[i]
+        for i in range(len(points_LoS)):
+            point_LoS = points_LoS[i]
             B_LoS_unit = Bs_LoS_unit[i]
 
             # Grid points
@@ -719,21 +719,22 @@ class OBJ(object):
         :return: LoS_rays
         """
 
-        # NOTE: The organization of the voxels into rays along the LoS
-        # is slow
-
         # As many rays as points present in the plane Y'Z' perpendicular to
         # the LoS (x')
+
         for coordinate_yz in self.coordinates_yz:
-            y = coordinate_yz[0]
-            z = coordinate_yz[1]
-            ray = LoS_Voxels_Ray(y=y, z=z)
-            for voxel in self.voxels:
-                if (voxel.position_LoS[1] == y
-                        and voxel.position_LoS[2] == z):
-                    ray.LoS_voxels_in_ray.append(voxel)
-            ray.set_number_voxels_in_ray(len(ray.LoS_voxels_in_ray))
+            ray = LoS_Voxels_Ray(y=coordinate_yz[0],
+                                 z=coordinate_yz[1])
             self.LoS_rays.append(ray)
+
+        for j in range(self.n):
+            for k in range(self.n):
+                ray = self.LoS_rays[j*self.n + k]
+                for i in range(self.n):
+                    voxel = self.voxels[j * self.n**2 + k + i * self.n]
+                    ray.LoS_voxels_in_ray.append(voxel)
+                ray.set_number_voxels_in_ray(len(ray.LoS_voxels_in_ray))
+
         for LoS_ray in self.LoS_rays:
             LoS_ray.voxels_optical_depth()
             LoS_ray.compute_specific_intensity_ray()
