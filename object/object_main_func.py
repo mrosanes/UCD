@@ -91,16 +91,18 @@ def specific_intensities_2D(
 def flux_densities_1D(
         L=30, n=7, beta=0, inclination=90, Robj_Rsun_scale=4, Bp=3000,
         Pr=1, D_pc=1, f=1e9, Ra=16, l_middlemag=4, δ=2, r_ne=0.002, v_inf=600,
-        plot3d=False):
+        plot3d=False, mk_new_qapp=False):
     """
     Flux densities 1D in function of the rotation phase angles of the
     (sub)stellar object
     """
     start_time_flux_densities = time.time()
-    # Rotation phase angles from 0º to 360º (each 10º)
+    # Rotation phase angles from 0º to 360º (every "rotation_angle_step"
+    #  degrees)
     rotation_phases = []
-    for i in range(36):
-        rotation_phases.append(i * 10)
+    rotation_angle_step = 10
+    for i in range(0, 361, rotation_angle_step):
+        rotation_phases.append(i)
 
     # Flux densities in function of the rotation phase angles
     flux_densities = []
@@ -114,8 +116,11 @@ def flux_densities_1D(
         obj.find_magnetosphere_regions()
         obj.LoS_voxel_rays()
         obj.compute_flux_density_LoS()
+        print("Flux Density at rotation angle " + str(rot_phase) + " is: "
+              + str(np.round(obj.total_flux_density_LoS, 2)))
         # obj.plot_2D_specific_intensity_LoS()
-        flux_densities.append(np.round(obj.total_flux_density_LoS, 3))
+        flux_densities.append(np.round(obj.total_flux_density_LoS, 2))
+        print("Angle " + str(rot_phase) + " computed\n")
 
     end_time_flux_densities = time.time()
     print("- Time to compute the 1D specific intensities graph along the\n"
@@ -123,5 +128,12 @@ def flux_densities_1D(
             end_time_flux_densities - start_time_flux_densities))
 
     # 1D Plot of the flux densities in function of the rotation phase angles
-    pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
+    # Make new QApp (running EventLoop), only if a QApp has not been
+    # previously instantiated
+    if mk_new_qapp:
+        app = pg.mkQApp()
+        pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
+        app.exec_()
+    else:
+        pg.plot(rotation_phases, flux_densities, pen="b", symbol='o')
 
