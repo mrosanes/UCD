@@ -121,10 +121,10 @@ def flux_densities_1D(
         flux_densities.append(np.round(obj.total_flux_density_LoS, 2))
         print("Angle " + str(rot_phase) + " computed\n")
 
-    end_time_flux_densities = time.time()
+    duration = (time.time() - start_time_flux_densities) / 60.0
     print("- Time to compute the 1D specific intensities graph along the\n"
-          " rotation of the (sub)stellar object: %d seconds\n" % (
-            end_time_flux_densities - start_time_flux_densities))
+          " rotation of the (sub)stellar object:"
+          + " {:.4g}".format(duration) + " minutes\n")
 
     # 1D Plot of the flux densities in function of the rotation phase angles
     # Make new QApp (running EventLoop), only if a QApp has not been
