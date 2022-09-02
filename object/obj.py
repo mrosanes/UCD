@@ -35,6 +35,7 @@ The objectives of this file are:
 import pprint
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 from constants import Rsun, Mp, pc2cm
 from object.voxel import Voxel
@@ -746,7 +747,7 @@ class OBJ(object):
                     self.LoS_rays[i * self.n + j].ray_specific_intensity)
             self.specific_intensities_array[:, i] = column_list_intensities
 
-    def plot_2D_specific_intensity_LoS(self):
+    def plot_2D_specific_intensity_LoS(self, colormap="linear"):
         """
         Plot (2D) specific intensity in the plane perpendicular to the LoS
         at the specific rotation phase of the (sub)stellar object
@@ -756,11 +757,14 @@ class OBJ(object):
         circle = plt.Circle((0, 0), 1, fill=False)
         axes.set_aspect(1)
         axes.add_artist(circle)
-        plt.imshow(self.specific_intensities_array, cmap='gray_r',
-                   vmin=np.amin(self.specific_intensities_array),
-                   vmax=np.amax(self.specific_intensities_array),
-                   extent=extent)
-                   # vmin=0, vmax=255)
+        if colormap.lower() == "linear":
+            plt.imshow(self.specific_intensities_array, cmap='gray_r',
+                       vmin=np.amin(self.specific_intensities_array),
+                       vmax=np.amax(self.specific_intensities_array),
+                       extent=extent)
+        elif colormap.lower() == "logarithmic":
+            plt.imshow(self.specific_intensities_array, cmap='gray_r',
+                       norm=LogNorm(), extent=extent)
         plt.show()
 
     def compute_flux_density_LoS(self):

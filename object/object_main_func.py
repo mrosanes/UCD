@@ -51,7 +51,8 @@ def plot_3D(L=30, n=7, beta=0, rotation_angle=0, inclination=90,
 def specific_intensities_2D(
         L=30, n=25, beta=0, rotation_angle=0, inclination=90,
         Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
-        l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, plot3d=True):
+        l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, colormap="linear",
+        plot3d=True):
     """
     Notes:
       - Create a OBJ with a low grid sampling "n" per edge for
@@ -84,7 +85,7 @@ def specific_intensities_2D(
     print("- Time to compute the 2D specific intensities image,\n"
           " using %d elements per cube edge:"
           " %d seconds" % (obj.n, end_time - start_time))
-    obj.plot_2D_specific_intensity_LoS()
+    obj.plot_2D_specific_intensity_LoS(colormap=colormap)
 
 
 def flux_densities_1D(

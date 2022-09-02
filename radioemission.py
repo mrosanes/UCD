@@ -25,8 +25,8 @@ contains the function "main".
 
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QPushButton, QLineEdit,
-    QDialogButtonBox, QGroupBox, QLabel, QSpinBox, QCheckBox, QFormLayout,
+    QApplication, QMainWindow, QWidget, QPushButton, QLineEdit, QLabel,
+    QSpinBox, QCheckBox, QComboBox, QDialogButtonBox, QGroupBox, QFormLayout,
     QHBoxLayout, QVBoxLayout)
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtCore import Qt
@@ -450,7 +450,6 @@ class RadioEmissionGUI(QMainWindow):
         label_3d = QLabel("n:")
         label_3d.setToolTip(info)
         v_layout_3d.addRow(label_3d, self.n_3d)
-        box_3d.setLayout(v_layout_3d)
 
         box_2d = QGroupBox()
         v_layout_2d = QFormLayout()
@@ -471,7 +470,18 @@ class RadioEmissionGUI(QMainWindow):
         label_2d = QLabel("n:")
         label_2d.setToolTip(info)
         v_layout_2d.addRow(label_2d, self.n_2d)
-        box_2d.setLayout(v_layout_2d)
+
+        # Linear or logarithmic color map for specific intensities 2D plot
+        self.colormap = QComboBox()
+        self.colormap.setValidator(QIntValidator())
+        self.colormap.addItem("Linear")
+        self.colormap.addItem("Logarithmic")
+        info = ("Color Map: Linear or logarithmic color map for"
+                + " specific intensities 2D plot")
+        self.colormap.setToolTip(info)
+        colormap = QLabel("Color Map")
+        colormap.setToolTip(info)
+        v_layout_2d.addRow(colormap, self.colormap)
 
         box_1d = QGroupBox()
         v_layout_1d = QFormLayout()
@@ -501,11 +511,15 @@ class RadioEmissionGUI(QMainWindow):
         step_angle_label.setToolTip(info)
         v_layout_1d.addRow(step_angle_label, self.step_angle_1D)
 
-        box_1d.setLayout(v_layout_1d)
-
         h_layout = QHBoxLayout()
+
+        box_3d.setLayout(v_layout_3d)
         h_layout.addWidget(box_3d)
+
+        box_2d.setLayout(v_layout_2d)
         h_layout.addWidget(box_2d)
+
+        box_1d.setLayout(v_layout_1d)
         h_layout.addWidget(box_1d)
 
         #######################################################################
@@ -542,6 +556,7 @@ class RadioEmissionGUI(QMainWindow):
         step_angle = int(self.step_angle_1D.text())
         # n_p0 = float(self.n_p0.text())
         # T_p0 = int(self.T_p0.text())
+        colormap = self.colormap.currentText()
 
         # Launching application with inputs entered by the user ###############
         if self.checkbox_3d.isChecked():
@@ -560,7 +575,7 @@ class RadioEmissionGUI(QMainWindow):
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, v_inf=v_inf, plot3d=False)
+                r_ne=acc_eff, v_inf=v_inf, colormap=colormap, plot3d=False)
 
         if self.checkbox_1d.isChecked():
             flux_densities_1D(
