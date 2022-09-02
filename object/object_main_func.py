@@ -51,8 +51,8 @@ def plot_3D(L=30, n=7, beta=0, rotation_angle=0, inclination=90,
 def specific_intensities_2D(
         L=30, n=25, beta=0, rotation_angle=0, inclination=90,
         Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
-        l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, colormap="linear",
-        plot3d=True):
+        l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, n_p0=1e8, T_p0=1e6,
+        colormap="linear", plot3d=True):
     """
     Notes:
       - Create a OBJ with a low grid sampling "n" per edge for
@@ -68,7 +68,7 @@ def specific_intensities_2D(
               beta=beta, rotation_angle=rotation_angle,
               inclination=inclination, Bp=Bp, Pr=Pr, D_pc=D_pc, f=f, Ra=Ra,
               l_middlemag=l_middlemag, δ=δ, r_ne=r_ne, v_inf=v_inf,
-              plot3d=plot3d)
+              n_p0=1e8, T_p0=1e6, plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = obj.LoS_cube()
     # Compute and Plot the (sub)stellar object dipole magnetic vector field
@@ -91,7 +91,8 @@ def specific_intensities_2D(
 def flux_densities_1D(
         L=30, n=7, beta=0, inclination=90, Robj_Rsun_scale=4, Bp=3000,
         Pr=1, D_pc=1, f=1e9, Ra=16, l_middlemag=4, δ=2, r_ne=0.002, v_inf=600,
-        rotation_angle_step=10, plot3d=False, mk_new_qapp=False):
+        rotation_angle_step=10, n_p0=1e8, T_p0=1e6, plot3d=False,
+        mk_new_qapp=False):
     """
     Flux densities 1D in function of the rotation phase angles of the
     (sub)stellar object

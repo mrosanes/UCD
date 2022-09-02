@@ -74,7 +74,8 @@ class OBJ(object):
     """
     def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
                  Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
-                 l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, plot3d=False):
+                 l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, n_p0=1e8, T_p0=1e6,
+                 plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
@@ -97,7 +98,11 @@ class OBJ(object):
           Acceleration efficiency: r_ne = Ne / neA
           . Range of r_ne: [10^(-4) - 1] (Trigilio2004))
           . With neA: number density of thermal plasma at the Alfvén point
-        :param int v_inf: (sub)stellar object wind velocity at 'infinity'
+        :param float v_inf: (sub)stellar object wind velocity at 'infinity'
+        :param float n_p0: Number density of thermal electrons of
+          inner-magnetosphere (n_p) defined by n_p0 at the surface of the star
+        :param float T_p0: Temperature of plasma of inner-magnetosphere (T_p)
+          defined by T_p0 at the surface of the star
         :param bool plot3d: Plot or not the magnetic field in a 3D plot
         """
 

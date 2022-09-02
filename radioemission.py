@@ -140,7 +140,7 @@ class AlfvenRadiusGUI(QMainWindow):
         layout_center.addRow(P_rot_label, self.P_rot)
 
         self.Bp = QLineEdit()
-        self.Bp.setValidator(QIntValidator())
+        self.Bp.setValidator(QDoubleValidator())
         self.Bp.setText("1e4")
         info = ("Magnetic field strength at the pole of"
                 + " the (sub)stellar object [Gauss]")
@@ -150,7 +150,7 @@ class AlfvenRadiusGUI(QMainWindow):
         layout_center.addRow(Bp_label, self.Bp)
 
         self.v_inf = QLineEdit()
-        self.v_inf.setValidator(QIntValidator())
+        self.v_inf.setValidator(QDoubleValidator())
         self.v_inf.setText("600")
         info = "(sub)stellar object wind velocity close to 'infinity' [km/s]"
         self.v_inf.setToolTip(info)
@@ -332,7 +332,7 @@ class RadioEmissionGUI(QMainWindow):
         layout_center_1.addRow(Robj2Rsun_label, self.Robj2Rsun)
 
         self.Bp = QLineEdit()
-        self.Bp.setValidator(QIntValidator())
+        self.Bp.setValidator(QDoubleValidator())
         self.Bp.setText("3000")
         info = ("Magnetic field strength at the pole of"
                 + " the (sub)stellar object [Gauss]")
@@ -399,7 +399,7 @@ class RadioEmissionGUI(QMainWindow):
         layout_center_2.addRow(Prot_label, self.P_rot)
 
         self.v_inf = QLineEdit()
-        self.v_inf.setValidator(QIntValidator())
+        self.v_inf.setValidator(QDoubleValidator())
         self.v_inf.setText("600")
         info = "(sub)stellar object wind velocity close to 'infinity' [km/s]"
         self.v_inf.setToolTip(info)
@@ -410,7 +410,7 @@ class RadioEmissionGUI(QMainWindow):
         # Density of electrons of the plasma in the inner magnetosphere
         self.n_p0 = QLineEdit()
         self.n_p0.setValidator(QDoubleValidator())
-        self.n_p0.setText("0")
+        self.n_p0.setText("1e8")
         info = ("Plasma electron density, in inner-magnetosphere,"
                 + " at the (sub)stellar object surface [cm^(−3)]")
         self.n_p0.setToolTip(info)
@@ -420,8 +420,8 @@ class RadioEmissionGUI(QMainWindow):
 
         # Plasma temperature in the inner magnetosphere [K]
         self.T_p0 = QLineEdit()
-        self.T_p0.setValidator(QIntValidator())
-        self.T_p0.setText("0")
+        self.T_p0.setValidator(QDoubleValidator())
+        self.T_p0.setText("1e6")
         info = ("Plasma temperature in inner-magnetosphere,"
                 + " at the (sub)stellar object surface [K]")
         self.T_p0.setToolTip(info)
@@ -473,7 +473,6 @@ class RadioEmissionGUI(QMainWindow):
 
         # Linear or logarithmic color map for specific intensities 2D plot
         self.colormap = QComboBox()
-        self.colormap.setValidator(QIntValidator())
         self.colormap.addItem("Linear")
         self.colormap.addItem("Logarithmic")
         info = ("Color Map: Linear or logarithmic color map for"
@@ -546,16 +545,16 @@ class RadioEmissionGUI(QMainWindow):
         frequency = float(self.frequency.text()) * 1e9  # [Hz]
         Robj2Rsun = float(self.Robj2Rsun.text())
         r_alfven = float(self.r_alfven.text())
-        Bp = int(self.Bp.text())
+        Bp = float(self.Bp.text())
         l_middlemag = float(self.l_middlemag.text())
         acc_eff = float(self.acc_eff.text())
         delta = float(self.delta.text())
         D = float(self.D.text())
         P_rot = float(self.P_rot.text())
-        v_inf = int(self.v_inf.text())
+        v_inf = float(self.v_inf.text())
         step_angle = int(self.step_angle_1D.text())
-        # n_p0 = float(self.n_p0.text())
-        # T_p0 = int(self.T_p0.text())
+        n_p0 = float(self.n_p0.text())
+        T_p0 = float(self.T_p0.text())
         colormap = self.colormap.currentText()
 
         # Launching application with inputs entered by the user ###############
@@ -575,7 +574,8 @@ class RadioEmissionGUI(QMainWindow):
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, v_inf=v_inf, colormap=colormap, plot3d=False)
+                r_ne=acc_eff, v_inf=v_inf, n_p0=n_p0, T_p0=T_p0,
+                colormap=colormap, plot3d=False)
 
         if self.checkbox_1d.isChecked():
             flux_densities_1D(
@@ -584,7 +584,7 @@ class RadioEmissionGUI(QMainWindow):
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 r_ne=acc_eff, v_inf=v_inf, rotation_angle_step=step_angle,
-                plot3d=False)
+                n_p0=n_p0, T_p0=T_p0, plot3d=False)
         # End launching application ###########################################
 
         self.setWindowTitle(
