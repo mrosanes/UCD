@@ -18,9 +18,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 The objective of this file is:
-    - Define the class LoS_Voxels to group de Voxels. A single group of Voxels
-    in each of the points of the plane Y'Z' perpendicular to the LoS
-    direction (x')
+    - Define the class LoS_Voxels_Ray to group de Voxels in Rays. A single
+    Ray (group of Voxels) in each of the points of the Y'Z' plane
+    perpendicular to the LoS direction (direction x')
 """
 
 import numpy as np
@@ -55,7 +55,6 @@ class LoS_Voxels_Ray(object):
                         voxel_next_in_ray.ab * voxel_next_in_ray.voxel_len)
 
     def compute_specific_intensity_ray(self):
-
         for voxel in self.LoS_voxels_in_ray:
             self.ray_specific_intensity += (
                     voxel.spec_intensity * np.e**(-voxel.optical_depth))
