@@ -52,6 +52,8 @@ class Voxel(object):
 
         # Boolean indicating if the Voxel belongs or not to the inner,
         # middle or outer magnetosphere.
+        self.inside_object = False
+        self.eclipsed = False
         self.inner_mag = False
         self.middle_mag = False
         self.outer_mag = False
@@ -76,8 +78,14 @@ class Voxel(object):
 
     def set_inside_object(self):
         """Voxel is located inside the (sub)stellar object"""
-        self.em = 0
-        self.ab = 1
+        self.inside_object = True
+        self.spec_intensity = 0
+        self.optical_depth = 1000
+
+    def set_voxel_eclipsed(self):
+        self.eclipsed = True
+        self.spec_intensity = 0
+        self.optical_depth = 1000
 
     def set_inner_mag(self, n_p, T_p, gudel_threshold,
                       Tp0_higher_than_threshold):
