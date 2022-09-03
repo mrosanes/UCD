@@ -238,12 +238,14 @@ class OBJ(object):
         # Angle from rotation to magnetic axis: [~-180º - ~180º]
         self.beta = beta
         # OBJ star rotation [~0º - ~360º]
-        self.phi = self.rotation = rotation_angle
+        # The angle has been set clockwise to match Trigilio04 paper results
+        # for MCP stars HD37479 and HD37017
+        self.phi = - rotation_angle
         # Rotation Axis inclination measured from the Line of Sight:
         # [~-90º - ~90º]
         # Information about rotation axis orientations:
-        #   . Orbits with the rotation axis in the plane of the sky (~90º)
-        #   . Orbits with the rotation axis towards the LoS (~0º)
+        #   . Orbits with the rotation axis in the plane of the sky (90º)
+        #   . Orbits with the rotation axis towards the LoS (0º)
         self.inc = inclination
 
         # Transformed to radians:
@@ -256,8 +258,10 @@ class OBJ(object):
         sin_b = np.round(np.sin(self.beta_r), 4)
         cos_b = np.round(np.cos(self.beta_r), 4)
 
-        sin_p = np.round(np.sin(self.phi_r), 4)
-        cos_p = np.round(np.cos(self.phi_r), 4)
+        # The angle has been set clockwise and with a phase of PI, to match
+        # Trigilio04 paper results for MCP star HD37017
+        sin_p = np.round(np.sin(self.phi_r + np.pi), 4)
+        cos_p = np.round(np.cos(self.phi_r + np.pi), 4)
 
         sin_i = np.round(np.sin(self.inc_r), 4)
         cos_i = np.round(np.cos(self.inc_r), 4)
@@ -270,7 +274,7 @@ class OBJ(object):
         # [[cos_b, 0, sin_b], [0, 1, 0], [-sin_b, 1, cos_b]] instead of the
         # indicated in Trigilio04 Appendix A2:
         # [[cos_b, 0, -sin_b], [ 0, 1, 0],[sin_b, 1, cos_b]])
-        self.R1 = np.array([[ cos_b,  0,  - sin_b],
+        self.R1 = np.array([[ cos_b,  0,  -sin_b],
                             [ 0,      1,  0      ],
                             [ sin_b,  0,  cos_b  ]])
 
@@ -787,14 +791,19 @@ class OBJ(object):
         circle = plt.Circle((0, 0), 1, fill=False)
         axes.set_aspect(1)
         axes.add_artist(circle)
+        # The image has been flipped Up-Down and Left-Right before display to
+        # match the image representation on Trigilio04 paper results for
+        # MCP star HD37017
+        spec_intensities_2D_plot = np.fliplr(
+            np.flipud(self.specific_intensities_array))
         if colormap.lower() == "linear":
-            plt.imshow(self.specific_intensities_array, cmap='gray_r',
+            plt.imshow(spec_intensities_2D_plot, cmap='gray_r',
                        vmin=np.amin(self.specific_intensities_array),
                        vmax=np.amax(self.specific_intensities_array),
                        extent=extent)
         elif colormap.lower() == "logarithmic":
-            plt.imshow(self.specific_intensities_array, cmap='gray_r',
-                       norm=LogNorm(), extent=extent)
+            plt.imshow(spec_intensities_2D_plot, cmap='gray_r',
+                       norm=LogNorm(), extent=extent, origin='lower')
         plt.show()
 
     def compute_flux_density_LoS(self):
