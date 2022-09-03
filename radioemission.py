@@ -407,6 +407,12 @@ class RadioEmissionGUI(QMainWindow):
         vinf_label.setToolTip(info)
         layout_center_2.addRow(vinf_label, self.v_inf)
 
+        self.checkbox_innermag = QCheckBox("Inner-Magnetosphere Contribution")
+        info = ("Take into account the inner-magnetosphere "
+                + " contribution to absorption and emission")
+        self.checkbox_innermag.setToolTip(info)
+        layout_center_2.addRow(self.checkbox_innermag)
+
         # Density of electrons of the plasma in the inner magnetosphere
         self.n_p0 = QLineEdit()
         self.n_p0.setValidator(QDoubleValidator())
@@ -556,6 +562,7 @@ class RadioEmissionGUI(QMainWindow):
         n_p0 = float(self.n_p0.text())
         T_p0 = float(self.T_p0.text())
         colormap = self.colormap.currentText()
+        inner_contrib = self.checkbox_innermag.isChecked()
 
         # Launching application with inputs entered by the user ###############
         if self.checkbox_3d.isChecked():
@@ -574,8 +581,8 @@ class RadioEmissionGUI(QMainWindow):
                 inclination=self.inclination.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, v_inf=v_inf, n_p0=n_p0, T_p0=T_p0,
-                colormap=colormap, plot3d=False)
+                r_ne=acc_eff, v_inf=v_inf, inner_contrib=inner_contrib,
+                n_p0=n_p0, T_p0=T_p0, colormap=colormap, plot3d=False)
 
         if self.checkbox_1d.isChecked():
             flux_densities_1D(
@@ -584,11 +591,10 @@ class RadioEmissionGUI(QMainWindow):
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 r_ne=acc_eff, v_inf=v_inf, rotation_angle_step=step_angle,
-                n_p0=n_p0, T_p0=T_p0, plot3d=False)
+                inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
+                plot3d=False)
+        self.setWindowTitle("(Sub)Stellar Object Radio Emission")
         # End launching application ###########################################
-
-        self.setWindowTitle(
-            "(Sub)Stellar Object Radio Emission")
 
 
 if __name__ == '__main__':
