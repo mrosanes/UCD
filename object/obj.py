@@ -42,6 +42,7 @@ from object.voxel import Voxel
 from object.LoS_voxels_ray import LoS_Voxels_Ray
 
 # Acronyms and Glossary #######################################################
+# - Object: (sub)stellar object: is the (sub)stellar object of study
 # - LoS: Line of Sight
 # - in_B (suffix): Magnetic Field coordinates system
 # - Innermag / inner_mag: Middle-magnetosphere
@@ -51,6 +52,9 @@ from object.LoS_voxels_ray import LoS_Voxels_Ray
 # - Roted: Rotated (sub)stellar object coordinates system
 # - R* / Robj / R_obj: Radius of the studied (sub)stellar object
 # - Ra: Alfvén Radius
+# - Emission coefficient: (ην) here noted as: "em" (belonging to each voxel)
+# - Absorption coefficient: (κν) noted in this code as: "ab" (belonging to
+#    each voxel)
 ###############################################################################
 
 # PIPELINE ####################################################################
@@ -74,8 +78,8 @@ class OBJ(object):
     """
     def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
                  Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
-                 l_middlemag=4, δ=2, r_ne=0.002, v_inf=600, n_p0=1e8, T_p0=1e6,
-                 plot3d=False):
+                 l_middlemag=4, δ=2, r_ne=0.002, v_inf=600,
+                 inner_contrib=False, n_p0=1e8, T_p0=1e6, plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
@@ -101,6 +105,8 @@ class OBJ(object):
         :param float v_inf: (sub)stellar object wind velocity at 'infinity'
         :param float n_p0: Number density of thermal electrons of
           inner-magnetosphere (n_p) defined by n_p0 at the surface of the star
+        :param bool inner_contrib: Account for the inner-magnetosphere
+          contribution
         :param float T_p0: Temperature of plasma of inner-magnetosphere (T_p)
           defined by T_p0 at the surface of the star
         :param bool plot3d: Plot or not the magnetic field in a 3D plot
@@ -197,6 +203,10 @@ class OBJ(object):
         # In each point of the middle magnetosphere electrons are
         # isotropically distributed in pitch angle (Trigilio04)
         self.Ne = r_ne * neA
+
+        self.inner_contrib = inner_contrib
+        self.n_p0 = n_p0
+        self.T_p0 = T_p0
 
         # δ~2 in some MCP stars according C.Trigilio el al. (ESO 2004))
         self.δ = δ
@@ -621,26 +631,35 @@ class OBJ(object):
     def find_magnetosphere_regions(self):
         """
         Finding the points belonging to the inner, middle and outer
-        magnetosphere. GyroSynchrotron Emission created in the
-        middle-magnetosphere points
+        magnetosphere. In this function are also set Ne, Np and Tp.
+        Thermal emission & absorption is created in the inner-magnetosphere
+        voxels. GyroSynchrotron emission & absorption is created in the
+        middle-magnetosphere voxels. Ne is associated to the gyrosynchrotron
+        emission & absorption, while Np and Tp are associated to the thermal
+        emission & absorption.
+        - r is the distance to the center of the (sub)stellar object.
         - Points in the middle magnetosphere (between the inner and the outer
           magnetosphere): the ones with a clear contribution to the OBJ radio
           emission arriving to the earth. The radio emission occurs in this
           zone, which contains the open magnetic field lines generating the
           current sheets: (Ra < r < Ra + l_mid)
           with l_mid: width of the middle magnetosphere
-        - The radio emission in the inner magnetosphere is supposed to be
-          self-absorbed by the OBJ
         - In the outer magnetosphere the density of electrons decreases with
           the distance, which also lowers its contribution to the radio
-          emission
+          emission: we do not account for any emission or absorption in this
+          zone
 
         :return voxels_middlemag:
         """
-        # Voxels inner magnetosphere
-        voxels_inner = []
+
         # Voxels middle magnetosphere
         voxels_middle = []
+
+        # Threshold imposed by the Bremsstrahlung absorption coeffs
+        # Gudel, Manuel; 2002 (pag.5 / Formula [6]);
+        # Annual Review of Astronomy & Astrophysics 40:217-261
+        gudel_threshold = 3.2e5
+        Tp0_higher_than_threshold = self.T_p0 >= gudel_threshold
 
         for i in range(len(self.voxels)):
             # We first find the angle λ (lam) associated with the specific
@@ -653,9 +672,9 @@ class OBJ(object):
                 L_xy = np.sqrt(point_LoS_in_B[0]**2 + point_LoS_in_B[1]**2)
                 L_z = point_LoS_in_B[2]
                 lam = np.arctan(L_z/L_xy)
-                L_xyz = np.sqrt(point_LoS_in_B[0]**2 +
-                                point_LoS_in_B[1]**2 +
-                                point_LoS_in_B[2]**2)
+                r = L_xyz = np.sqrt(point_LoS_in_B[0]**2 +
+                                    point_LoS_in_B[1]**2 +
+                                    point_LoS_in_B[2]**2)
                 # Using the equation of the dipole field lines
                 # r = L_xyz = L cos²λ; with L in [Ra, Ra+l_mid]
                 # We have the longitude 'r' (r = L_xyz) and λ of the specific
@@ -665,14 +684,20 @@ class OBJ(object):
                 # Ra * (np.cos(lam))**2
                 r_min = self.Ra * (np.cos(lam))**2
                 r_max = (self.Ra + self.l_mid) * (np.cos(lam))**2
-                if L_xyz < r_min:
-                    voxel.set_inner_mag()
-                    voxels_inner.append(voxel)
-                elif r_min <= L_xyz <= r_max:
-                    voxel.set_Ne(self.Ne)
-                    voxel.set_middle_mag()
-                    voxels_middle.append(voxel)
-        return voxels_inner, voxels_middle
+                if r >= 1:
+                    if r_min <= r <= r_max:
+                        # Voxel belongs to the middle-magnetosphere
+                        voxel.set_middle_mag(self.Ne)
+                        voxels_middle.append(voxel)
+                    elif r < r_min and self.inner_contrib:
+                        # Voxel belongs to the inner-magnetosphere
+                        n_p = self.n_p0 / r
+                        T_p = self.T_p0 * r
+                        voxel.set_inner_mag(n_p, T_p, gudel_threshold,
+                                            Tp0_higher_than_threshold)
+                else:
+                    voxel.set_inside_object()
+        return voxels_middle
 
     def plot_middlemag_in_slices(self, voxels_middlemag, marker_size=2):
         """
