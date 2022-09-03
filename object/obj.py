@@ -693,7 +693,7 @@ class OBJ(object):
                         # Voxel belongs to the middle-magnetosphere
                         voxel.set_middle_mag(self.Ne)
                         voxels_middle.append(voxel)
-                    elif r < r_min and self.inner_contrib:
+                    elif self.inner_contrib and r < r_min :
                         # Voxel belongs to the inner-magnetosphere
                         n_p = self.n_p0 / r
                         T_p = self.T_p0 * r
