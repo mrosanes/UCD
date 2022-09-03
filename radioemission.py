@@ -510,7 +510,8 @@ class RadioEmissionGUI(QMainWindow):
         self.step_angle_1D.setValidator(QIntValidator())
         self.step_angle_1D.setText("10")
         info = ("Rotation angle step [º]: abscissa axis step for the flux"
-                + " densities 1D plot")
+                + " densities 1D plot\n"
+                +  "(Plot from 0º to 360º in steps of 'Stepº')")
         self.step_angle_1D.setToolTip(info)
         step_angle_label = QLabel("Step [º]")
         step_angle_label.setToolTip(info)
