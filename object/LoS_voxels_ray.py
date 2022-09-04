@@ -58,28 +58,22 @@ class LoS_Voxels_Ray(object):
         optical_depth = 0
         for i in range(self.n):
             voxel = self.LoS_voxels_in_ray[i]
-            if voxel.inside_object:
-                # If the voxel is inside object its specific intensity is 0
-                continue
-            if i != 0:
+
+            if not voxel.inside_object and not voxel.eclipsed and i != 0:
+                """The optical depth shall be computed for all voxels not being
+                the closest to Earth in the LoS direction (i!=0); and only
+                if the voxels are not inside the object nor eclipsed by it"""
                 previous_voxel_in_ray = self.LoS_voxels_in_ray[i - 1]
-                if (previous_voxel_in_ray.optical_depth >= 1000
-                        or (ray_position <= 1 and voxel.position_LoS[0] < 0)):
-                    # If previous voxel inside object, or the coordinates of
-                    # the voxel are behind the object in the LoS coordinates,
-                    # voxel is eclipsed and thus, its specific intensity is
-                    # not seen from the Earth, so it is set to 0
-                    voxel.set_voxel_eclipsed()
-                else:
-                    # In the contrary, the contribution to the optical depth
-                    # is set by adding the contribution of the previous voxel
-                    # in the ray (closer to the Earth in the LoS direction)
-                    optical_depth += (previous_voxel_in_ray.ab *
-                                      previous_voxel_in_ray.voxel_len)
-                    voxel.optical_depth = optical_depth
+                # The contribution to the optical depth is set by adding, at
+                # each loop turn, the contribution of the previous voxel in
+                # the ray (the one closer to the Earth in the LoS direction)
+                optical_depth += (previous_voxel_in_ray.ab *
+                                  previous_voxel_in_ray.voxel_len)
+                voxel.optical_depth = optical_depth
 
     def compute_specific_intensity_ray(self):
         for voxel in self.LoS_voxels_in_ray:
-            self.ray_specific_intensity += (
-                    voxel.spec_intensity * np.e**(-voxel.optical_depth))
+            if not voxel.eclipsed:
+                self.ray_specific_intensity += (
+                        voxel.spec_intensity * np.e**(-voxel.optical_depth))
 

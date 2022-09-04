@@ -634,8 +634,8 @@ class OBJ(object):
 
     def find_magnetosphere_regions(self):
         """
-        Finding the points belonging to the inner, middle and outer
-        magnetosphere. In this function are also set Ne, Np and Tp.
+        Finding the points belonging to the inner and middle magnetosphere.
+        In this function are also set Ne, Np and Tp.
         Thermal emission & absorption is created in the inner-magnetosphere
         voxels. GyroSynchrotron emission & absorption is created in the
         middle-magnetosphere voxels. Ne is associated to the gyrosynchrotron
@@ -672,7 +672,11 @@ class OBJ(object):
             # vector r of the point
             voxel = self.voxels[i]
             point_LoS_in_B = voxel.position_in_B
-            if point_LoS_in_B[0] or point_LoS_in_B[1]:
+            voxel_pos_yz_in_LoS = np.sqrt(voxel.position_LoS[1]**2
+                                          + voxel.position_LoS[2]**2)
+            if voxel_pos_yz_in_LoS <= 1 and voxel.position_LoS[0] < 0:
+                voxel.set_eclipsed()
+            elif point_LoS_in_B[0] or point_LoS_in_B[1]:
                 L_xy = np.sqrt(point_LoS_in_B[0]**2 + point_LoS_in_B[1]**2)
                 L_z = point_LoS_in_B[2]
                 lam = np.arctan(L_z/L_xy)
@@ -693,7 +697,7 @@ class OBJ(object):
                         # Voxel belongs to the middle-magnetosphere
                         voxel.set_middle_mag(self.Ne)
                         voxels_middle.append(voxel)
-                    elif self.inner_contrib and r < r_min :
+                    elif self.inner_contrib and r < r_min:
                         # Voxel belongs to the inner-magnetosphere
                         n_p = self.n_p0 / r
                         T_p = self.T_p0 * r
@@ -701,6 +705,8 @@ class OBJ(object):
                                             Tp0_higher_than_threshold)
                 else:
                     voxel.set_inside_object()
+            elif voxel.position_in_B[2] <= 1:
+                voxel.set_inside_object()
         return voxels_middle
 
     def plot_middlemag_in_slices(self, voxels_middlemag, marker_size=2):

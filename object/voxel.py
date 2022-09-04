@@ -56,7 +56,6 @@ class Voxel(object):
         self.eclipsed = False
         self.inner_mag = False
         self.middle_mag = False
-        self.outer_mag = False
 
         # Module of the Magnetic Field
         self.B = np.linalg.norm(B_LoS)
@@ -77,12 +76,15 @@ class Voxel(object):
         self.optical_depth = 0
 
     def set_inside_object(self):
-        """Voxel is located inside the (sub)stellar object"""
+        """Voxel is located inside the (sub)stellar object. If the voxel is
+        inside the object, its specific intensity is 0"""
         self.inside_object = True
         self.spec_intensity = 0
         self.optical_depth = 1000
 
-    def set_voxel_eclipsed(self):
+    def set_eclipsed(self):
+        """If the voxel is eclipsed, it is not visible from the Earth. The
+        specific intensity is set to 0 to account for the eclipse"""
         self.eclipsed = True
         self.spec_intensity = 0
         self.optical_depth = 1000
@@ -133,7 +135,4 @@ class Voxel(object):
         # Specific intensity of the voxel
         self.spec_intensity = (self.em / self.ab) * (
                 1 - np.e ** (-self.ab * self.voxel_len))
-
-    def set_outer_mag(self):
-        self.outer_mag = True
 
