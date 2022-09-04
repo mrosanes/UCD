@@ -175,7 +175,8 @@ class OBJ(object):
         self.L = L
 
         # Voxel edge length
-        self.voxel_len = (L / (n - 1)) * self.R_obj
+        self.voxel_len_in_Robj = (L / (n - 1))
+        self.voxel_len = self.voxel_len_in_Robj * self.R_obj
 
         # Star Period of Rotation in days
         self.Pr = Pr
@@ -793,7 +794,10 @@ class OBJ(object):
         at the specific rotation phase of the (sub)stellar object
         """
         figure, axes = plt.subplots(figsize=(4, 4))
-        extent = [-self.L/2, self.L/2, -self.L/2, self.L/2]
+        extent = [- self.voxel_len_in_Robj * self.n/2,
+                  self.voxel_len_in_Robj * self.n/2,
+                  - self.voxel_len_in_Robj * self.n/2,
+                  self.voxel_len_in_Robj * self.n/2]
         circle = plt.Circle((0, 0), 1, fill=False)
         axes.set_aspect(1)
         axes.add_artist(circle)
