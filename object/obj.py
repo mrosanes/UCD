@@ -77,9 +77,9 @@ class OBJ(object):
     magnetic characteristics (MPC star, etc.).
     """
     def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
-                 Robj_Rsun_scale=4, Bp=3000, Pr=1, D_pc=1, f=1e9, Ra=16,
-                 l_middlemag=4, δ=2, r_ne=0.002, v_inf=600,
-                 inner_contrib=False, n_p0=1e8, T_p0=1e6, plot3d=False):
+                 Robj_Rsun_scale=4, Bp=7700, Pr=1, D_pc=10, f=1e9, Ra=15,
+                 l_middlemag=7, δ=2, r_ne=0.002, v_inf=600,
+                 inner_contrib=True, n_p0=3e9, T_p0=1e5, plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
@@ -239,8 +239,9 @@ class OBJ(object):
         # Angle from rotation to magnetic axis: [~-180º - ~180º]
         self.beta = beta
         # OBJ star rotation [~0º - ~360º]
-        # The angle has been set clockwise to match Trigilio04 paper results
-        # for MCP stars HD37479 and HD37017
+        # The rotation angle has been set clockwise (increasing in the negative
+        # direction) to match the convention used on Trigilio04 displaying
+        # the sequence of 2D images for both MCP stars (HD37479 and HD37017)
         self.phi = - rotation_angle
         # Rotation Axis inclination measured from the Line of Sight:
         # [~-90º - ~90º]
@@ -259,8 +260,10 @@ class OBJ(object):
         sin_b = np.round(np.sin(self.beta_r), 4)
         cos_b = np.round(np.cos(self.beta_r), 4)
 
-        # The angle has been set clockwise and with a phase of PI, to match
-        # Trigilio04 paper results for MCP star HD37017
+        # A rotation phase of PI (180º), is used to match the same convention
+        # used in Trigilio04 for displaying the 2D images for MCP star HD37017
+        # (note: for HD37479, Trigilio04 uses another phase, of 72º, not used
+        # in this code)
         sin_p = np.round(np.sin(self.phi_r + np.pi), 4)
         cos_p = np.round(np.cos(self.phi_r + np.pi), 4)
 

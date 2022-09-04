@@ -263,7 +263,7 @@ class RadioEmissionGUI(QMainWindow):
         self.beta = QSpinBox()
         self.beta.setMinimum(-180)
         self.beta.setMaximum(180)
-        self.beta.setValue(0)
+        self.beta.setValue(65)
         info = ("Angle of magnetic axis regarding the"
                 + " rotation axis (Range: [-180º - 180º])")
         self.beta.setToolTip(info)
@@ -286,7 +286,7 @@ class RadioEmissionGUI(QMainWindow):
         self.inclination = QSpinBox()
         self.inclination.setMinimum(-90)
         self.inclination.setMaximum(90)
-        self.inclination.setValue(90)
+        self.inclination.setValue(25)
         info = ("Angle between (sub)stellar object rotation axis and the LoS"
                 + " (Range: [-90º - 90º])")
         self.inclination.setToolTip(info)
@@ -305,7 +305,7 @@ class RadioEmissionGUI(QMainWindow):
 
         self.L = QLineEdit()
         self.L.setValidator(QIntValidator())
-        self.L.setText("30")
+        self.L.setText("40")
         info = "Length of the cubic grid sides. Units: [R*]"
         self.L.setToolTip(info)
         L_label = QLabel("L [R*]")
@@ -333,7 +333,7 @@ class RadioEmissionGUI(QMainWindow):
 
         self.Bp = QLineEdit()
         self.Bp.setValidator(QDoubleValidator())
-        self.Bp.setText("3000")
+        self.Bp.setText("7700")
         info = ("Magnetic field strength at the pole of"
                 + " the (sub)stellar object [Gauss]")
         self.Bp.setToolTip(info)
@@ -343,7 +343,7 @@ class RadioEmissionGUI(QMainWindow):
 
         self.r_alfven = QLineEdit()
         self.r_alfven.setValidator(QDoubleValidator())
-        self.r_alfven.setText("16")
+        self.r_alfven.setText("15")
         info = "Averaged Alfvén Radius. Units: [R*]"
         self.r_alfven.setToolTip(info)
         r_alfven_label = QLabel("R_alfven [R*]")
@@ -352,7 +352,7 @@ class RadioEmissionGUI(QMainWindow):
 
         self.l_middlemag = QLineEdit()
         self.l_middlemag.setValidator(QDoubleValidator())
-        self.l_middlemag.setText("4")
+        self.l_middlemag.setText("7")
         info = "Thickness of middle-magnetosphere. Units: [R*]"
         self.l_middlemag.setToolTip(info)
         l_middlemag_label = QLabel("l_middlemag [R*]")
@@ -381,7 +381,7 @@ class RadioEmissionGUI(QMainWindow):
         # Distance to the (sub)stellar object [cm]
         self.D = QLineEdit()
         self.D.setValidator(QDoubleValidator())
-        self.D.setText("10")
+        self.D.setText("373")
         info = "Distance from Earth to the studied (sub)stellar object [Pc]"
         self.D.setToolTip(info)
         D_label = QLabel("Distance [Pc]")
@@ -408,6 +408,7 @@ class RadioEmissionGUI(QMainWindow):
         layout_center_2.addRow(vinf_label, self.v_inf)
 
         self.checkbox_innermag = QCheckBox("Inner-Magnetosphere Contribution")
+        self.checkbox_innermag.setChecked(True)
         info = ("Take into account the inner-magnetosphere "
                 + " contribution to absorption and emission")
         self.checkbox_innermag.setToolTip(info)
@@ -416,7 +417,7 @@ class RadioEmissionGUI(QMainWindow):
         # Density of electrons of the plasma in the inner magnetosphere
         self.n_p0 = QLineEdit()
         self.n_p0.setValidator(QDoubleValidator())
-        self.n_p0.setText("1e8")
+        self.n_p0.setText("3e9")
         info = ("Plasma electron density, in inner-magnetosphere,"
                 + " at the (sub)stellar object surface [cm^(−3)]")
         self.n_p0.setToolTip(info)
@@ -427,7 +428,7 @@ class RadioEmissionGUI(QMainWindow):
         # Plasma temperature in the inner magnetosphere [K]
         self.T_p0 = QLineEdit()
         self.T_p0.setValidator(QDoubleValidator())
-        self.T_p0.setText("1e6")
+        self.T_p0.setText("1e5")
         info = ("Plasma temperature in inner-magnetosphere,"
                 + " at the (sub)stellar object surface [K]")
         self.T_p0.setToolTip(info)
@@ -469,7 +470,7 @@ class RadioEmissionGUI(QMainWindow):
         self.n_2d = QSpinBox()
         self.n_2d.setMinimum(3)
         self.n_2d.setMaximum(1000)
-        self.n_2d.setValue(21)
+        self.n_2d.setValue(31)
         info = ("Number of points per cube side (2D specific intensities"
                 + " computation)")
         self.n_2d.setToolTip(info)
