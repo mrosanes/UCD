@@ -495,6 +495,7 @@ class RadioEmissionGUI(QMainWindow):
         self.checkbox_1d.setToolTip("1D Flux Densities (Light Curve) along a"
                                     + " complete rotation of 360º")
         v_layout_1d.addRow(self.checkbox_1d)
+
         self.n_1d = QSpinBox()
         self.n_1d.setMinimum(3)
         self.n_1d.setMaximum(1000)
@@ -512,14 +513,21 @@ class RadioEmissionGUI(QMainWindow):
         self.step_angle_1D.setText("10")
         info = ("Rotation angle step [º]: abscissa axis step for the flux"
                 + " densities 1D plot\n"
-                +  "(Plot from 0º to 360º in steps of 'Stepº')")
+                + "(Plot from 0º to 360º in steps of 'Stepº')")
         self.step_angle_1D.setToolTip(info)
         step_angle_label = QLabel("Step [º]")
         step_angle_label.setToolTip(info)
         v_layout_1d.addRow(step_angle_label, self.step_angle_1D)
 
-        h_layout = QHBoxLayout()
+        self.checkbox_use_symmetry = QCheckBox("Use symmetry on 180º")
+        info = ("Use the symmetry of flux densities 1D plot at 180º rotation "
+                + "angle, to extrapolate the curve from 180º to 360º;\n"
+                + "Computation time is cut in half")
+        self.checkbox_use_symmetry.setChecked(True)
+        self.checkbox_use_symmetry.setToolTip(info)
+        v_layout_1d.addRow(self.checkbox_use_symmetry)
 
+        h_layout = QHBoxLayout()
         box_3d.setLayout(v_layout_3d)
         h_layout.addWidget(box_3d)
 
@@ -560,10 +568,8 @@ class RadioEmissionGUI(QMainWindow):
         D = float(self.D.text())
         P_rot = float(self.P_rot.text())
         v_inf = float(self.v_inf.text())
-        step_angle = int(self.step_angle_1D.text())
         n_p0 = float(self.n_p0.text())
         T_p0 = float(self.T_p0.text())
-        colormap = self.colormap.currentText()
         inner_contrib = self.checkbox_innermag.isChecked()
 
         # Launching application with inputs entered by the user ###############
@@ -577,6 +583,7 @@ class RadioEmissionGUI(QMainWindow):
                 r_ne=acc_eff, v_inf=v_inf, plot3d=True)
 
         if self.checkbox_2d.isChecked():
+            colormap = self.colormap.currentText()
             specific_intensities_2D(
                 L=L, n=self.n_2d.value(), beta=self.beta.value(),
                 rotation_angle=self.rotation.value(),
@@ -587,6 +594,8 @@ class RadioEmissionGUI(QMainWindow):
                 n_p0=n_p0, T_p0=T_p0, colormap=colormap, plot3d=False)
 
         if self.checkbox_1d.isChecked():
+            use_symmetry = self.checkbox_use_symmetry.isChecked()
+            step_angle = int(self.step_angle_1D.text())
             flux_densities_1D(
                 L=L, n=self.n_1d.value(), beta=self.beta.value(),
                 inclination=self.inclination.value(),
@@ -594,7 +603,7 @@ class RadioEmissionGUI(QMainWindow):
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 r_ne=acc_eff, v_inf=v_inf, rotation_angle_step=step_angle,
                 inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
-                plot3d=False)
+                use_symmetry=use_symmetry, plot3d=False)
         self.setWindowTitle("(Sub)Stellar Object Radio Emission")
         # End launching application ###########################################
 

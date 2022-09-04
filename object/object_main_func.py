@@ -93,7 +93,7 @@ def flux_densities_1D(
         L=30, n=7, beta=0, inclination=90, Robj_Rsun_scale=4, Bp=7700,
         Pr=1, D_pc=10, f=1e9, Ra=15, l_middlemag=7, δ=2, r_ne=0.002, v_inf=600,
         rotation_angle_step=10, inner_contrib=True, n_p0=3e9, T_p0=1e5,
-        plot3d=False, mk_new_qapp=False):
+        use_symmetry=False, plot3d=False, mk_new_qapp=False):
     """
     Flux densities 1D in function of the rotation phase angles of the
     (sub)stellar object
@@ -102,7 +102,11 @@ def flux_densities_1D(
     # Rotation phase angles from 0º to 360º (every "rotation_angle_step"
     #  degrees)
     rotation_phases = []
-    for i in range(0, 361, rotation_angle_step):
+    if use_symmetry:
+        end_angle = 181
+    else:
+        end_angle = 361
+    for i in range(0, end_angle, rotation_angle_step):
         rotation_phases.append(i)
 
     # Flux densities in function of the rotation phase angles
@@ -124,8 +128,24 @@ def flux_densities_1D(
         flux_densities.append(np.round(obj.total_flux_density_LoS, 2))
         print("Angle " + str(rot_phase) + " computed\n")
 
+    if use_symmetry:
+        pop_elem = False
+        if 180 in rotation_phases:
+            pop_elem = True
+        rotation_phases = []
+        for i in range(0, 361, rotation_angle_step):
+            rotation_phases.append(i)
+        second_half_flux_densities = flux_densities[::-1]
+        if pop_elem:
+            second_half_flux_densities.pop(0)
+        flux_densities += second_half_flux_densities
+
+    print("Rotation angles:")
+    print(rotation_phases)
+    print("Flux densities:")
+    print(flux_densities)
     duration = (time.time() - start_time_flux_densities) / 60.0
-    print("- Time to compute the 1D specific intensities graph along the\n"
+    print("\n- Time to compute the 1D specific intensities graph along the\n"
           " rotation of the (sub)stellar object:"
           + " {:.2g}".format(duration) + " minutes\n")
 
