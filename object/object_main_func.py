@@ -123,9 +123,9 @@ def flux_densities_1D(
         obj.LoS_voxel_rays()
         obj.compute_flux_density_LoS()
         print("Flux Density at rotation angle " + str(rot_phase) + " is: "
-              + str(np.round(obj.total_flux_density_LoS, 2)) + " mJy")
+              + str(np.round(obj.total_flux_density_LoS, 3)) + " mJy")
         # obj.plot_2D_specific_intensity_LoS()
-        flux_densities.append(np.round(obj.total_flux_density_LoS, 2))
+        flux_densities.append(np.round(obj.total_flux_density_LoS, 3))
         print("Angle " + str(rot_phase) + " computed\n")
 
     if use_symmetry:
