@@ -259,6 +259,18 @@ class RadioEmissionGUI(QMainWindow):
         form_group_box_angles = QGroupBox()
         layout_angles = QFormLayout()
 
+        # Inclination of the rotation axis regarding the LoS [degrees]
+        self.inclination = QSpinBox()
+        self.inclination.setMinimum(-90)
+        self.inclination.setMaximum(90)
+        self.inclination.setValue(25)
+        info = ("Angle between (sub)stellar object rotation axis and the LoS"
+                + " (Range: [-90º - 90º])")
+        self.inclination.setToolTip(info)
+        inclination_label = QLabel("inclination [º]")
+        inclination_label.setToolTip(info)
+        layout_angles.addRow(inclination_label, self.inclination)
+
         # Angle between magnetic and rotation axes [degrees]
         self.beta = QSpinBox()
         self.beta.setMinimum(-180)
@@ -276,23 +288,25 @@ class RadioEmissionGUI(QMainWindow):
         self.rotation.setMinimum(0)
         self.rotation.setMaximum(360)
         self.rotation.setValue(0)
-        info = "Rotation phase (Range: [0º - 360º])"
+        info = "(Sub)stellar object rotation angle (Range: [0º - 360º])"
         self.rotation.setToolTip(info)
         rotation_label = QLabel("rotation [º]")
         rotation_label.setToolTip(info)
         layout_angles.addRow(rotation_label, self.rotation)
 
-        # Inclination of the rotation axis regarding the LoS [degrees]
-        self.inclination = QSpinBox()
-        self.inclination.setMinimum(-90)
-        self.inclination.setMaximum(90)
-        self.inclination.setValue(25)
-        info = ("Angle between (sub)stellar object rotation axis and the LoS"
-                + " (Range: [-90º - 90º])")
-        self.inclination.setToolTip(info)
-        inclination_label = QLabel("inclination [º]")
-        inclination_label.setToolTip(info)
-        layout_angles.addRow(inclination_label, self.inclination)
+        # Rotation phase offset [degrees]
+        self.rotation_phase = QSpinBox()
+        self.rotation_phase.setMinimum(0)
+        self.rotation_phase.setMaximum(360)
+        self.rotation_phase.setValue(0)
+        info = ("Rotation phase offset added to the angle of rotation.\n"
+                + "Useful to match different phase conventions used"
+                + " by different authors or in different published results.\n"
+                + "(Range: [0º - 360º])")
+        self.rotation_phase.setToolTip(info)
+        rotation_phase_label = QLabel("rotation offset [º]")
+        rotation_phase_label.setToolTip(info)
+        layout_angles.addRow(rotation_phase_label, self.rotation_phase)
 
         form_group_box_angles.setLayout(layout_angles)
 
@@ -585,9 +599,9 @@ class RadioEmissionGUI(QMainWindow):
         if self.checkbox_2d.isChecked():
             colormap = self.colormap.currentText()
             specific_intensities_2D(
-                L=L, n=self.n_2d.value(), beta=self.beta.value(),
-                rotation_angle=self.rotation.value(),
-                inclination=self.inclination.value(),
+                L=L, n=self.n_2d.value(), inclination=self.inclination.value(),
+                beta=self.beta.value(), rotation_angle=self.rotation.value(),
+                rotation_offset=self.rotation_phase.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 r_ne=acc_eff, v_inf=v_inf, inner_contrib=inner_contrib,
@@ -597,8 +611,9 @@ class RadioEmissionGUI(QMainWindow):
             use_symmetry = self.checkbox_use_symmetry.isChecked()
             step_angle = int(self.step_angle_1D.text())
             flux_densities_1D(
-                L=L, n=self.n_1d.value(), beta=self.beta.value(),
-                inclination=self.inclination.value(),
+                L=L, n=self.n_1d.value(), inclination=self.inclination.value(),
+                beta=self.beta.value(),
+                rotation_offset=self.rotation_phase.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 r_ne=acc_eff, v_inf=v_inf, rotation_angle_step=step_angle,

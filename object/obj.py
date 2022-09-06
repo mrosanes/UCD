@@ -76,17 +76,20 @@ class OBJ(object):
     the present 3D model, can be a OBJ or another stellar object with similar
     magnetic characteristics (MPC star, etc.).
     """
-    def __init__(self, L=30, n=5, beta=0, rotation_angle=0, inclination=90,
-                 Robj_Rsun_scale=4, Bp=7700, Pr=1, D_pc=10, f=1e9, Ra=15,
-                 l_middlemag=7, δ=2, r_ne=0.002, v_inf=600,
-                 inner_contrib=True, n_p0=3e9, T_p0=1e5, plot3d=False):
+    def __init__(
+            self, L=30, n=5, inclination=90, beta=0, rotation_angle=0,
+            rotation_offset=0, Robj_Rsun_scale=4, Bp=7700, Pr=1, D_pc=10,
+            f=1e9, Ra=15, l_middlemag=7, δ=2, r_ne=0.002, v_inf=600,
+            inner_contrib=True, n_p0=3e9, T_p0=1e5, plot3d=False):
         """
         Constructor method
         :param int L: Length of the mesh grid in stellar radius units
         :param int n: Number of points per side of the mesh grid
-        :param float beta: Angle between Magnetic and Rotation axis [degrees]
-        :param float rotation_angle: Rotation angle [degrees]
-        :param float inclination: Angle between LoS and Rotation axis [degrees]
+        :param int inclination: Angle between LoS and Rotation axis [degrees]
+        :param int beta: Angle between Magnetic and Rotation axis [degrees]
+        :param int rotation_angle: Rotation angle [degrees]
+        :param int rotation_offset: Rotation phase offset added to rotation
+          angle [degrees]
         :param float Robj_Rsun_scale: Ratio of the OBJ or other
           (sub)stellar object radius, regarding the Sun
         :param float Bp: Magnetic Field at the pole of the (sub)stellar object
@@ -239,7 +242,7 @@ class OBJ(object):
         self.beta_r = np.deg2rad(self.beta)
 
         # OBJ star rotation [~0º - ~360º]
-        self.phi = rotation_angle
+        self.phi = rotation_angle + rotation_offset
         self.phi_r = np.deg2rad(self.phi)
 
         # Rotation Axis inclination measured from the Line of Sight:
@@ -259,8 +262,8 @@ class OBJ(object):
         # used in Trigilio04 for displaying the 2D images for MCP star HD37017
         # (note: for HD37479, Trigilio04 uses another phase, of 72º, not used
         # in this code)
-        sin_p = np.round(np.sin(self.phi_r + np.pi), 4)
-        cos_p = np.round(np.cos(self.phi_r + np.pi), 4)
+        sin_p = np.round(np.sin(self.phi_r), 4)
+        cos_p = np.round(np.cos(self.phi_r), 4)
 
         sin_i = np.round(np.sin(self.inc_r), 4)
         cos_i = np.round(np.cos(self.inc_r), 4)
