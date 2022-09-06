@@ -298,7 +298,7 @@ class RadioEmissionGUI(QMainWindow):
         self.rotation_phase = QSpinBox()
         self.rotation_phase.setMinimum(0)
         self.rotation_phase.setMaximum(360)
-        self.rotation_phase.setValue(0)
+        self.rotation_phase.setValue(180)
         info = ("Rotation phase offset added to the angle of rotation.\n"
                 + "Useful to match different phase conventions used"
                 + " by different authors or in different published results.\n"
