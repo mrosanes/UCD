@@ -361,7 +361,7 @@ class RadioEmissionGUI(QMainWindow):
 
         self.acc_eff = QLineEdit()
         self.acc_eff.setValidator(QDoubleValidator())
-        self.acc_eff.setText("0.002")
+        self.acc_eff.setText("0.0001")
         info = ("Acceleration efficiency of electrons in the"
                 + " middle-magnetosphere: r_ne = Ne / neA);\n(Dimensionless)")
         self.acc_eff.setToolTip(info)
