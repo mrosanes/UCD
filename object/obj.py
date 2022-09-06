@@ -233,26 +233,21 @@ class OBJ(object):
         self.eq_thick = self.l_mid / self.Ra
 
         #######################################################################
-        # Angles
-
-        # Expressed in degrees:
+        # Angles (expressed in degrees and in radians)
         # Angle from rotation to magnetic axis: [~-180º - ~180º]
         self.beta = beta
+        self.beta_r = np.deg2rad(self.beta)
+
         # OBJ star rotation [~0º - ~360º]
-        # The rotation angle has been set clockwise (increasing in the negative
-        # direction) to match the convention used on Trigilio04 displaying
-        # the sequence of 2D images for both MCP stars (HD37479 and HD37017)
-        self.phi = - rotation_angle
+        self.phi = rotation_angle
+        self.phi_r = np.deg2rad(self.phi)
+
         # Rotation Axis inclination measured from the Line of Sight:
         # [~-90º - ~90º]
         # Information about rotation axis orientations:
         #   . Orbits with the rotation axis in the plane of the sky (90º)
         #   . Orbits with the rotation axis towards the LoS (0º)
         self.inc = inclination
-
-        # Transformed to radians:
-        self.beta_r = np.deg2rad(self.beta)
-        self.phi_r = np.deg2rad(self.phi)
         self.inc_r = np.deg2rad(self.inc)
 
         #######################################################################
@@ -804,18 +799,16 @@ class OBJ(object):
         circle = plt.Circle((0, 0), 1, fill=False)
         axes.set_aspect(1)
         axes.add_artist(circle)
-        # The image has been flipped Up-Down and Left-Right before display to
-        # match the image representation on Trigilio04 paper results for
-        # MCP star HD37017
-        spec_intensities_2D_plot = np.fliplr(
-            np.flipud(self.specific_intensities_array))
+        # The 2D image display origin is set to 'lower' to match the image
+        # representation on Trigilio04 paper results for MCP stars HD37479
+        # and HD37017
         if colormap.lower() == "linear":
-            plt.imshow(spec_intensities_2D_plot, cmap='gray_r',
+            plt.imshow(self.specific_intensities_array, cmap='gray_r',
                        vmin=np.amin(self.specific_intensities_array),
                        vmax=np.amax(self.specific_intensities_array),
-                       extent=extent)
+                       extent=extent, origin='lower')
         elif colormap.lower() == "logarithmic":
-            plt.imshow(spec_intensities_2D_plot, cmap='gray_r',
+            plt.imshow(self.specific_intensities_array, cmap='gray_r',
                        norm=LogNorm(), extent=extent, origin='lower')
         plt.show()
 
