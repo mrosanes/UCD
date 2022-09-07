@@ -376,6 +376,15 @@ class RadioEmissionGUI(QMainWindow):
         l_middlemag_label.setToolTip(info)
         layout_center_1.addRow(l_middlemag_label, self.l_middlemag)
 
+        self.neA = QLineEdit()
+        self.neA.setValidator(QDoubleValidator())
+        self.neA.setText("3e6")
+        info = "Density of electrons at the Alfvén Radius. Units: [cm^(-3)]"
+        self.neA.setToolTip(info)
+        neA = QLabel("e- density at Ra")
+        neA.setToolTip(info)
+        layout_center_1.addRow(neA, self.neA)
+
         self.acc_eff = QLineEdit()
         self.acc_eff.setValidator(QDoubleValidator())
         self.acc_eff.setText("0.0001")
@@ -580,6 +589,7 @@ class RadioEmissionGUI(QMainWindow):
         r_alfven = float(self.r_alfven.text())
         Bp = float(self.Bp.text())
         l_middlemag = float(self.l_middlemag.text())
+        neA = float(self.neA.text())
         acc_eff = float(self.acc_eff.text())
         delta = float(self.delta.text())
         D = float(self.D.text())
@@ -607,8 +617,9 @@ class RadioEmissionGUI(QMainWindow):
                 rotation_offset=self.rotation_phase.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, v_inf=v_inf, inner_contrib=inner_contrib,
-                n_p0=n_p0, T_p0=T_p0, colormap=colormap, plot3d=False)
+                neA=neA, r_ne=acc_eff, v_inf=v_inf,
+                inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
+                colormap=colormap, plot3d=False)
 
         if self.checkbox_1d.isChecked():
             use_symmetry = self.checkbox_use_symmetry.isChecked()
@@ -619,9 +630,9 @@ class RadioEmissionGUI(QMainWindow):
                 rotation_offset=self.rotation_phase.value(),
                 Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, v_inf=v_inf, rotation_angle_step=step_angle,
-                inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
-                use_symmetry=use_symmetry, plot3d=False)
+                neA=neA, r_ne=acc_eff, v_inf=v_inf,
+                rotation_angle_step=step_angle, inner_contrib=inner_contrib,
+                n_p0=n_p0, T_p0=T_p0, use_symmetry=use_symmetry, plot3d=False)
         self.setWindowTitle("(Sub)Stellar Object Radio Emission")
         # End launching application ###########################################
 

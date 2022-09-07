@@ -79,7 +79,7 @@ class OBJ(object):
     def __init__(
             self, L=30, n=5, inclination=90, beta=0, rotation_angle=0,
             rotation_offset=0, Robj_Rsun_scale=4, Bp=7700, Pr=1, D_pc=10,
-            f=1e9, Ra=15, l_middlemag=7, δ=2, r_ne=0.002, v_inf=600,
+            f=1e9, Ra=15, l_middlemag=7, δ=2, neA=3e6, r_ne=0.002, v_inf=600,
             inner_contrib=True, n_p0=3e9, T_p0=1e5, plot3d=False):
         """
         Constructor method
@@ -101,6 +101,8 @@ class OBJ(object):
           object magnetic equator [R*]
         :param float δ: Spectral Index of non-thermal electron energy
           distribution
+        :param float neA: Density of electrons at the Alfvén Radius (neA)
+          [cm^(-3)]
         :param float r_ne: Efficiency of the acceleration process:
           Acceleration efficiency: r_ne = Ne / neA
           . Range of r_ne: [10^(-4) - 1] (Trigilio2004))
@@ -195,17 +197,13 @@ class OBJ(object):
         # |B_Ra| -> z = 0
         self.B_Ra = self.m / (self.Ra ** 3)
 
-        # From Leto2006:
-        # Deducing the non-thermal electrons number (density of non-thermal e-)
-        # B**2 / (8*PI) = 1/2 * pw * v_inf**2
-        # With: ρw = Mp * nw
-        nw = neA = self.B_Ra**2 / (4 * np.pi * Mp * v_inf**2)
-        # neA = 3e6
-        # Efficiency of the acceleration process
-
-        # And using the acceleration efficiency r_ne:
-        # In each point of the middle magnetosphere electrons are
-        # isotropically distributed in pitch angle (Trigilio04)
+        # In each point of the middle magnetosphere electrons are isotropically
+        # distributed in pitch angle (Trigilio04); we also assume the
+        # simplification of an invariant Ra along the magnetic longitude,
+        # as in Leto06.
+        # Thus, using the acceleration efficiency (efficiency of the
+        # acceleration process) r_ne, is obtained the non-thermal
+        # relativistic electron density:
         self.Ne = r_ne * neA
 
         self.inner_contrib = inner_contrib
