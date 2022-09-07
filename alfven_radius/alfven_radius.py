@@ -27,7 +27,7 @@ import numpy as np
 import pyqtgraph as pg
 from sympy import symbols, Eq, solve
 
-from constants import Rsun, Msun
+from constants import Rsun, Msun, Mp
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -65,7 +65,8 @@ def alfven_radius_at_given_zeta(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
     B = 1/2 * Bp * (R_obj / r)**3
     ro = Mlos / (4 * np.pi * r**2 * vw)
 
-    d = r * np.sqrt(1 - np.sin(beta)**2 * np.cos(zeta)**2)
+    angular_term = np.sqrt(1 - np.sin(beta)**2 * np.cos(zeta)**2)
+    d = r * angular_term
     eq1 = Eq(-B**2/(8*np.pi) + 1/2 * ro * vw**2
              + 1/2 * ro * w**2 * d**2, 0)
     solutions = solve(eq1)
@@ -74,13 +75,31 @@ def alfven_radius_at_given_zeta(beta=60, zeta=0, Robj2Rsun=4, P_rot=1, Bp=1e4,
         if solution.is_real:
             if solution >= 0 and solution > 2*R_obj:
                 Ra_at_given_zeta = solution
-
     Ra_at_given_zeta_norm = Ra_at_given_zeta / R_obj
-    print("\nApproximate Alfvén Radius:")
-    print("{:.4g}".format(Ra_at_given_zeta_norm))
+
+    ###########################################################################
+    # Compute 'neA' in Trigilio04 (a.k.a. 'nw' in Leto06) density of
+    # electrons at the Alfvén Radius:
+    # B_Ra = 1/2*Bp*(Robj/Ra_at_given_zeta)³ [Trigilio04 - Formula(5)]
+    # -> B_Ra = 0.5*Bp / Ra_at_given_zeta_norm³
+    # neA = B_Ra² / (4 PI Mp (v² + w²*d²))
+
+    d = Ra_at_given_zeta * angular_term
+    B_Ra = 0.5 * Bp / Ra_at_given_zeta_norm**3
+    neA = B_Ra**2 / (4 * np.pi * Mp * (v_inf**2 + w**2 * d**2))
+
+    print("\nAlfvén Radius at magnetic longitude ζ " + str(zeta) + "º, is:")
+    print("{:.4g}".format(Ra_at_given_zeta_norm) + " R*")
+
+    print("\nB_Ra: B field at the Alfvén Radius at ζ " + str(zeta) + "º, is:")
+    print("{:.4g}".format(B_Ra) + " G")
+
+    print("\nne,A: Density of electrons at the Alfvén Radius at ζ "
+          + str(zeta) + "º, is:")
+    print("{:.4g}".format(neA) + " cm^(-3)")
 
     duration = (time.time() - start_time) / 60.0
-    print("\nApproximate Alfvén Radius computation took"
+    print("\nAlfvén Radius and neA, at a given longitude, computation took"
           + " {:.4g}".format(duration) + " minutes\n")
     return Ra_at_given_zeta_norm
 

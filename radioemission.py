@@ -47,16 +47,18 @@ class InitialGUI(QMainWindow):
         group_box = QGroupBox()
         layout = QVBoxLayout()
 
-        button_compute_Ra = QPushButton("Compute Alfvén Radius (Ra)", self)
-        button_compute_Ra.setToolTip("Alfvén Radius is not known:"
-                                     " compute Alfvén Radius (Ra)")
+        button_compute_Ra = QPushButton("Compute Alfvén Radius and neA",
+                                        self)
+        info = ("Computation of the Alfvén Radius (Ra) and the \ndensity of"
+                + " electrons at the Alfvén Radius (neA)")
+        button_compute_Ra.setToolTip(info)
         button_compute_Ra.setDefault(True)
 
         button_specific_intensities = QPushButton(
             "Compute Specific Intensities and Flux Densities", self)
         button_specific_intensities.setToolTip(
             "Compute specific intensities & flux density\n"
-            "(Alfvén Radius already known)")
+            "(Alfvén Radius and neA already known)")
         button_specific_intensities.setDefault(True)
 
         layout.addWidget(button_compute_Ra)
@@ -172,10 +174,11 @@ class AlfvenRadiusGUI(QMainWindow):
 
         # Checkboxes for choosing computation #################################
         v_layout = QFormLayout()
-        self.checkbox_Ra_at_zeta = QCheckBox("Ra at a given ζ")
+        self.checkbox_Ra_at_zeta = QCheckBox("Ra and neA at a given ζ")
         self.checkbox_Ra_at_zeta.setToolTip(
-            "Ra at a given ζ (zeta);\n"
-            "Alfvén Radius computation done at the specific magnetic longitude"
+            "Ra and neA at a given ζ (zeta);\n"
+            "Alfvén Radius (Ra) and density of electrons at the Alfvén"
+            " Radius (neA) computed at the specific magnetic longitude"
             " (ζ);\nNOTE: This computation can take a few minutes (< 5min).")
         self.checkbox_Ra_at_zeta.setChecked(True)
         self.checkbox_Ra_at_zeta.toggled.connect(self.unset_averaged_Ra)
