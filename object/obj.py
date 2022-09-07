@@ -788,7 +788,8 @@ class OBJ(object):
                     self.LoS_rays[i * self.n + j].ray_specific_intensity)
             self.specific_intensities_array[:, i] = column_list_intensities
 
-    def plot_2D_specific_intensity_LoS(self, colormap="linear"):
+    def plot_2D_specific_intensity_LoS(self, scale_colors=1,
+                                       colormap="linear"):
         """
         Plot (2D) specific intensity in the plane perpendicular to the LoS
         at the specific rotation phase of the (sub)stellar object
@@ -804,13 +805,14 @@ class OBJ(object):
         # The 2D image display origin is set to 'lower' to match the image
         # representation on Trigilio04 paper results for MCP stars HD37479
         # and HD37017
+        sc = scale_colors
         if colormap.lower() == "linear":
-            plt.imshow(self.specific_intensities_array, cmap='gray_r',
+            plt.imshow(sc * self.specific_intensities_array, cmap='gray_r',
                        vmin=np.amin(self.specific_intensities_array),
                        vmax=np.amax(self.specific_intensities_array),
                        extent=extent, origin='lower')
         elif colormap.lower() == "logarithmic":
-            plt.imshow(self.specific_intensities_array, cmap='gray_r',
+            plt.imshow(sc * self.specific_intensities_array, cmap='gray_r',
                        norm=LogNorm(), extent=extent, origin='lower')
         plt.show()
 

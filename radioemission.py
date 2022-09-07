@@ -506,6 +506,16 @@ class RadioEmissionGUI(QMainWindow):
         label_2d.setToolTip(info)
         v_layout_2d.addRow(label_2d, self.n_2d)
 
+        # Scale colors of 2D plot
+        self.scale_2D_colors = QLineEdit()
+        self.scale_2D_colors.setValidator(QIntValidator())
+        self.scale_2D_colors.setText("1")
+        info = "Scale grey colors to make the 2D plot more visible"
+        self.scale_2D_colors.setToolTip(info)
+        scale_2D_label = QLabel("Scale colors")
+        scale_2D_label.setToolTip(info)
+        v_layout_2d.addRow(scale_2D_label, self.scale_2D_colors)
+
         # Linear or logarithmic color map for specific intensities 2D plot
         self.colormap = QComboBox()
         self.colormap.addItem("Linear")
@@ -612,6 +622,7 @@ class RadioEmissionGUI(QMainWindow):
                 r_ne=acc_eff, v_inf=v_inf, plot3d=True)
 
         if self.checkbox_2d.isChecked():
+            scale_colors = int(self.scale_2D_colors.text())
             colormap = self.colormap.currentText()
             specific_intensities_2D(
                 L=L, n=self.n_2d.value(), inclination=self.inclination.value(),
@@ -621,7 +632,7 @@ class RadioEmissionGUI(QMainWindow):
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
                 neA=neA, r_ne=acc_eff, v_inf=v_inf,
                 inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
-                colormap=colormap, plot3d=False)
+                scale_colors=scale_colors, colormap=colormap, plot3d=False)
 
         if self.checkbox_1d.isChecked():
             use_symmetry = self.checkbox_use_symmetry.isChecked()
