@@ -370,7 +370,9 @@ class RadioEmissionGUI(QMainWindow):
         self.l_middlemag = QLineEdit()
         self.l_middlemag.setValidator(QDoubleValidator())
         self.l_middlemag.setText("7")
-        info = "Thickness of middle-magnetosphere. Units: [R*]"
+        info = ("Length of the current sheets created just after the Alfvén"
+                + " surface (equatorial thickness of the magnetic shell"
+                + " [Trigilio04]). Units: [R*]")
         self.l_middlemag.setToolTip(info)
         l_middlemag_label = QLabel("l_middlemag [R*]")
         l_middlemag_label.setToolTip(info)

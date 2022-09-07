@@ -225,7 +225,8 @@ class OBJ(object):
         # (Parameter ranges indicated with: [x, y])
 
         # l_mid (or 'l'): equatorial thickness of the magnetic shell for the
-        # middle magnetosphere (which is added to Ra)
+        # middle magnetosphere (which is added to Ra); length of the current
+        # sheets created just after the Alfvén Radius.
         self.l_mid = l_middlemag  # [R_obj]
 
         # l/rA: equatorial thickness of the magnetic shell
