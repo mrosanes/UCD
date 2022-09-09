@@ -264,11 +264,11 @@ class RadioEmissionGUI(QMainWindow):
 
         # Inclination of the rotation axis regarding the LoS [degrees]
         self.inclination = QSpinBox()
-        self.inclination.setMinimum(-90)
-        self.inclination.setMaximum(90)
+        self.inclination.setMinimum(0)
+        self.inclination.setMaximum(180)
         self.inclination.setValue(25)
         info = ("Angle between (sub)stellar object rotation axis and the LoS"
-                + " (Range: [-90º - 90º])")
+                + " (Range: [0º - 180º])")
         self.inclination.setToolTip(info)
         inclination_label = QLabel("inclination [º]")
         inclination_label.setToolTip(info)

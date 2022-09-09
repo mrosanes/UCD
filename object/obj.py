@@ -245,7 +245,7 @@ class OBJ(object):
         self.phi_r = np.deg2rad(self.phi)
 
         # Rotation Axis inclination measured from the Line of Sight:
-        # [~-90º - ~90º]
+        # [~0º - 180º]
         # Information about rotation axis orientations:
         #   . Orbits with the rotation axis in the plane of the sky (90º)
         #   . Orbits with the rotation axis towards the LoS (0º)
