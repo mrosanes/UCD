@@ -37,7 +37,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
-from constants import Rsun, Mp, pc2cm
+from constants import Rsun, pc2cm
 from object.voxel import Voxel
 from object.LoS_voxels_ray import LoS_Voxels_Ray
 
