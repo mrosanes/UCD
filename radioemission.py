@@ -41,7 +41,7 @@ from object.object_main_func import (
 class InitialGUI(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("(Sub)Stellar Object Radio Emission")
+        self.setWindowTitle("Radio Emission opening GUI")
         self.move(400, 250)
 
         group_box = QGroupBox()
@@ -391,9 +391,10 @@ class RadioEmissionGUI(QMainWindow):
         self.neA = QLineEdit()
         self.neA.setValidator(QDoubleValidator())
         self.neA.setText("3e6")
-        info = "Density of electrons at the Alfvén Radius. Units: [cm^(-3)]"
+        info = ("neA (or ne,A): Density of electrons at the Alfvén Radius.\n"
+                + "Units: [cm^(-3)]")
         self.neA.setToolTip(info)
-        neA = QLabel("e- density at Ra")
+        neA = QLabel("neA (e- density at Ra)")
         neA.setToolTip(info)
         layout_center_2.addRow(neA, self.neA)
 
