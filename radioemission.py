@@ -378,6 +378,16 @@ class RadioEmissionGUI(QMainWindow):
         l_middlemag_label.setToolTip(info)
         layout_center_1.addRow(l_middlemag_label, self.l_middlemag)
 
+        # Distance to the (sub)stellar object [cm]
+        self.D = QLineEdit()
+        self.D.setValidator(QDoubleValidator())
+        self.D.setText("373")
+        info = "Distance from Earth to the studied (sub)stellar object [Pc]"
+        self.D.setToolTip(info)
+        D_label = QLabel("Distance [Pc]")
+        D_label.setToolTip(info)
+        layout_center_1.addRow(D_label, self.D)
+
         self.neA = QLineEdit()
         self.neA.setValidator(QDoubleValidator())
         self.neA.setText("3e6")
@@ -385,7 +395,7 @@ class RadioEmissionGUI(QMainWindow):
         self.neA.setToolTip(info)
         neA = QLabel("e- density at Ra")
         neA.setToolTip(info)
-        layout_center_1.addRow(neA, self.neA)
+        layout_center_2.addRow(neA, self.neA)
 
         self.acc_eff = QLineEdit()
         self.acc_eff.setValidator(QDoubleValidator())
@@ -395,7 +405,7 @@ class RadioEmissionGUI(QMainWindow):
         self.acc_eff.setToolTip(info)
         acc_eff_label = QLabel("Acceleration Efficiency")
         acc_eff_label.setToolTip(info)
-        layout_center_1.addRow(acc_eff_label, self.acc_eff)
+        layout_center_2.addRow(acc_eff_label, self.acc_eff)
 
         self.delta = QLineEdit()
         self.delta.setValidator(QDoubleValidator())
@@ -405,35 +415,6 @@ class RadioEmissionGUI(QMainWindow):
         delta_label = QLabel("δ")
         delta_label.setToolTip(info)
         layout_center_2.addRow(delta_label, self.delta)
-
-        # Distance to the (sub)stellar object [cm]
-        self.D = QLineEdit()
-        self.D.setValidator(QDoubleValidator())
-        self.D.setText("373")
-        info = "Distance from Earth to the studied (sub)stellar object [Pc]"
-        self.D.setToolTip(info)
-        D_label = QLabel("Distance [Pc]")
-        D_label.setToolTip(info)
-        layout_center_2.addRow(D_label, self.D)
-
-        # Rotation Period of the (sub)stellar object [days]
-        self.P_rot = QLineEdit()
-        self.P_rot.setValidator(QDoubleValidator())
-        self.P_rot.setText("1")
-        info = "Rotation period of the (sub)stellar object [days]"
-        self.P_rot.setToolTip(info)
-        Prot_label = QLabel("P_rot [days]")
-        Prot_label.setToolTip(info)
-        layout_center_2.addRow(Prot_label, self.P_rot)
-
-        self.v_inf = QLineEdit()
-        self.v_inf.setValidator(QDoubleValidator())
-        self.v_inf.setText("600")
-        info = "(sub)stellar object wind velocity close to 'infinity' [km/s]"
-        self.v_inf.setToolTip(info)
-        vinf_label = QLabel("v_inf [km/s]")
-        vinf_label.setToolTip(info)
-        layout_center_2.addRow(vinf_label, self.v_inf)
 
         self.checkbox_innermag = QCheckBox("Inner-Magnetosphere Contribution")
         self.checkbox_innermag.setChecked(True)
@@ -605,11 +586,9 @@ class RadioEmissionGUI(QMainWindow):
         acc_eff = float(self.acc_eff.text())
         delta = float(self.delta.text())
         D = float(self.D.text())
-        P_rot = float(self.P_rot.text())
-        v_inf = float(self.v_inf.text())
+        inner_contrib = self.checkbox_innermag.isChecked()
         n_p0 = float(self.n_p0.text())
         T_p0 = float(self.T_p0.text())
-        inner_contrib = self.checkbox_innermag.isChecked()
 
         # Launching application with inputs entered by the user ###############
         if self.checkbox_3d.isChecked():
@@ -617,9 +596,9 @@ class RadioEmissionGUI(QMainWindow):
                 L=L, n=self.n_3d.value(), beta=self.beta.value(),
                 rotation_angle=self.rotation.value(),
                 inclination=self.inclination.value(),
-                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
+                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                r_ne=acc_eff, v_inf=v_inf, plot3d=True)
+                r_ne=acc_eff, plot3d=True)
 
         if self.checkbox_2d.isChecked():
             scale_colors = int(self.scale_2D_colors.text())
@@ -628,11 +607,11 @@ class RadioEmissionGUI(QMainWindow):
                 L=L, n=self.n_2d.value(), inclination=self.inclination.value(),
                 beta=self.beta.value(), rotation_angle=self.rotation.value(),
                 rotation_offset=self.rotation_phase.value(),
-                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
+                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                neA=neA, r_ne=acc_eff, v_inf=v_inf,
-                inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
-                scale_colors=scale_colors, colormap=colormap, plot3d=False)
+                neA=neA, r_ne=acc_eff, inner_contrib=inner_contrib, n_p0=n_p0,
+                T_p0=T_p0, scale_colors=scale_colors, colormap=colormap,
+                plot3d=False)
 
         if self.checkbox_1d.isChecked():
             use_symmetry = self.checkbox_use_symmetry.isChecked()
@@ -641,11 +620,11 @@ class RadioEmissionGUI(QMainWindow):
                 L=L, n=self.n_1d.value(), inclination=self.inclination.value(),
                 beta=self.beta.value(),
                 rotation_offset=self.rotation_phase.value(),
-                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, Pr=P_rot, D_pc=D,
+                Robj_Rsun_scale=Robj2Rsun, Bp=Bp, D_pc=D,
                 f=frequency, Ra=r_alfven, l_middlemag=l_middlemag, δ=delta,
-                neA=neA, r_ne=acc_eff, v_inf=v_inf,
-                rotation_angle_step=step_angle, inner_contrib=inner_contrib,
-                n_p0=n_p0, T_p0=T_p0, use_symmetry=use_symmetry, plot3d=False)
+                neA=neA, r_ne=acc_eff, rotation_angle_step=step_angle,
+                inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
+                use_symmetry=use_symmetry, plot3d=False)
         self.setWindowTitle("(Sub)Stellar Object Radio Emission")
         # End launching application ###########################################
 

@@ -78,8 +78,8 @@ class OBJ(object):
     """
     def __init__(
             self, L=30, n=5, inclination=90, beta=0, rotation_angle=0,
-            rotation_offset=0, Robj_Rsun_scale=4, Bp=7700, Pr=1, D_pc=10,
-            f=1e9, Ra=15, l_middlemag=7, δ=2, neA=3e6, r_ne=0.002, v_inf=600,
+            rotation_offset=0, Robj_Rsun_scale=4, Bp=7700, D_pc=10,
+            f=1e9, Ra=15, l_middlemag=7, δ=2, neA=3e6, r_ne=0.002,
             inner_contrib=True, n_p0=3e9, T_p0=1e5, plot3d=False):
         """
         Constructor method
@@ -93,7 +93,6 @@ class OBJ(object):
         :param float Robj_Rsun_scale: Ratio of the OBJ or other
           (sub)stellar object radius, regarding the Sun
         :param float Bp: Magnetic Field at the pole of the (sub)stellar object
-        :param float Pr: Rotation Period [days]
         :param float D_pc: Distance to the (sub)stellar object (source) [Pc]
         :param float f: Frequency of radiation at which the object is studied
         :param float Ra: Alfvén Radius [R*]
@@ -107,7 +106,6 @@ class OBJ(object):
           Acceleration efficiency: r_ne = Ne / neA
           . Range of r_ne: [10^(-4) - 1] (Trigilio2004))
           . With neA: number density of thermal plasma at the Alfvén point
-        :param float v_inf: (sub)stellar object wind velocity at 'infinity'
         :param float n_p0: Number density of thermal electrons of
           inner-magnetosphere (n_p) defined by n_p0 at the surface of the star
         :param bool inner_contrib: Account for the inner-magnetosphere
@@ -138,9 +136,6 @@ class OBJ(object):
 
         # Alfvén radius can be computed with: alfven_radius.py
         self.Ra = Ra  # In units of [R_obj] ([Rs] on Trigilio 2004)
-
-        # Velocity of the wind:
-        v_inf = v_inf * 1e5  # [cm/s]
 
         #######################################################################
         # Formulas
@@ -183,9 +178,6 @@ class OBJ(object):
         self.voxel_len_in_Robj = (L / (n - 1))
         self.voxel_len = self.voxel_len_in_Robj * self.R_obj
 
-        # Star Period of Rotation in days
-        self.Pr = Pr
-
         # Strength of the B at the pole of the star
         self.Bp = Bp  # in Gauss [G] (10000 Gauss = 1 T)
 
@@ -193,9 +185,6 @@ class OBJ(object):
         # self.m = 1 / 2 * self.Bp * self.R_obj
         # In units of R_obj ->
         self.m = 1 / 2 * self.Bp  # [Rs]
-
-        # |B_Ra| -> z = 0
-        self.B_Ra = self.m / (self.Ra ** 3)
 
         # In each point of the middle magnetosphere electrons are isotropically
         # distributed in pitch angle (Trigilio04); we also assume the

@@ -34,12 +34,12 @@ from object.obj import OBJ
 
 
 def plot_3D(L=30, n=7, beta=0, rotation_angle=0, inclination=90,
-            Robj_Rsun_scale=4, Bp=7700, Pr=1, D_pc=10, f=1e9, Ra=15,
-            l_middlemag=7, δ=2, r_ne=0.002, v_inf=600, plot3d=True):
+            Robj_Rsun_scale=4, Bp=7700, D_pc=10, f=1e9, Ra=15,
+            l_middlemag=7, δ=2, r_ne=0.002, plot3d=True):
     obj = OBJ(L=L, n=n, beta=beta, rotation_angle=rotation_angle,
-              inclination=inclination, Robj_Rsun_scale=Robj_Rsun_scale, Pr=Pr,
+              inclination=inclination, Robj_Rsun_scale=Robj_Rsun_scale,
               Bp=Bp, D_pc=D_pc, f=f, Ra=Ra, l_middlemag=l_middlemag, δ=δ,
-              r_ne=r_ne, v_inf=v_inf, plot3d=plot3d)
+              r_ne=r_ne, plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = obj.LoS_cube()
     # Compute and Plot the (sub)stellar object dipole magnetic vector field
@@ -50,8 +50,8 @@ def plot_3D(L=30, n=7, beta=0, rotation_angle=0, inclination=90,
 
 def specific_intensities_2D(
         L=30, n=25, inclination=90, beta=0, rotation_angle=0,
-        rotation_offset=0, Robj_Rsun_scale=4, Bp=7700, Pr=1, D_pc=10, f=1e9,
-        Ra=15, l_middlemag=7, δ=2, neA=3e6, r_ne=0.002, v_inf=600,
+        rotation_offset=0, Robj_Rsun_scale=4, Bp=7700, D_pc=10, f=1e9,
+        Ra=15, l_middlemag=7, δ=2, neA=3e6, r_ne=0.002,
         inner_contrib=True, n_p0=3e9, T_p0=1e5, scale_colors=1,
         colormap="linear", plot3d=True):
     """
@@ -68,8 +68,8 @@ def specific_intensities_2D(
     obj = OBJ(
         L=L, n=n, Robj_Rsun_scale=Robj_Rsun_scale, inclination=inclination,
         beta=beta, rotation_angle=rotation_angle,
-        rotation_offset=rotation_offset, Bp=Bp, Pr=Pr, D_pc=D_pc, f=f, Ra=Ra,
-        l_middlemag=l_middlemag, δ=δ, neA=neA, r_ne=r_ne, v_inf=v_inf,
+        rotation_offset=rotation_offset, Bp=Bp, D_pc=D_pc, f=f, Ra=Ra,
+        l_middlemag=l_middlemag, δ=δ, neA=neA, r_ne=r_ne,
         inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0, plot3d=plot3d)
     # LoS grid points in different systems of coordinates
     points_LoS, points_LoS_in_B = obj.LoS_cube()
@@ -90,8 +90,8 @@ def specific_intensities_2D(
 
 def flux_densities_1D(
         L=30, n=7, inclination=90, beta=0, rotation_offset=0,
-        Robj_Rsun_scale=4, Bp=7700, Pr=1, D_pc=10, f=1e9, Ra=15, l_middlemag=7,
-        δ=2, neA=3e6, r_ne=0.002, v_inf=600, rotation_angle_step=10,
+        Robj_Rsun_scale=4, Bp=7700, D_pc=10, f=1e9, Ra=15, l_middlemag=7,
+        δ=2, neA=3e6, r_ne=0.002, rotation_angle_step=10,
         inner_contrib=True, n_p0=3e9, T_p0=1e5, use_symmetry=False,
         plot3d=False, mk_new_qapp=False):
     """
@@ -114,9 +114,9 @@ def flux_densities_1D(
         obj = OBJ(
             L=L, n=n, Robj_Rsun_scale=Robj_Rsun_scale,
             inclination=inclination, beta=beta, rotation_angle=rot_angle,
-            rotation_offset=rotation_offset, Bp=Bp, Pr=Pr, D_pc=D_pc, f=f,
+            rotation_offset=rotation_offset, Bp=Bp, D_pc=D_pc, f=f,
             Ra=Ra, l_middlemag=l_middlemag, δ=δ, neA=neA, r_ne=r_ne,
-            v_inf=v_inf, inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
+            inner_contrib=inner_contrib, n_p0=n_p0, T_p0=T_p0,
             plot3d=plot3d)
         points_LoS, points_LoS_in_B = obj.LoS_cube()
         obj.obj_compute_and_plot(points_LoS_in_B, points_LoS)
