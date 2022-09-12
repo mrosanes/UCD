@@ -92,7 +92,7 @@ class AlfvenRadiusGUI(QMainWindow):
     corresponding PushButton"""
     def __init__(self, parent=InitialGUI):
         super(QWidget, self).__init__(parent)
-        self.setWindowTitle("Alfven Radius GUI")
+        self.setWindowTitle("Alfvén Radius GUI")
         self.setWindowModality(Qt.WindowModal)
 
         form_group_box_center = QGroupBox()
@@ -246,7 +246,7 @@ class AlfvenRadiusGUI(QMainWindow):
                 Bp=Bp, v_inf=v_inf, M_los=M_los)
         # End launching application ###########################################
 
-        self.setWindowTitle("Alfven Radius Computation")
+        self.setWindowTitle("Alfvén Radius GUI")
 
 
 # RadioEmissionGUI ############################################################
