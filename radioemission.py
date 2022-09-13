@@ -462,7 +462,7 @@ class RadioEmissionGUI(QMainWindow):
         self.n_3d = QSpinBox()
         self.n_3d.setMinimum(3)
         self.n_3d.setValue(7)
-        info = "Number of points per cube side (3D magnetic field computation)"
+        info = "Number of points per cube side (3D magnetic field plot)"
         self.n_3d.setToolTip(info)
         label_3d = QLabel("n:")
         label_3d.setToolTip(info)
