@@ -186,11 +186,11 @@ class AlfvenRadiusGUI(QMainWindow):
 
         self.checkbox_averaged_Ra = QCheckBox("Averaged Ra")
         self.checkbox_averaged_Ra.setToolTip(
-            "Computes the averaged Ra, thanks to a 1D Ra plot:\n"
-            "more precise, but slower computation;\n"
+            "Compute the averaged Alfvén Radius (Ra), thanks to a 1D Ra plot,"
+            "\n (more precise, but slower computation);\n"
             "Ra averaged over the range of magnetic longitudes [0º-360º],\n"
-            "(one single value of Ra taken each 10º);\n "
-            "NOTE: This computation can take from 15min to some hours.")
+            " (one single value of Ra taken each 10º);\n "
+            "NOTE: This computation can take long (from ~15min to 2 hours)")
         self.checkbox_averaged_Ra.toggled.connect(self.unset_Ra_at_zeta)
         v_layout.addRow(self.checkbox_averaged_Ra)
 
@@ -323,7 +323,7 @@ class RadioEmissionGUI(QMainWindow):
         self.L = QLineEdit()
         self.L.setValidator(QIntValidator())
         self.L.setText("40")
-        info = "Length of the cubic grid sides. Units: [R*]"
+        info = "Length of the cubic grid sides (FOV length). Units: [R*]"
         self.L.setToolTip(info)
         L_label = QLabel("L [R*]")
         L_label.setToolTip(info)
@@ -361,9 +361,9 @@ class RadioEmissionGUI(QMainWindow):
         self.r_alfven = QLineEdit()
         self.r_alfven.setValidator(QDoubleValidator())
         self.r_alfven.setText("15")
-        info = "Averaged Alfvén Radius. Units: [R*]"
+        info = "Averaged Alfvén Radius (Ra). Units: [R*]"
         self.r_alfven.setToolTip(info)
-        r_alfven_label = QLabel("R_alfven [R*]")
+        r_alfven_label = QLabel("Ra [R*]")
         r_alfven_label.setToolTip(info)
         layout_center_1.addRow(r_alfven_label, self.r_alfven)
 
@@ -402,7 +402,7 @@ class RadioEmissionGUI(QMainWindow):
         self.acc_eff.setValidator(QDoubleValidator())
         self.acc_eff.setText("0.0001")
         info = ("Acceleration efficiency of electrons in the"
-                + " middle-magnetosphere: r_ne = Ne / neA);\n(Dimensionless)")
+                + " middle magnetosphere: r_ne = Ne / neA);\n(Dimensionless)")
         self.acc_eff.setToolTip(info)
         acc_eff_label = QLabel("Acceleration Efficiency")
         acc_eff_label.setToolTip(info)
@@ -417,9 +417,9 @@ class RadioEmissionGUI(QMainWindow):
         delta_label.setToolTip(info)
         layout_center_2.addRow(delta_label, self.delta)
 
-        self.checkbox_innermag = QCheckBox("Inner-Magnetosphere Contribution")
+        self.checkbox_innermag = QCheckBox("Inner Magnetosphere Contribution")
         self.checkbox_innermag.setChecked(True)
-        info = ("Take into account the inner-magnetosphere "
+        info = ("Take into account the inner magnetosphere "
                 + " contribution to absorption and emission")
         self.checkbox_innermag.setToolTip(info)
         layout_center_2.addRow(self.checkbox_innermag)
@@ -428,7 +428,7 @@ class RadioEmissionGUI(QMainWindow):
         self.n_p0 = QLineEdit()
         self.n_p0.setValidator(QDoubleValidator())
         self.n_p0.setText("3e9")
-        info = ("Plasma electron density, in inner-magnetosphere,"
+        info = ("Plasma electron density, in inner magnetosphere,"
                 + " at the (sub)stellar object surface [cm^(−3)]")
         self.n_p0.setToolTip(info)
         np_label = QLabel("np [cm^(−3)]")
@@ -439,7 +439,7 @@ class RadioEmissionGUI(QMainWindow):
         self.T_p0 = QLineEdit()
         self.T_p0.setValidator(QDoubleValidator())
         self.T_p0.setText("1e5")
-        info = ("Plasma temperature in inner-magnetosphere,"
+        info = ("Plasma temperature in inner magnetosphere,"
                 + " at the (sub)stellar object surface [K]")
         self.T_p0.setToolTip(info)
         Tp_label = QLabel("Tp [K]")
