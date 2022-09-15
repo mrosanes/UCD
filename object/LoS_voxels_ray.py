@@ -54,7 +54,6 @@ class LoS_Voxels_Ray(object):
         # precedent voxel optical_depth, increasing at each loop turn, a
         # single voxel optical depth, to the total ray optical depth
         self.LoS_voxels_in_ray.reverse()
-        ray_position = np.sqrt(self.y ** 2 + self.z ** 2)
         optical_depth = 0
         for i in range(self.n):
             voxel = self.LoS_voxels_in_ray[i]
