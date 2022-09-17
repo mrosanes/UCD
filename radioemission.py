@@ -184,12 +184,14 @@ class AlfvenRadiusGUI(QMainWindow):
         self.checkbox_Ra_at_zeta.toggled.connect(self.unset_averaged_Ra)
         v_layout.addRow(self.checkbox_Ra_at_zeta)
 
-        self.checkbox_averaged_Ra = QCheckBox("Averaged Ra")
+        self.checkbox_averaged_Ra = QCheckBox("Averaged Ra, B(Ra) and neA")
         self.checkbox_averaged_Ra.setToolTip(
             "Compute the averaged Alfvén Radius (Ra), thanks to a 1D Ra plot,"
             "\n (more precise, but slower computation);\n"
             "Ra averaged over the range of magnetic longitudes [0º-360º],\n"
             " (one single value of Ra taken each 10º);\n "
+            "It also computes the 1D plots and averages for B(Ra) and neA:\n"
+            " magnetic field and density of electrons at the Alfvén Radius;\n"
             "NOTE: This computation can take long (from ~15min to 2 hours)")
         self.checkbox_averaged_Ra.toggled.connect(self.unset_Ra_at_zeta)
         v_layout.addRow(self.checkbox_averaged_Ra)

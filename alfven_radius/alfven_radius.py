@@ -140,8 +140,11 @@ def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
     magnetic_longitude_angles = np.array(range(0, 361, 10))
     magnetic_longitude_angles = np.deg2rad(magnetic_longitude_angles)  # [rad]
     alfven_radius_array = []
+    B_Ra_array = []
+    neA_array = []
     for zeta in magnetic_longitude_angles:
-        d = r * np.sqrt(1 - np.sin(beta) ** 2 * np.cos(zeta) ** 2)
+        angular_term = np.sqrt(1 - np.sin(beta) ** 2 * np.cos(zeta) ** 2)
+        d = r * angular_term
         eq1 = Eq(-B ** 2 / (8 * np.pi) + 1 / 2 * ro * vw ** 2
                  + 1 / 2 * ro * w ** 2 * d ** 2, 0)
         solutions = solve(eq1)
@@ -149,32 +152,64 @@ def averaged_alfven_radius(beta=60, Robj2Rsun=4, P_rot=1, Bp=1e4,
         for solution in solutions:
             if solution.is_real:
                 if solution >= 0 and solution > 2 * R_obj:
-                    alfven_radius_array.append(solution)
+                    alfven_radius = float(solution)
+                    alfven_radius_array.append(alfven_radius)
+        B_Ra = 0.5 * Bp / (alfven_radius / R_obj)**3
+        B_Ra_array.append(B_Ra)
+        d = alfven_radius * angular_term
+        neA = B_Ra ** 2 / (4 * np.pi * Mp * (v_inf ** 2 + w ** 2 * d ** 2))
+        neA_array.append(neA)
 
     alfven_radius_array = np.array(alfven_radius_array)
-    alfven_radius_array = alfven_radius_array.astype(float)
+    B_Ra_array = np.array(B_Ra_array)
+    neA_array = np.array(neA_array)
 
     # Normalized Alfvén Radius, in R* units
     alfven_radius_array_norm = np.round(alfven_radius_array / R_obj, 3)
-    Ra = np.average(alfven_radius_array_norm)
+    Ra_avg = np.round(np.average(alfven_radius_array_norm), 3)
 
-    print(magnetic_longitude_angles)
-    print()
+    # B_Ra array
+    B_Ra_array = np.round(B_Ra_array, 3)
+    B_Ra_avg = np.round(np.average(B_Ra_array), 3)
+
+    # neA array
+    neA_array = np.round(neA_array, 3)
+    neA_avg = np.round(np.average(neA_array), 3)
+
+    magnetic_longitude_degrees = (180 / np.pi) * np.array(
+        magnetic_longitude_angles)
+    magnetic_longitude_degrees = np.round(magnetic_longitude_degrees, 2)
+
+    print("\nMagnetic longitudes array")
+    print(magnetic_longitude_degrees)
+    print("\nAlfvén Radius array")
     print(alfven_radius_array_norm)
-    print()
-    print("Average Alfvén Radius:")
-    print(Ra)
+    print("\nAverage Alfvén Radius:")
+    print(Ra_avg)
+    print("\nAverage B(Ra) [Gauss]:")
+    print(B_Ra_avg)
+    print("\nAverage neA [cm^(-3)] (density of electrons at Alfvén Radius):")
+    print(neA_avg)
 
     duration = (time.time() - start_time) / 60.0
-    print("\nAlfvén Radius computation took"
+    print("\nAlfvén Radius computations took"
           + " {:.4g}".format(duration) + " minutes\n")
 
     # Commented if the QCoreApplication::exec event loop is already running
     # app = pg.mkQApp()
-    pg.plot(magnetic_longitude_angles, alfven_radius_array_norm,
-            pen="b", symbol='o')
+    window = pg.plot(magnetic_longitude_degrees, alfven_radius_array_norm,
+                     pen="b", symbol='o')
+    window.setWindowTitle("Alfvén Radius")
+
+    window = pg.plot(magnetic_longitude_degrees, B_Ra_array,
+                     pen="b", symbol='o')
+    window.setWindowTitle("B_Ra [Gauss]")
+
+    window = pg.plot(magnetic_longitude_degrees, neA_array,
+                     pen="b", symbol='o')
+    window.setWindowTitle("neA: e- density at Ra [cm(-3)]")
     # app.exec_()
-    return Ra
+    return Ra_avg, B_Ra_avg, neA_avg
 
 
 if __name__ == "__main__":
