@@ -63,6 +63,9 @@ magnetic_longitude_angles = [
 # Rotation phase: [0-1]  ([0-1] -> [0º-360º])
 magnetic_longitude_phase = np.array(magnetic_longitude_angles) / (2*np.pi)
 
+# Rotation angle in degrees:  [0º-360º])
+magnetic_longitude_degrees = (180/np.pi) * np.array(magnetic_longitude_angles)
+
 # Alfvén Radius, in R_obj (R*) units, as a function of the magnetic longitude:
 alfven_radius_array = [
  15.699, 15.644, 15.489, 15.257, 14.977, 14.676, 14.375, 14.086, 13.817,
@@ -83,7 +86,12 @@ print(" {:.4g}".format(Ra))
 print()
 
 app = pg.mkQApp()
-pg.plot(magnetic_longitude_angles, alfven_radius_array,
-        pen="b", symbol='o')
+# window = pg.plot(magnetic_longitude_angles, alfven_radius_array,
+#                  pen="b", symbol='o')
+# window.setWindowTitle("Alfvén = f(magnetic_longitude)")
+
+window2 = pg.plot(magnetic_longitude_degrees, alfven_radius_array,
+                  pen="b", symbol='o')
+window2.setWindowTitle("Alfvén = f(magnetic_longitude_degrees)")
 app.exec_()
 
