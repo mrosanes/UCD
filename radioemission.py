@@ -192,7 +192,7 @@ class AlfvenRadiusGUI(QMainWindow):
             " (one single value of Ra taken each 10º);\n "
             "It also computes the 1D plots and averages for B(Ra) and neA:\n"
             " magnetic field and density of electrons at the Alfvén Radius;\n"
-            "NOTE: This computation can take long (from ~15min to 2 hours)")
+            "NOTE: This computation can take long (from ~15min to 1 hour)")
         self.checkbox_averaged_Ra.toggled.connect(self.unset_Ra_at_zeta)
         v_layout.addRow(self.checkbox_averaged_Ra)
 
