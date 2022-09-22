@@ -78,10 +78,11 @@ def specific_intensities_2D(
     # obj.plot_middlemag_in_slices(voxels_middle, marker_size=2)
     obj.LoS_voxel_rays()
     obj.compute_flux_density_LoS()
-    print("\n- Total Flux Density in the plane perpendicular to the LoS:")
+    print("\n(Sub)stellar object rotation phase: " + str(rotation_angle))
+    print("Total Flux Density in the plane perpendicular to the LoS:")
     print("{:.4g}".format(obj.total_flux_density_LoS) + " mJy")
     end_time = time.time()
-    print("- Time to compute the 2D specific intensities image,\n"
+    print("\nTime to compute the 2D specific intensities image,\n"
           " using %d elements per cube edge:"
           " %d seconds" % (obj.n, end_time - start_time))
     obj.plot_2D_specific_intensity_LoS(scale_colors=scale_colors,
