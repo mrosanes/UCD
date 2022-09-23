@@ -147,8 +147,8 @@ def flux_densities_1D(
     print("Flux densities:")
     print(flux_densities)
     duration = (time.time() - start_time_flux_densities) / 60.0
-    print("\n- Time to compute the 1D specific intensities graph along the\n"
-          " rotation of the (sub)stellar object:"
+    print("\n- Time to compute the the light curve (flux densities 1D plot)\n"
+          " along the rotation of the (sub)stellar object:"
           + " {:.2g}".format(duration) + " minutes\n")
 
     # 1D Plot of the flux densities in function of the object rotation.
