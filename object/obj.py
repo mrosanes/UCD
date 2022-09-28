@@ -130,8 +130,8 @@ class OBJ(object):
         # Robj_Rsun_scale: Ratio of the OBJ or other (sub)stellar object
         # radius, regarding the Sun radius.
         # R_obj: radius of the object; being the object a (sub)stellar object
-        # like a OBJ, or a bigger stellar object, like an MCP star or
-        # other with similar magnetic properties
+        # like a UCD, or a bigger stellar object, like an MCP star or
+        # another with similar magnetic properties
         self.R_obj = Robj_Rsun_scale * Rsun  # in [cm]
 
         # Alfvén radius can be computed with: alfven_radius.py
