@@ -1,7 +1,8 @@
 """
-Usage of the isosurface function to convert a scalar field
-(a hydrogen orbital) into a mesh for 3D display.
+Animation using PyQtGraph example of GLIsosurface.py, to schematically
+represent the oblique rotator model
 """
+
 from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 import pyqtgraph as pg
